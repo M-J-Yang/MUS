@@ -38,7 +38,7 @@ features:
 
 utility:
   name: ctc_decision_aligned_delta_utility
-  implementation: scripts/compute_step2_utility.py
+  implementation: utility/compute_utility.py
   teacher_head: pure_linear_only
   alignment: viterbi_ctc_forced_alignment
   retain_frames: aligned_nonblank_only

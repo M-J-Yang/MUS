@@ -60,7 +60,7 @@ The machine-readable contract is [configs/reusable_experiment_protocol.yaml](/da
   ```
 
 - Compare Random-K, Magnitude-K, and Utility-K at matched retained dimensions (`0.25D` and `0.5D`) against Reference and FullDelta.
-- Keep the attribution teacher pure-linear, as required by `scripts/compute_step2_utility.py`; source-compatible fusion is a separate baseline-validation result, not an attribution result.
+- Keep the attribution teacher pure-linear, as required by `utility/compute_utility.py`; source-compatible fusion is a separate baseline-validation result, not an attribution result.
 - Train all intervention variants with the same split, head, seed, decode rule, and budget. Select by `dev_wer`; report `test_wer` once the checkpoint is frozen.
 
 ## Deliberately deferred
