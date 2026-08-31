@@ -1,0 +1,98 @@
+# Reusable experiment protocol for decision-aligned Delta selection.
+# This is a protocol/configuration contract for the existing scripts, not a
+# replacement for configs/step1_baseline.yaml.
+
+protocol:
+  name: decision_aligned_delta_selection
+  version: 1
+  hypothesis: "representation shift magnitude is not equivalent to CTC decision utility"
+  evidence_chain:
+    - representation_analysis
+    - intervention
+    - downstream_wer
+
+data:
+  primary_condition: l2_arctic
+  split_policy: fixed_speaker_disjoint_train_dev_test
+  selection_split: train_utility
+  selection_rule: "derive ranking only from train; never use dev or test"
+  model_fit_split: train_teacher
+  model_selection_split: dev
+  final_report_split: test
+  test_access: frozen_final_only
+  utility_split_required: true
+  utility_split_script: scripts/prepare_step2_utility_split.py
+
+features:
+  expensive_forward_policy: extract_backbone_once_then_reuse_cache
+  cache_root: features
+  required_entries:
+    - w2v2_pt
+    - w2v2_ft
+    - wavlm_ft
+    - delta
+  delta_definition: "E_ft(x) - E_pt(x) for the same utterance x"
+  preserve_frame_alignment: true
+  pooling: none
+  default_layer: last
+
+utility:
+  name: ctc_decision_aligned_delta_utility
+  implementation: scripts/compute_step2_utility.py
+  teacher_head: pure_linear_only
+  alignment: viterbi_ctc_forced_alignment
+  retain_frames: aligned_nonblank_only
+  competitor: highest_logit_class_other_than_aligned_target
+  coordinate_score: "mean signed contribution delta[t,i] * (W[target,i] - W[competitor,i])"
+  diagnostics:
+    - magnitude_vs_utility_spearman
+    - blank_vs_token_utility
+    - topk_overlap
+
+interventions:
+  ranking_methods:
+    - random
+    - magnitude
+    - utility
+  retained_fractions: [0.25, 0.5]
+  baselines:
+    - reference
+    - full_delta
+  ablations:
+    - drop_best
+    - drop_worst
+  fairness:
+    same_split: true
+    same_ctc_head: true
+    same_training_budget: true
+    same_decode: greedy_ctc
+    selection_metric: dev_wer
+    report_metric: test_wer
+
+scope:
+  first_pass:
+    layer: last_only
+    seeds: [1337]
+    cross_validation: false
+    full_layer_sweep: false
+    alpha_sweep: false
+  expansion_trigger: "only expand after Utility-K beats magnitude-matched K"
+  later_layer_audit: [early, middle, late]
+  later_seed_expansion: 3
+
+controls:
+  cmu_arctic: secondary_native_control_only
+  pairing: matched_transcript_l2_vs_cmu
+  compare:
+    - delta_l2_vs_delta_cmu
+    - utility_l2_vs_utility_cmu
+    - topk_overlap
+    - spearman_correlation
+  do_not_replace_primary_delta: true
+
+guardrails:
+  - "Do not compute Utility from train + dev + test."
+  - "Do not use CMU-L2 pairing as the primary definition of Delta."
+  - "Do not mean-pool Delta before CTC alignment and competitor attribution."
+  - "Do not compare masks using different heads, splits, seeds, or budgets."
+  - "Do not treat sanity-check WERs from other papers as direct SOTA comparisons."

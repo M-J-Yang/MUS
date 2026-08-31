@@ -1,0 +1,45 @@
+experiment:
+  name: mind_the_shift_wavlm_delta_w2v2_final_layer
+  seed: 1337
+  condition: full
+  output_root: artifacts/runs
+
+data:
+  myst_root: ${MYST_ROOT}
+  source_splits: manifests/source
+  sample_rate: 16000
+  text_normalization: "lowercase; apostrophe-preserving; whitespace-collapse"
+  manifest_root: manifests
+  require_speaker_disjoint: true
+  duration_budgets_hours: [full, 10, 5, 1]
+
+models:
+  wavlm:
+    pretrained_id: microsoft/wavlm-large
+    public_full_checkpoint: balaji1312/wavlm-large-myst-fullfinetune
+  w2v2:
+    pretrained_id: facebook/wav2vec2-large-lv60
+    public_full_checkpoint: balaji1312/wav2vec2-large-myst-fullfinetune
+  num_transformer_layers: 24
+  hidden_size: 1024
+  feature_layer: 24
+
+finetuning:
+  task: character_ctc
+  select_metric: dev_wer
+  save_strategy: epoch
+  fp16: true
+
+fusion:
+  feature_layer: 24
+  reference: wavlm_ft
+  delta: w2v2_ft_minus_w2v2_pt
+  input_dim: 2048
+  encoder_frozen: true
+  head: linear_ctc
+  select_metric: dev_wer
+
+evaluation:
+  decode: greedy_ctc
+  metric: wer
+  test_access: frozen_final_only

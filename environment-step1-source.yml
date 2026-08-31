@@ -1,0 +1,24 @@
+name: mts-step1
+channels:
+  - defaults
+dependencies:
+  - python=3.11.11
+  - pip=24.2
+  - pip:
+      # Core versions from the authors' public fusion_env.yaml.
+      - torch==2.5.1
+      - torchaudio==2.5.1
+      - transformers==4.47.1
+      - datasets==3.3.2
+      - evaluate==0.4.3
+      - jiwer==3.0.5
+      - soundfile==0.13.0
+      - accelerate==1.3.0
+      - wandb==0.20.1
+      - pyyaml==6.0.2
+      - regex==2024.11.6
+      - pytest==8.3.4
+
+# The source's full conda export also pins platform packages and CUDA 12.4
+# wheels. This portable project lock preserves the Python package versions;
+# CUDA wheel resolution is delegated to pip for the local NVIDIA driver.

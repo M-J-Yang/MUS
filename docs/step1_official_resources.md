@@ -1,0 +1,31 @@
+# Step 1 official resource register
+
+This register is the source-of-truth for reusable baseline assets. Project code
+does not replace the original implementation when a public official resource is
+available.
+
+| Resource | Local path | Revision or source | Status |
+| --- | --- | --- | --- |
+| Mind the Shift implementation | `repos/Delta-Embedding-Fusion` | `ac87fd08d073f585bfb3eabe967c32515fd8e55a` | cloned, clean |
+| MyST preparation benchmark | `repos/SPAPL_KidsASR` | `372aae59ee29e63a232c130ed8a8665f7a09e5a5` | cloned, clean |
+| WavLM MyST full fine-tune | `checkpoints/wavlm_myst_fullfinetune` | `balaji1312/wavlm-large-myst-fullfinetune` | downloaded: `model.safetensors` 1,262,044,424 bytes |
+| W2V2 MyST full fine-tune | `checkpoints/w2v2_myst_fullfinetune` | `balaji1312/wav2vec2-large-myst-fullfinetune` | downloaded: `model.safetensors` 1,261,979,680 bytes |
+| W2V2 pretrained | `checkpoints/w2v2_large_lv60_pretrained` | `facebook/wav2vec2-large-lv60` | downloaded: `pytorch_model.bin` 1,269,737,156 bytes; full snapshot retained |
+| MyST v0.4.2 audio | `data/MyST/myst-v0.4.2` | official MyST DUA portal | restricted; awaiting authorized corpus root |
+
+## Environment
+
+The official `fusion_env.yaml` is retained unchanged under the Mind the Shift
+repository. It specifies Python 3.11, PyTorch 2.5.1, torchaudio 2.5.1,
+Transformers 4.47.1, Datasets 3.3.2, Evaluate 0.4.3, and jiwer 3.0.5.
+
+`MUS` is being created as an independent clone of `py311` at
+`/home/zbzb/.conda/envs/MUS`. The source environment is not modified. Once the
+copy has completed, dependencies are installed/checked only through
+`/home/zbzb/.conda/envs/MUS/bin/python`.
+
+## MyST access contract
+
+MyST itself is not publicly downloadable: the official corpus requires a Data
+Use Agreement. Therefore this project does not scrape, mirror, or redistribute
+audio/transcripts. To attach an authorized copy, create

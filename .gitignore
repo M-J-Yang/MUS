@@ -1,0 +1,29 @@
+# Local Python/build products
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.texlive/
+
+# Local experiment outputs and model/data assets
+artifacts/
+checkpoints/
+data/raw/
+data/processed/
+data/*.tsv
+manifests/
+results/
+
+# Generated paper build products
+iclr2027/*.aux
+iclr2027/*.bbl
+iclr2027/*.blg
+iclr2027/*.fdb_latexmk
+iclr2027/*.fls
+iclr2027/*.log
+iclr2027/*.out
+iclr2027/*.pdf
+
+# Local/private environment files
+.env
+.venv/
+*.swp

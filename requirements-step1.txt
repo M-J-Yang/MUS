@@ -1,0 +1,6 @@
+# Frozen project-level additions for /home/zbzb/.conda/envs/py311/bin/python.
+# Existing verified foundations: torch==2.0.1+cu118, transformers==4.37.2,
+# datasets==4.4.1, soundfile==0.14.0, numpy==1.24.3, PyYAML==6.0.3.
+jiwer==3.0.4
+evaluate==0.4.3
+accelerate==0.26.1
