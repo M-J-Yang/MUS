@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from usde.fusion import ConcatLinearCTC, FrozenFusionDataset, collate, load_vocab
-from usde.text import BLANK
+from usde.text import blank_id
 
 
 def viterbi_ctc_alignment(log_probs: torch.Tensor, target: list[int], blank: int) -> list[int]:
@@ -80,7 +80,7 @@ def main() -> None:
     parser.add_argument("--device", default="cuda:0")
     args = parser.parse_args()
     vocab = load_vocab(args.vocab)
-    blank = vocab[BLANK]
+    blank = blank_id(vocab)
     checkpoint = torch.load(args.teacher_checkpoint, map_location="cpu")
     if checkpoint.get("source_compatible", True):
         raise ValueError("utility attribution requires a pure-linear teacher")

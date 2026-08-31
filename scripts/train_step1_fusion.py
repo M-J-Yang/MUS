@@ -17,7 +17,7 @@ from torch.utils.data import DataLoader
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from usde.fusion import ConcatLinearCTC, FrozenFusionDataset, collate, load_vocab
-from usde.text import BLANK, decode
+from usde.text import blank_id, decode
 
 
 def word_error_rate(references: list[str], hypotheses: list[str]) -> float:
@@ -68,12 +68,12 @@ def main() -> None:
     random.seed(args.seed); np.random.seed(args.seed); torch.manual_seed(args.seed)
     device = torch.device(args.device)
     vocab = load_vocab(args.vocab)
-    blank_id = vocab[BLANK]
+    blank = blank_id(vocab)
     train_loader = DataLoader(FrozenFusionDataset(args.train_manifest, args.train_features, vocab), batch_size=args.batch_size, shuffle=True, collate_fn=collate, pin_memory=True)
     dev_loader = DataLoader(FrozenFusionDataset(args.dev_manifest, args.dev_features, vocab), batch_size=args.batch_size, shuffle=False, collate_fn=collate, pin_memory=True)
     model = ConcatLinearCTC(len(vocab), source_compatible=not args.pure_linear).to(device)
     optimizer = AdamW(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
-    criterion = torch.nn.CTCLoss(blank=blank_id, zero_infinity=True)
+    criterion = torch.nn.CTCLoss(blank=blank, zero_infinity=True)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     best_wer = float("inf")
     history = []

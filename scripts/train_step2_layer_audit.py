@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from usde.fusion import ConcatLinearCTC, FrozenFusionDataset, collate, load_vocab
-from usde.text import BLANK, decode
+from usde.text import blank_id, decode
 
 
 def word_error_rate(references: list[str], hypotheses: list[str]) -> float:
@@ -66,7 +66,7 @@ def train_one_layer(args: argparse.Namespace, layer: int, vocab: dict[str, int],
     dev_loader = DataLoader(dev_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=collate, pin_memory=True)
     model = ConcatLinearCTC(len(vocab), source_compatible=False).to(device)
     optimizer = AdamW(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
-    criterion = torch.nn.CTCLoss(blank=vocab[BLANK], zero_infinity=True)
+    criterion = torch.nn.CTCLoss(blank=blank_id(vocab), zero_infinity=True)
     best_wer = float("inf")
     history = []
     for epoch in range(1, args.epochs + 1):

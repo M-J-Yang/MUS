@@ -1,0 +1,161 @@
+\documentclass{article}
+\usepackage{iclr2027_conference,times}
+\input{math_commands.tex}
+\usepackage{amsmath,amssymb,booktabs}
+\usepackage{hyperref}
+\usepackage{url}
+
+\title{Beyond Shift Magnitude: What Makes a Fine-Tuning Shift Useful for ASR?}
+\author{Anonymous Authors}
+
+\newcommand{\blank}{\mathtt{blank}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Fine-tuning a self-supervised speech model changes its representations, but a large change need not be a useful one for downstream recognition. We investigate this distinction in fine-tuning-induced SSL representation shifts and propose Decision-Aligned Delta Selection (DADS). DADS ranks Delta coordinates by their signed contribution to the margin between a CTC-aligned target token and its strongest competing token, then trains a fresh CTC fusion model using the selected coordinates. Layer scanning supplies a complementary diagnostic: shift magnitude need not predict fusion utility. This formulation tests whether decision utility, rather than magnitude or indiscriminate use of all shifts, identifies the adaptation directions that matter for ASR.
+\end{abstract}
+
+\section{Introduction}
+
+Fine-tuning adapts a pretrained self-supervised learning (SSL) encoder to a target ASR domain. The resulting change in representation space can provide information complementary to the fine-tuned representation of a second model. Mind the Shift~\citep{wang2026mind} defines a \emph{delta embedding} as the difference between fine-tuned and pretrained representations and shows that such shifts can improve SSL feature fusion. However, treating all shifts as equally useful leaves two questions unanswered: which layer's shift should be fused, and which dimensions within that shift support recognition decisions?
+
+Our central scientific question is: \emph{when fine-tuning changes an SSL representation, which changes actually matter for ASR?} We study this question through the following hypothesis:
+\begin{equation}
+\text{fine-tuning shift magnitude} \neq \text{ASR fusion utility}.
+\end{equation}
+At the layer level, we test whether normalized shift magnitude predicts held-out fusion WER. Within a fixed Delta layer, we test whether coordinate magnitude predicts decision utility. DADS uses a full-Delta CTC model to identify coordinates that consistently enlarge the aligned correct token's margin over its strongest actual competitor; a newly initialized CTC head is then trained on only the selected coordinates.
+
+\section{Method}
+\label{sec:method}
+
+\subsection{Problem setup and delta embeddings}
+
+We use WavLM-Large as the reference SSL encoder and Wav2Vec2-Large-lv60 (W2V2) as the delta encoder. Both encoders have $L=24$ transformer layers and hidden dimension $d=1024$. They are independently fine-tuned for character-level CTC ASR on the same target-domain training set. For an input waveform $x$, let $E^{\mathrm{WavLM}}_{\mathrm{ft}}\in\mathbb{R}^{T\times d}$ denote the final-layer representation of fine-tuned WavLM. Let $E^{\mathrm{W2V2},(l)}_{\mathrm{pt}}$ and $E^{\mathrm{W2V2},(l)}_{\mathrm{ft}}\in\mathbb{R}^{T\times d}$ denote the pretrained and fine-tuned W2V2 representations at layer $l$, respectively. We define the layer-wise delta embedding as
+\begin{equation}
+\Delta^{(l)}=E^{\mathrm{W2V2},(l)}_{\mathrm{ft}}-E^{\mathrm{W2V2},(l)}_{\mathrm{pt}},
+\qquad l\in\{1,\ldots,L\}.
+\label{eq:delta}
+\end{equation}
+
+The models use convolutional feature encoders with the same effective 20-ms stride. Thus, for the same 16-kHz waveform, their representations share frame index $t$ and can be concatenated directly; no additional temporal alignment module is introduced.
+
+\subsection{Stage I: layer-level fusion utility}
+\label{sec:layer-utility}
+
+For every W2V2 layer $l$, we form
+\begin{equation}
+Z_t^{(l)}=\left[E^{\mathrm{WavLM}}_{\mathrm{ft},t};\Delta_t^{(l)}\right],
+\label{eq:layer-fusion}
+\end{equation}
+where $[\cdot;\cdot]$ denotes feature concatenation. All SSL encoders are frozen during fusion training. For source-compatible baseline reproduction, we independently initialize and train one $\operatorname{LayerNorm}\rightarrow\operatorname{Dropout}\rightarrow\operatorname{Linear}$ CTC readout $\mathrm{CTC}^{(l)}$ for each layer using $D_{\mathrm{train}}$. Its development-set WER fixes $l^*$:
+\begin{equation}
+l^*=\arg\min_{l\in\{1,\ldots,L\}}
+\operatorname{WER}_{D_{\mathrm{dev}}}
+\left(\mathrm{CTC}^{(l)}(Z^{(l)})\right).
+\label{eq:best-layer}
+\end{equation}
+This selection is intentionally based on recognition performance, not on the size of the representation shift.
+
+For analysis, we additionally measure the normalized shift magnitude at each layer:
+\begin{equation}
+S_l=\mathbb{E}_{x,t}\left[
+\frac{\lVert\Delta_t^{(l)}\rVert_2}
+{\lVert E^{\mathrm{W2V2},(l)}_{\mathrm{pt},t}\rVert_2+\epsilon}
+\right].
+\label{eq:shift-magnitude}
+\end{equation}
+Comparing $\arg\max_l S_l$ with $l^*$ is a diagnostic analysis rather than a claimed contribution: it tests whether the layer that changes most is also the layer that is most useful for fusion.
+
+\subsection{Stage II: decision-level feature utility}
+\label{sec:feature-utility}
+
+Having selected $l^*$, we write $\Delta=\Delta^{(l^*)}$ and train a new, frozen-encoder, pure-linear full-Delta attribution teacher $\mathrm{CTC}_{\mathrm{full}}$ on
+\begin{equation}
+h_t=\left[E^{\mathrm{WavLM}}_{\mathrm{ft},t};\Delta_t\right],
+\qquad z_t=Wh_t+b.
+\label{eq:full-ctc}
+\end{equation}
+Here $z_t$ contains logits for the complete CTC vocabulary. Partitioning the linear head by its input gives $W=[W^{\mathrm{ref}};W^\Delta]$, where $W^\Delta$ reads the $d$ delta dimensions.
+The pure-linear attribution teacher is intentionally distinct from the source-compatible baseline readout. A LayerNorm readout couples input coordinates, whereas the linear teacher makes the coordinate decomposition below exact.
+
+
+For transcript $y$, we obtain a Viterbi forced CTC alignment under $\mathrm{CTC}_{\mathrm{full}}$:
+\begin{equation}
+\pi^*=\arg\max_{\pi:\,B(\pi)=y}P(\pi\mid x),
+\qquad a_t=\pi_t^*,
+\label{eq:viterbi}
+\end{equation}
+where $B(\cdot)$ is the standard CTC collapse operator. We evaluate utility only on character-aligned frames,
+\begin{equation}
+\mathcal{A}=\{t:a_t\neq\blank\},\qquad N=|\mathcal{A}|.
+\label{eq:active-frames}
+\end{equation}
+Repeated aligned frames are retained because each supplies acoustic support for its target character. At each such frame, the strongest incorrect competitor is
+\begin{equation}
+c_t=\arg\max_{k\neq a_t}z_{t,k}.
+\label{eq:competitor}
+\end{equation}
+The maximization ranges over the full vocabulary, including $\blank$; blank is often the dominant CTC alternative to a target character.
+
+Let $\delta_{t,i}$ be the $i$th component of $\Delta_t$. Its signed contribution to the target-versus-competitor logit margin is
+\begin{equation}
+q_{t,i}=\delta_{t,i}\left(W^\Delta_{a_t,i}-W^\Delta_{c_t,i}\right).
+The competitor is selected from the full teacher logits and held fixed for this decomposition. Thus $q_{t,i}$ is an exact local attribution to the observed target-versus-competitor margin, not a claim that the competitor would remain unchanged after masking a coordinate.
+
+\label{eq:decision-contribution}
+\end{equation}
+When $q_{t,i}>0$, dimension $i$ increases the correct-token margin; when $q_{t,i}<0$, it increases the competing token's relative margin. We aggregate this directional evidence across all aligned decisions:
+\begin{equation}
+U_i=\frac{1}{N}\sum_{t\in\mathcal{A}}\operatorname{sign}(q_{t,i})
+=r_i^{\mathrm{help}}-r_i^{\mathrm{harm}},
+\label{eq:feature-utility}
+\end{equation}
+where $r_i^{\mathrm{help}}$ and $r_i^{\mathrm{harm}}$ are the fractions of positive and negative contributions, respectively. Hence, $U_i\in[-1,1]$ measures whether a delta dimension consistently helps, harms, or has no stable directional effect on CTC decisions.
+
+\subsection{Utility-selected delta fusion}
+\label{sec:selection}
+
+For a feature budget $K$, let $\mathcal{I}_K$ be the indices of the $K$ largest utilities. We define
+\begin{equation}
+M_i^{\mathrm{utility}}=
+\begin{cases}
+1, & i\in\mathcal{I}_K,\\
+0, & \text{otherwise},
+\end{cases}
+\qquad
+\mathcal{I}_K=\operatorname{TopK}(\{U_i\}_{i=1}^{d}).
+\label{eq:mask}
+\end{equation}
+The final representation is
+\begin{equation}
+Z_t^{\mathrm{sel}}=
+\left[E^{\mathrm{WavLM}}_{\mathrm{ft},t};
+M^{\mathrm{utility}}\odot\Delta_t\right].
+\label{eq:selected-fusion}
+\end{equation}
+Crucially, we discard $\mathrm{CTC}_{\mathrm{full}}$ after ranking: a newly initialized pure-linear head $\mathrm{CTC}_{\mathrm{sel}}$ is trained on $Z^{\mathrm{sel}}$. The final result therefore tests the utility-selected representation rather than the effect of pruning an already trained classifier.
+
+\section{Experimental Protocol}
+\label{sec:protocol}
+
+All model-selection decisions use only the training and development splits. We train the $24$ layer-specific heads on $D_{\mathrm{train}}$ and choose $l^*$ with development WER. We reserve a fixed utility-estimation subset from training data, train $\mathrm{CTC}_{\mathrm{full}}$ on the remaining training examples, and compute the utility ranking only on the reserved subset. The test set is used only for the final frozen evaluation.
+
+We evaluate $K\in\{32,64,128,256,512,1024\}$, corresponding to $3.125\%$, $6.25\%$, $12.5\%$, $25\%$, $50\%$, and $100\%$ of the 1024-dimensional delta. In addition to utility selection, we compare:
+\begin{enumerate}
+\item \textbf{Final-layer full delta}: the original final-layer fusion $[E^{\mathrm{WavLM}}_{\mathrm{ft},L};\Delta^{(L)}]$;
+\item \textbf{Best-layer full delta}: the full delta at $l^*$;
+\item \textbf{Random-$K$}: $K$ randomly selected delta dimensions; and
+\item \textbf{Magnitude-$K$}: the $K$ dimensions with largest $m_i=\mathbb{E}_{x,t}|\delta_{t,i}|$.
+\end{enumerate}
+These comparisons test the intended evidence chain: the largest layer shift need not be the best fusion layer; the largest per-feature shift need not be the most useful feature; and a compact set of decision-aligned dimensions may outperform both random or magnitude-based selections and the full delta.
+
+\section{Conclusion}
+
+DADS reframes Delta embedding fusion as a decision-utility problem. After a diagnostic layer scan fixes the Delta layer, it selects coordinates through their stable contribution to CTC target margins. The resulting decision-aligned Delta representation isolates the shifts that are most useful for SSL-based ASR feature fusion.
+
+\bibliography{iclr2027_conference}
+\bibliographystyle{iclr2027_conference}
+\end{document}
+

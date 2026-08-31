@@ -32,20 +32,29 @@ def build_vocab(transcripts: Iterable[str]) -> dict[str, int]:
 
 
 def encode(text: str, vocab: dict[str, int]) -> list[int]:
+    delimiter = "|" if "|" in vocab else " "
     unknown = vocab[UNK]
-    return [vocab.get(char, unknown) for char in normalize_text(text)]
+    return [vocab.get(delimiter if char == " " else char, unknown) for char in normalize_text(text)]
+
+
+def blank_id(vocab: dict[str, int]) -> int:
+    """Return the CTC blank id for either the legacy or HF-style vocab name."""
+    for token in (BLANK, "<pad>"):
+        if token in vocab:
+            return int(vocab[token])
+    raise KeyError("vocabulary has neither <blank> nor <pad>")
 
 
 def decode(ids: Iterable[int], vocab: dict[str, int]) -> str:
     inverse = {index: token for token, index in vocab.items()}
-    blank = vocab[BLANK]
+    blank = blank_id(vocab)
     output: list[str] = []
     previous: int | None = None
     for idx in ids:
         idx = int(idx)
         if idx != blank and idx != previous:
             token = inverse.get(idx, UNK)
-            if token != UNK:
-                output.append(token)
+            if token not in {UNK, BLANK, "<pad>"}:
+                output.append(" " if token == "|" else token)
         previous = idx
     return normalize_text("".join(output))
