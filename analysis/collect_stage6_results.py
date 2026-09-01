@@ -10,6 +10,7 @@ from typing import Any
 
 
 SELECTIONS = ("random", "magnitude", "utility")
+UTILITY_VARIANTS = ("utility_v2", "utility_v3", "utility_v4")
 K_VALUES = (256, 512)
 
 
@@ -60,8 +61,13 @@ def _stage6_row(path: Path, selection: str, k: int) -> dict[str, Any]:
         )
     if int(metrics.get("k", -1)) != k:
         raise ValueError(f"{path}: expected k={k}, got {metrics.get('k')!r}")
+    labels = {
+        "utility_v2": "Utility v2",
+        "utility_v3": "Utility v3",
+        "utility_v4": "Utility v4 (CTC Taylor)",
+    }
     return {
-        "input": selection.capitalize(),
+        "input": labels.get(selection, selection.capitalize()),
         "feature": f"[E_ref; Delta_{selection}, K={k}]",
         "selection": selection,
         "k": k,
@@ -98,6 +104,11 @@ def collect(stage4_root: Path, stage6_root: Path) -> dict[str, Any]:
             rows.append(
                 _stage6_row(stage6_root / selection / f"k{k}" / "metrics.json", selection, k)
             )
+    for selection in UTILITY_VARIANTS:
+        for k in K_VALUES:
+            metrics_path = stage6_root / selection / f"k{k}" / "metrics.json"
+            if metrics_path.is_file():
+                rows.append(_stage6_row(metrics_path, selection, k))
     return {
         "protocol": "stage6_selected_delta_linear_ctc_v1",
         "stage4_root": str(stage4_root),

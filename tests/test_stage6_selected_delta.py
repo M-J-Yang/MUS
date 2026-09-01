@@ -19,6 +19,9 @@ def test_selected_indices_are_topk_and_random_is_nested() -> None:
     utility = torch.tensor([2, 0, 3, 1])
     magnitude = torch.tensor([1, 3, 0, 2])
     assert get_selected_indices("utility", 2, utility_ranking=utility).tolist() == [2, 0]
+    assert get_selected_indices("utility_v2", 2, utility_ranking=utility).tolist() == [2, 0]
+    assert get_selected_indices("utility_v3", 2, utility_ranking=utility).tolist() == [2, 0]
+    assert get_selected_indices("utility_v4", 2, utility_ranking=utility).tolist() == [2, 0]
     assert get_selected_indices("magnitude", 2, magnitude_ranking=magnitude).tolist() == [1, 3]
 
     random_2 = get_selected_indices("random", 2, delta_dim=8, seed=42)
@@ -93,7 +96,7 @@ def test_cached_dataset_can_infer_a_distinct_delta_dimension(tmp_path: Path) -> 
     assert tuple(dataset[0]["features"].shape) == (2, 8)
 
 
-def test_stage6_collector_builds_the_eight_row_report(tmp_path: Path) -> None:
+def test_stage6_collector_builds_the_report_with_optional_variants(tmp_path: Path) -> None:
     stage4_root = tmp_path / "stage4"
     stage6_root = tmp_path / "stage6"
     for condition, input_dim, wer in (("ref", 3, 0.3), ("full_delta", 8, 0.2)):
@@ -111,7 +114,7 @@ def test_stage6_collector_builds_the_eight_row_report(tmp_path: Path) -> None:
             ),
             encoding="utf-8",
         )
-    for selection in ("random", "magnitude", "utility"):
+    for selection in ("random", "magnitude", "utility", "utility_v2", "utility_v3", "utility_v4"):
         for k in (256, 512):
             run_dir = stage6_root / selection / f"k{k}"
             run_dir.mkdir(parents=True)
@@ -128,7 +131,8 @@ def test_stage6_collector_builds_the_eight_row_report(tmp_path: Path) -> None:
                 encoding="utf-8",
             )
     report = collect(stage4_root, stage6_root)
-    assert len(report["rows"]) == 8
+    assert len(report["rows"]) == 14
     assert report["rows"][1]["delta_dims"] == 5
-    assert report["rows"][-1]["selection"] == "utility"
+    assert report["rows"][-1]["selection"] == "utility_v4"
     assert report["rows"][-1]["k"] == 512
+    assert report["rows"][-1]["input"] == "Utility v4 (CTC Taylor)"

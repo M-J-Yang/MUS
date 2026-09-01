@@ -49,6 +49,18 @@ def _load_compute_module():
     return module
 
 
+def test_utility_variants_preserve_signed_effect_size_and_uncertainty() -> None:
+    module = _load_compute_module()
+    q = torch.tensor([[2.0, -1.0], [0.5, 3.0], [-4.0, 0.0]])
+    target_probability = torch.tensor([0.5, 0.25, 1.0])
+    sign_sum, contribution_sum, uncertainty_sum = module.frame_utility_sums(
+        q, target_probability
+    )
+    assert torch.equal(sign_sum, torch.tensor([1.0, 0.0]))
+    assert torch.allclose(contribution_sum, torch.tensor([-1.5, 2.0]))
+    assert torch.allclose(uncertainty_sum, torch.tensor([1.375, 1.75]))
+
+
 def test_attribution_uses_full_logits_for_strongest_competitor() -> None:
     module = _load_compute_module()
     logits = torch.tensor([[4.0, 5.0, 4.5]])

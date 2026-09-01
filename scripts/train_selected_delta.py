@@ -29,6 +29,8 @@ from usde.stage4 import (  # noqa: E402
     load_vocab,
 )
 from usde.stage6 import (  # noqa: E402
+    RANKED_SELECTIONS,
+    UTILITY_SELECTIONS,
     SELECTIONS,
     SelectedDeltaLinearCTC,
     get_selected_indices,
@@ -165,14 +167,14 @@ def _build_selection(
     output_dir: Path,
 ) -> tuple[torch.Tensor, Path | None]:
     ranking_path: Path | None = None
-    if args.selection in {"utility", "magnitude"}:
+    if args.selection in RANKED_SELECTIONS:
         ranking_path = args.ranking or (
             Path("results/stage5") / f"{args.selection}_ranking.pt"
         )
         ranking = _load_ranking(ranking_path, args.selection)
-        if args.selection == "utility":
+        if args.selection in UTILITY_SELECTIONS:
             selected = get_selected_indices(
-                "utility",
+                args.selection,
                 args.k,
                 utility_ranking=ranking,
                 delta_dim=delta_dim,

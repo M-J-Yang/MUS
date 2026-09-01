@@ -35,8 +35,8 @@ W2V2 weights are changed, and no new feature cache is created.
   saved for every run. Random runs also save the complete random_ranking.pt
   and, in the default layout, results/stage6/random_ranking_seed42.pt; K=256
   and K=512 are therefore nested for one seed.
-- analysis/collect_stage6_results.py produces the eight-row report with
-  Reference only, FullDelta, and the six selected-Delta runs.
+- analysis/collect_stage6_results.py produces the original eight-row report
+  and appends Utility v2/v3 rows when those result directories are present.
 
 ## Frozen first-pass protocol
 
@@ -77,7 +77,7 @@ for k in 256 512; do
 done
 ~~~
 
-After all six runs:
+After all six first-pass runs (and any Utility v2/v3 follow-up runs):
 
 ~~~bash
 PYTHONPATH=src python analysis/collect_stage6_results.py
@@ -107,3 +107,90 @@ is best at K=256 and K=512 in this fixed-seed first pass; Utility is better
 than Random at both budgets but does not beat Magnitude. FullDelta remains the
 best overall, while selected Delta recovers most of its gain over the
 Reference-only baseline.
+
+## Utility v2/v3 follow-up
+
+The first-pass `utility_ranking.pt` remains the binary sign utility
+`E[sign(q)]`. The same frozen FullDelta attribution pass now also writes:
+
+- `utility_v2_ranking.pt`: `E[q]`, retaining signed contribution magnitude;
+- `utility_v3_ranking.pt`: `E[q * (1 - p(target))]`, emphasizing uncertain
+  aligned frames.
+
+Both variants are supported by `scripts/train_selected_delta.py` as
+`--selection utility_v2` and `--selection utility_v3`. Their matched-budget
+outputs use `results/stage6/utility_v2/k256`,
+`results/stage6/utility_v2/k512`, `results/stage6/utility_v3/k256`, and
+`results/stage6/utility_v3/k512`. They use the original train/dev/test
+manifests, feature cache, seed, optimizer, and checkpoint-selection protocol.
+
+To produce all three rankings in one pass, rerun the attribution command with
+`--overwrite`; the original v1 ranking is preserved at its existing path and
+the two new ranking files are added alongside it.
+
+### Follow-up results
+
+| Input | Delta dims | Best dev WER | Test WER |
+|---|---:|---:|---:|
+| Utility v2 | 256 | 0.379062 | 0.253598 |
+| Utility v2 | 512 | 0.377958 | 0.252861 |
+| Utility v3 | 256 | 0.379062 | 0.253574 |
+| Utility v3 | 512 | 0.377688 | 0.252886 |
+
+In this fixed-seed follow-up, both variants beat Random at K=256, but both
+are slightly worse than Random at K=512. Neither beats the existing Magnitude
+result. Utility v3 is marginally best among the new variants at K=256, while
+Utility v2 is marginally best at K=512; these differences are too small to
+interpret as a robust ranking without additional seeds.
+
+## Utility v4 — CTC Taylor importance
+
+Utility v4 changes the attribution target from an aligned local margin to the
+actual Stage 4 CTC objective. `utility/compute_ctc_taylor_utility.py` freezes
+the FullDelta teacher, computes the per-example CTC-loss gradient with respect
+to cached Delta, and ranks dimensions by:
+
+~~~text
+U_i = E_frame,utterance[ | Delta[t,i] * d L_CTC / d Delta[t,i] | ]
+~~~
+
+The pass uses no forced alignment and no strongest competitor. It writes
+`results/stage5/utility_v4.pt`, `utility_v4_ranking.pt`, and `stats_v4.json`.
+The CTC loss is normalized by target length per utterance, matching the
+reduction used by the Stage 4 trainer before averaging examples.
+
+Generate the ranking with:
+
+~~~bash
+PYTHONPATH=src:. python utility/compute_ctc_taylor_utility.py \
+  --device cpu --batch-size 8 --output-dir results/stage5 --overwrite
+~~~
+
+Then run the matched-budget experiments:
+
+~~~bash
+for k in 256 512; do
+  PYTHONPATH=src:. python scripts/train_selected_delta.py \
+    --selection utility_v4 --k "$k" \
+    --ranking results/stage5/utility_v4_ranking.pt
+done
+~~~
+
+The convenience wrapper `scripts/run_stage6_utility_v4.sh` runs both budgets
+and refreshes the Stage 6 summary.
+
+### Utility v4 results
+
+The first fixed-seed v4 runs produced:
+
+| Input | Delta dims | Best dev WER | Test WER |
+|---|---:|---:|---:|
+| Utility v4 (CTC Taylor) | 256 | 0.376436 | 0.252297 |
+| Utility v4 (CTC Taylor) | 512 | 0.374914 | 0.250995 |
+
+Utility v4 is slightly better than the existing Magnitude runs at both
+budgets in this seed (0.000270 absolute WER at K=256 and 0.000172 at K=512),
+while FullDelta remains best overall. The v4 ranking is highly correlated
+with full-frame Delta magnitude on this split (Spearman 0.842151; overlap
+0.9375 at K=256 and 0.839844 at K=512), so this is an encouraging first
+result rather than a robust claim; additional training seeds are still needed.

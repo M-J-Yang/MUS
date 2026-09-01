@@ -67,12 +67,20 @@ def _load_legacy_compatible_encoder(model_dir: Path) -> AutoModel:
     prefix = f"{model.base_model_prefix}."
     state: dict[str, torch.Tensor] = {}
     for key, value in _load_checkpoint_state(model_dir).items():
-        key = key.replace(".parametrizations.weight.original0", ".weight_g")
-        key = key.replace(".parametrizations.weight.original1", ".weight_v")
         if key.startswith(prefix):
             key = key[len(prefix):]
-        if key in model_keys:
-            state[key] = value
+        candidates = [key]
+        if ".parametrizations.weight.original0" in key:
+            candidates.append(key.replace(".parametrizations.weight.original0", ".weight_g"))
+        if ".parametrizations.weight.original1" in key:
+            candidates.append(key.replace(".parametrizations.weight.original1", ".weight_v"))
+        if ".weight_g" in key:
+            candidates.append(key.replace(".weight_g", ".parametrizations.weight.original0"))
+        if ".weight_v" in key:
+            candidates.append(key.replace(".weight_v", ".parametrizations.weight.original1"))
+        target = next((candidate for candidate in candidates if candidate in model_keys), None)
+        if target is not None:
+            state[target] = value
     missing, unexpected = model.load_state_dict(state, strict=False)
     if missing or unexpected:
         raise RuntimeError(

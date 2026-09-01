@@ -15,7 +15,9 @@ import torch
 from usde.stage4 import LinearCTC
 
 
-SELECTIONS = ("utility", "magnitude", "random")
+UTILITY_SELECTIONS = ("utility", "utility_v2", "utility_v3", "utility_v4")
+RANKED_SELECTIONS = UTILITY_SELECTIONS + ("magnitude",)
+SELECTIONS = RANKED_SELECTIONS + ("random",)
 
 
 def _validate_ranking(ranking: torch.Tensor, delta_dim: int, name: str) -> torch.Tensor:
@@ -59,7 +61,7 @@ def get_selected_indices(
     if delta_dim is None:
         candidates = (
             utility_ranking
-            if method == "utility"
+            if method in UTILITY_SELECTIONS
             else magnitude_ranking
             if method == "magnitude"
             else None
@@ -72,10 +74,10 @@ def get_selected_indices(
     if delta_dim < 1 or k > delta_dim:
         raise ValueError(f"k must be in [1, {delta_dim}], got {k}")
 
-    if method == "utility":
+    if method in UTILITY_SELECTIONS:
         if utility_ranking is None:
             raise ValueError("utility_ranking is required for utility selection")
-        ranking = _validate_ranking(utility_ranking, delta_dim, "utility")
+        ranking = _validate_ranking(utility_ranking, delta_dim, method)
     elif method == "magnitude":
         if magnitude_ranking is None:
             raise ValueError("magnitude_ranking is required for magnitude selection")
@@ -142,6 +144,8 @@ class SelectedDeltaLinearCTC(LinearCTC):
 
 __all__ = [
     "SELECTIONS",
+    "UTILITY_SELECTIONS",
+    "RANKED_SELECTIONS",
     "SelectedDeltaLinearCTC",
     "get_selected_indices",
     "select_delta_features",

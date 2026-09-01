@@ -134,6 +134,42 @@ def attribute_nonblank_frames(
     return targets, competitors, delta_valid, q
 
 
+def frame_utility_sums(
+    q: torch.Tensor,
+    target_probability: torch.Tensor,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Aggregate the three decision-aware utility signals for one utterance.
+
+    ``q[t, i]`` is the Delta coordinate's contribution to the aligned-target
+    versus strongest-competitor logit margin. The returned tensors are sums
+    over frames, leaving the caller to divide by the global frame count.
+
+    The variants are:
+
+    - v1: ``sign(q)`` (the original binary utility);
+    - v2: ``q`` (magnitude-weighted signed contribution);
+    - v3: ``q * (1 - p(target))`` (uncertainty-weighted contribution).
+    """
+
+    if q.ndim != 2 or target_probability.ndim != 1:
+        raise ValueError("q must have shape [frames, dimensions] and target_probability [frames]")
+    if q.shape[0] != target_probability.shape[0]:
+        raise ValueError("q and target_probability must have the same frame count")
+    if not torch.isfinite(q).all() or not torch.isfinite(target_probability).all():
+        raise ValueError("q and target_probability must contain finite values")
+    if target_probability.numel() and (
+        target_probability.min() < 0 or target_probability.max() > 1
+    ):
+        raise ValueError("target_probability must lie in [0, 1]")
+
+    sign_sum = torch.sign(q).sum(dim=0)
+    contribution_sum = q.sum(dim=0)
+    uncertainty_sum = (
+        q * (1.0 - target_probability).unsqueeze(1)
+    ).sum(dim=0)
+    return sign_sum, contribution_sum, uncertainty_sum
+
+
 def _rankdata(values: np.ndarray) -> np.ndarray:
     """Average ranks, matching the tie behavior used by Spearman correlation."""
 
@@ -250,6 +286,8 @@ def compute_utility(args: argparse.Namespace) -> dict[str, Any]:
     help_count = torch.zeros(dimension, dtype=torch.long)
     harm_count = torch.zeros(dimension, dtype=torch.long)
     zero_count = torch.zeros(dimension, dtype=torch.long)
+    contribution_sum = torch.zeros(dimension, dtype=torch.float64)
+    uncertainty_contribution_sum = torch.zeros(dimension, dtype=torch.float64)
     magnitude_sum = torch.zeros(dimension, dtype=torch.float64)
     num_frames = 0
     aligned_utterances = 0
@@ -298,9 +336,19 @@ def compute_utility(args: argparse.Namespace) -> dict[str, Any]:
 
             q_cpu = q.detach().cpu()
             delta_valid_cpu = delta_valid.detach().cpu()
+            logits_valid = logits[alignment != blank]
+            target_probability = torch.softmax(logits_valid, dim=-1).gather(
+                1, aligned_targets.unsqueeze(1)
+            ).squeeze(1)
+            _, contribution_sum_utt, uncertainty_sum_utt = frame_utility_sums(
+                q_cpu,
+                target_probability.detach().cpu(),
+            )
             help_count += (q_cpu > 0).sum(dim=0)
             harm_count += (q_cpu < 0).sum(dim=0)
             zero_count += (q_cpu == 0).sum(dim=0)
+            contribution_sum += contribution_sum_utt.double()
+            uncertainty_contribution_sum += uncertainty_sum_utt.double()
             magnitude_sum += delta_valid_cpu.abs().double().sum(dim=0)
             num_frames += int(q.shape[0])
             aligned_utterances += 1
@@ -342,14 +390,22 @@ def compute_utility(args: argparse.Namespace) -> dict[str, Any]:
         raise RuntimeError("utility pass produced no aligned non-blank frames")
 
     utility = (help_count.double() - harm_count.double()) / num_frames
+    utility_v2 = contribution_sum / num_frames
+    utility_v3 = uncertainty_contribution_sum / num_frames
     magnitude = magnitude_sum / num_frames
     if utility.min() < -1 or utility.max() > 1:
         raise AssertionError("utility must lie in [-1, 1]")
     utility_ranking = torch.argsort(utility, descending=True, stable=True)
+    utility_v2_ranking = torch.argsort(utility_v2, descending=True, stable=True)
+    utility_v3_ranking = torch.argsort(utility_v3, descending=True, stable=True)
     magnitude_ranking = torch.argsort(magnitude, descending=True, stable=True)
     _atomic_torch_save(utility, args.output_dir / "utility.pt")
+    _atomic_torch_save(utility_v2, args.output_dir / "utility_v2.pt")
+    _atomic_torch_save(utility_v3, args.output_dir / "utility_v3.pt")
     _atomic_torch_save(magnitude, args.output_dir / "magnitude.pt")
     _atomic_torch_save(utility_ranking, args.output_dir / "utility_ranking.pt")
+    _atomic_torch_save(utility_v2_ranking, args.output_dir / "utility_v2_ranking.pt")
+    _atomic_torch_save(utility_v3_ranking, args.output_dir / "utility_v3_ranking.pt")
     _atomic_torch_save(magnitude_ranking, args.output_dir / "magnitude_ranking.pt")
     (args.output_dir / "debug_alignment.txt").write_text(
         "\n".join(debug_examples), encoding="utf-8"
@@ -382,7 +438,32 @@ def compute_utility(args: argparse.Namespace) -> dict[str, Any]:
         "overlap_at_256": top_k_overlap(utility, magnitude, 256),
         "overlap_at_512": top_k_overlap(utility, magnitude, 512),
         "top_utility": utility_ranking[:10].tolist(),
+        "top_utility_v2": utility_v2_ranking[:10].tolist(),
+        "top_utility_v3": utility_v3_ranking[:10].tolist(),
         "top_magnitude": magnitude_ranking[:10].tolist(),
+        "utility_variants": {
+            "v1": {
+                "aggregation": "E[sign(q)]",
+                "score_path": str(args.output_dir / "utility.pt"),
+                "ranking_path": str(args.output_dir / "utility_ranking.pt"),
+            },
+            "v2": {
+                "aggregation": "E[q]",
+                "score_path": str(args.output_dir / "utility_v2.pt"),
+                "ranking_path": str(args.output_dir / "utility_v2_ranking.pt"),
+                "spearman_magnitude": _json_value(spearman(utility_v2.numpy(), magnitude_np)),
+                "overlap_at_256": top_k_overlap(utility_v2, magnitude, 256),
+                "overlap_at_512": top_k_overlap(utility_v2, magnitude, 512),
+            },
+            "v3": {
+                "aggregation": "E[q * (1 - p(target))]",
+                "score_path": str(args.output_dir / "utility_v3.pt"),
+                "ranking_path": str(args.output_dir / "utility_v3_ranking.pt"),
+                "spearman_magnitude": _json_value(spearman(utility_v3.numpy(), magnitude_np)),
+                "overlap_at_256": top_k_overlap(utility_v3, magnitude, 256),
+                "overlap_at_512": top_k_overlap(utility_v3, magnitude, 512),
+            },
+        },
         "failed_examples": failed[:20],
         "checkpoint_protocol": checkpoint.get("protocol"),
         "checkpoint_epoch": checkpoint.get("epoch"),
@@ -401,6 +482,8 @@ def compute_utility(args: argparse.Namespace) -> dict[str, Any]:
                 "overlap_at_256": stats["overlap_at_256"],
                 "overlap_at_512": stats["overlap_at_512"],
                 "top_utility": stats["top_utility"],
+                "top_utility_v2": stats["top_utility_v2"],
+                "top_utility_v3": stats["top_utility_v3"],
                 "top_magnitude": stats["top_magnitude"],
             },
             sort_keys=True,
