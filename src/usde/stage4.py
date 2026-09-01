@@ -116,16 +116,24 @@ class CachedFeatureDataset(Dataset[dict[str, Any]]):
         expected_dim: int = BASE_DIM,
         max_examples: int | None = None,
         sample_seed: int = 1337,
+        expected_auxiliary_dim: int | None = None,
+        allow_auxiliary_dim_mismatch: bool = False,
     ) -> None:
         if condition not in CONDITIONS:
             raise ValueError(f"unknown condition {condition!r}; choose from {CONDITIONS}")
         if expected_dim < 1:
             raise ValueError("expected_dim must be positive")
+        if expected_auxiliary_dim is not None and expected_auxiliary_dim < 1:
+            raise ValueError("expected_auxiliary_dim must be positive when provided")
+        if not isinstance(allow_auxiliary_dim_mismatch, bool):
+            raise TypeError("allow_auxiliary_dim_mismatch must be a bool")
         self.manifest_path = manifest_path
         self.feature_root = feature_root
         self.condition = condition
         self.vocab = vocab
         self.expected_dim = expected_dim
+        self.expected_auxiliary_dim = expected_auxiliary_dim
+        self.allow_auxiliary_dim_mismatch = allow_auxiliary_dim_mismatch
         self.records = load_jsonl(manifest_path)
         if max_examples is not None:
             if max_examples < 1:
@@ -174,7 +182,20 @@ class CachedFeatureDataset(Dataset[dict[str, Any]]):
         if self.auxiliary_dir is not None:
             label = "w2v2_ft" if self.condition == "full_embedding" else "delta"
             auxiliary = _load_tensor(self.auxiliary_dir / f"{utt_id}.pt", label)
-            if auxiliary.ndim != 2 or auxiliary.shape != reference.shape:
+            expected_auxiliary_dim = (
+                self.expected_auxiliary_dim
+                if self.expected_auxiliary_dim is not None
+                else self.expected_dim
+            )
+            auxiliary_shape_ok = (
+                auxiliary.ndim == 2
+                and auxiliary.shape[0] == reference.shape[0]
+                and (
+                    self.allow_auxiliary_dim_mismatch
+                    or auxiliary.shape[1] == expected_auxiliary_dim
+                )
+            )
+            if not auxiliary_shape_ok:
                 raise ValueError(
                     f"{utt_id}: frame/dimension mismatch; reference={tuple(reference.shape)}, "
                     f"auxiliary={tuple(auxiliary.shape)}"
