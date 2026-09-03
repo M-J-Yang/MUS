@@ -35,3 +35,23 @@ Results are written to:
 
 The final test table is `pruning_summary.md`; the JSON contains both dev and
 test rows and the identity-gate diagnostics.
+
+## Empirical package command
+
+After the formal cache and Utility ranking exist, run:
+
+```bash
+CUDA_VISIBLE_DEVICES=3 DEVICE=cuda:0 NUM_WORKERS=4 \
+  bash scripts/run_l2_arctic_official_fold0_empirical_package.sh
+```
+
+This evaluates Random, Random+Rescale, Magnitude, Gradient-only, and Taylor
+Utility at 25%, 50%, and 75% retention, plus direct DropBest, DropWorst, and
+Random deletion at 10%, 25%, and 50%. Random conditions use seeds 1337, 2027,
+and 31415 and report mean ± sample standard deviation. All conditions reuse the
+same cached streams and original frozen oracle head.
+
+The package writes `metrics.json`, `summary.md`, and reproducible ranking files
+under:
+
+`artifacts/results/l2_arctic_official_ut8/fold0/w2v2_large_960h_oracle_shift_empirical_package/`
