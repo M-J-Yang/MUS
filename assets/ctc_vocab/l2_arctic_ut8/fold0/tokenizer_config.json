@@ -1,0 +1,7 @@
+{
+  "tokenizer_class": "Wav2Vec2CTCTokenizer",
+  "unk_token": "<unk>",
+  "pad_token": "<pad>",
+  "word_delimiter_token": "|",
+  "do_lower_case": false
+}

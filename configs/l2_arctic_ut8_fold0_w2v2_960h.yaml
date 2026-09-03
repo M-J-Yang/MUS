@@ -1,0 +1,55 @@
+# Corrected formal W2V2-Large Fold 0 run and single-model shift protocol.
+protocol:
+  name: l2_arctic_unseen_transcript_ut8_fold0_w2v2_960h_shift
+  version: 1
+  seed: 1337
+  selection_metric: dev_wer
+  decode: greedy_ctc
+  backbone: facebook/wav2vec2-large-960h
+  local_pretrained_path: checkpoints/wav2vec2_large_960h_pretrained
+  processor: inherit_from_backbone
+  ctc_head: inherit_from_backbone
+  custom_vocab: forbidden
+
+paths:
+  train_manifest: manifests/l2_arctic_ut8/fold0/train.jsonl
+  train_teacher_manifest: manifests/l2_arctic_ut8/fold0/train_teacher.jsonl
+  train_utility_manifest: manifests/l2_arctic_ut8/fold0/train_utility.jsonl
+  dev_manifest: manifests/l2_arctic_ut8/fold0/dev.jsonl
+  test_manifest: manifests/l2_arctic_ut8/fold0/test.jsonl
+  checkpoint: artifacts/runs/l2_arctic_ut8/fold0/w2v2_large_960h
+  shift_cache: artifacts/features/l2_arctic_ut8/fold0/w2v2_large_960h_shift
+  utility_output: artifacts/results/l2_arctic_ut8/fold0/w2v2_large_960h_shift_utility
+
+training:
+  head_warmup:
+    epochs: 1
+    learning_rate: 3.0e-6
+    per_gpu_batch_size: 4
+    gradient_accumulation_steps: 1
+  joint_finetune:
+    max_epochs: 40
+    learning_rate: 1.0e-5
+    per_gpu_batch_size: 2
+    gradient_accumulation_steps: 2
+    weight_decay: 0.01
+    scheduler: cosine
+    warmup_ratio: 0.1
+    early_stopping_patience: 5
+  shared:
+    optimizer: AdamW
+    gradient_clip_norm: 1.0
+    layerdrop: 0.0
+    convolutional_feature_encoder_frozen: true
+    gradient_checkpointing: true
+    precision: fp16
+
+shift:
+  layer: last
+  definition: E_ft(x) - E_0(x)
+  identity: E_0(x) + Delta(x) == E_ft(x)
+  streams: [e0, eft, delta]
+  utility_split: train_utility
+  ranking: mean_frame_abs_delta_times_ctc_gradient
+  retained_fraction: 0.5
+  head_training_after_cache: forbidden

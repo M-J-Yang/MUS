@@ -1,0 +1,39 @@
+# Official Fold0 oracle representation-shift pruning protocol.
+protocol:
+  name: official_l2_arctic_fold0_oracle_shift_pruning
+  version: 1
+  decode: greedy_ctc
+  eval_batch_size: 1
+  base_checkpoint: checkpoints/wav2vec2_large_960h_pretrained
+  oracle_checkpoint: artifacts/oracles/wav2vec2-large-l2-arctic-supcon-repeated-8fold-0
+  official_split_source: artifacts/protocol_audit/official_l2_arctic_8fold_0
+  official_manifest_root: manifests/l2_arctic_official_ut8/fold0
+
+paths:
+  train_manifest: manifests/l2_arctic_official_ut8/fold0/train.jsonl
+  train_utility_manifest: manifests/l2_arctic_official_ut8/fold0/train_utility.jsonl
+  dev_manifest: manifests/l2_arctic_official_ut8/fold0/dev.jsonl
+  test_manifest: manifests/l2_arctic_official_ut8/fold0/test.jsonl
+  shift_cache: artifacts/features/l2_arctic_official_ut8/fold0/w2v2_large_960h_oracle_shift
+  utility_output: artifacts/results/l2_arctic_official_ut8/fold0/w2v2_large_960h_oracle_shift_utility
+  result_output: artifacts/results/l2_arctic_official_ut8/fold0/w2v2_large_960h_oracle_shift
+
+lineage:
+  definition: Eft(x) - E0(x)
+  layer: final_encoder_hidden_state
+  head: oracle_lm_head
+  identity: E0 + Delta == Eft
+  ctc_identity: oracle_ctc(E0 + Delta) == oracle_ctc(Eft)
+  base_and_oracle_frozen: true
+  head_training_after_cache: forbidden
+
+utility:
+  loss: CTC
+  score: mean_over_valid_frames(abs(Delta * dL_CTC/dDelta))
+  source_split: train_utility
+  supcon_loss: forbidden
+
+retention:
+  fractions: [1.0, 0.75, 0.5]
+  head_retraining: forbidden
+  healing: forbidden

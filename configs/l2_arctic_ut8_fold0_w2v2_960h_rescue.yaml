@@ -1,0 +1,52 @@
+# Fold-0 rescue run: official 960h transfer recipe plus a measured single-GPU batch.
+# Target used for this run: two RTX 3090 24 GiB cards, CUDA_VISIBLE_DEVICES=0,3.
+protocol:
+  name: l2_arctic_unseen_transcript_ut8_fold0_w2v2_960h_rescue
+  seed: 1337
+  backbone: facebook/wav2vec2-large-960h
+  local_pretrained_path: checkpoints/wav2vec2_large_960h_pretrained
+  processor_and_ctc_head: inherited
+  selection_metric: dev_wer
+  decode: greedy_ctc
+
+data:
+  train_manifest: manifests/l2_arctic_ut8/fold0/train.jsonl
+  dev_manifest: manifests/l2_arctic_ut8/fold0/dev.jsonl
+  test_manifest: manifests/l2_arctic_ut8/fold0/test.jsonl
+  sample_rate: 16000
+
+training:
+  optimizer: AdamW
+  ctc_loss_reduction: mean
+  ctc_zero_infinity: true
+  convolutional_feature_encoder_frozen: true
+  layerdrop: 0.0
+  head_warmup:
+    epochs: 1
+    learning_rate: 3.0e-6
+    precision: fp32
+    per_device_batch_size: 4
+    gradient_accumulation_steps: 2  # global effective batch 4 * 2 * 2 ranks = 16
+    max_grad_norm: 0.5
+    scheduler: linear
+    warmup_ratio: 1.0
+  joint_finetune:
+    max_epochs: 40
+    early_stopping_patience: 5
+    learning_rate: 1.0e-5
+    precision: bf16
+    per_device_batch_size: 10
+    gradient_accumulation_steps: 1
+    max_grad_norm: 1.0
+    scheduler: cosine
+    warmup_ratio: 0.1
+    gradient_checkpointing: false
+    tf32: true
+  eval_per_device_batch_size: 1
+  dataloader_num_workers: 8
+  measured_peak_reserved_gib: 20.41
+  measured_batch_12: oom
+  selected_batch: 10  # batch 11 passed in isolation but OOMed after phase transition
+
+outputs:
+  root: artifacts/runs/l2_arctic_ut8/fold0/w2v2_large_960h_rescue_ddp_g0g3_b10

@@ -106,7 +106,23 @@ def audio_length(path: Path) -> int:
     return max(1, round(info.num_frames * TARGET_SAMPLE_RATE / info.sample_rate))
 
 
-def make_processor(model_name: str, vocab_dir: Path) -> Wav2Vec2Processor:
+def make_processor(model_name: str, vocab_dir: Path | None = None) -> Wav2Vec2Processor:
+    """Load an exact pretrained processor or construct the legacy vocabulary path.
+
+    The formal 960h transfer run must inherit the source tokenizer and feature
+    extractor. Existing Stage 2 experiments still pass ``vocab_dir`` and keep
+    their project-local character vocabulary unchanged.
+    """
+
+    if vocab_dir is None:
+        processor = Wav2Vec2Processor.from_pretrained(model_name)
+        feature_extractor = processor.feature_extractor
+        if int(getattr(feature_extractor, "sampling_rate", 0)) != TARGET_SAMPLE_RATE:
+            raise ValueError(f"{model_name}: feature extractor is not configured for 16 kHz")
+        if processor.tokenizer.pad_token_id is None:
+            raise ValueError(f"{model_name}: pretrained tokenizer has no CTC blank/pad token")
+        return processor
+
     tokenizer = Wav2Vec2CTCTokenizer(
         str(vocab_dir / "vocab.json"),
         unk_token="<unk>",
@@ -120,6 +136,27 @@ def make_processor(model_name: str, vocab_dir: Path) -> Wav2Vec2Processor:
     if int(getattr(feature_extractor, "sampling_rate", 0)) != TARGET_SAMPLE_RATE:
         raise ValueError(f"{model_name}: feature extractor is not configured for 16 kHz")
     return Wav2Vec2Processor(feature_extractor=feature_extractor, tokenizer=tokenizer)
+
+
+def prepare_ctc_text(text: str, tokenizer: Any) -> str:
+    """Match transcript casing to the supplied tokenizer's character inventory.
+
+    The project manifests are normalized to lowercase, while the public
+    ``wav2vec2-large-960h`` tokenizer stores uppercase letters. This keeps the
+    model's original vocabulary intact instead of silently mapping every
+    lowercase letter to ``<unk>``. Lowercase project vocabularies remain
+    unchanged.
+    """
+
+    normalized = normalize_text(text)
+    vocabulary = {str(token) for token in tokenizer.get_vocab()}
+    has_uppercase_letters = any(len(token) == 1 and token.isupper() for token in vocabulary)
+    has_lowercase_letters = any(len(token) == 1 and token.islower() for token in vocabulary)
+    if has_uppercase_letters and not has_lowercase_letters:
+        return normalized.upper()
+    if bool(getattr(tokenizer, "do_lower_case", False)):
+        return normalized.lower()
+    return normalized
 
 
 class AudioCTCDataset(Dataset[dict[str, Any]]):
@@ -156,7 +193,9 @@ class AudioCTCDataset(Dataset[dict[str, Any]]):
             sampling_rate=sample_rate,
             return_attention_mask=True,
         )
-        encoded_text = self.processor.tokenizer(self.records[index]["transcript"])
+        encoded_text = self.processor.tokenizer(
+            prepare_ctc_text(self.records[index]["transcript"], self.processor.tokenizer)
+        )
         return {
             "input_values": encoded_audio["input_values"][0],
             "attention_mask": encoded_audio.get(

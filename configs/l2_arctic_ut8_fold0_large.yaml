@@ -1,0 +1,60 @@
+# Formal Fold 0 protocol. This config documents the exact CLI values used by
+# scripts/train_large_ctc.py; it is intentionally separate from old baselines.
+protocol:
+  name: l2_arctic_unseen_transcript_ut8_fold0_large_ctc
+  version: 1
+  seed: 1337
+  selection_metric: dev_wer
+  first_stage_decode: greedy_ctc
+  forbidden_before_fold0_report:
+    - folds_1_to_7
+    - delta_cache
+    - utility
+    - pruning
+    - lm_decoding
+
+data:
+  source_manifest: data/processed/arctic/l2_manifest_16k.jsonl
+  namespace: manifests/l2_arctic_ut8
+  fold: 0
+  train_manifest: manifests/l2_arctic_ut8/fold0/train.jsonl
+  dev_manifest: manifests/l2_arctic_ut8/fold0/dev.jsonl
+  test_manifest: manifests/l2_arctic_ut8/fold0/test.jsonl
+  split_audit: manifests/l2_arctic_ut8/split_audit.json
+  vocab_dir: assets/ctc_vocab/l2_arctic_ut8/fold0
+  sample_rate: 16000
+  transcript_unit: prompt_and_normalized_transcript
+
+models:
+  w2v2_large:
+    model_id: facebook/wav2vec2-large-lv60
+    local_pretrained_path: checkpoints/w2v2_large_lv60_pretrained
+  wavlm_large:
+    model_id: microsoft/wavlm-large
+    local_pretrained_path: checkpoints/wavlm_large_pretrained
+
+training:
+  task: character_ctc
+  head_warmup_epochs: 1
+  joint_max_epochs: 20
+  early_stopping_patience: 5
+  optimizer: AdamW
+  learning_rate: 1.0e-5
+  weight_decay: 0.01
+  scheduler: cosine
+  warmup_ratio: 0.1
+  per_gpu_batch_size: 2
+  gradient_accumulation_steps: 2
+  global_effective_batch_size: 16
+  precision: fp16
+  gradient_checkpointing: true
+  gradient_clip_norm: 1.0
+  layerdrop: 0.0
+  convolutional_feature_encoder_frozen: true
+  checkpoint_criterion: dev_wer
+
+outputs:
+  root: artifacts/runs/l2_arctic_ut8/fold0
+  smoke_root: artifacts/runs/l2_arctic_ut8/fold0/smoke
+  w2v2_root: artifacts/runs/l2_arctic_ut8/fold0/w2v2_large
+  wavlm_root: artifacts/runs/l2_arctic_ut8/fold0/wavlm_large
