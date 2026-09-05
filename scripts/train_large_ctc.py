@@ -272,6 +272,27 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             ignore_mismatched_sizes=True,
         )
         pretrained_ctc_head = False
+    if args.skip_head_warmup_from is not None:
+        if args.vocab_dir is not None:
+            raise ValueError("--skip-head-warmup-from requires the inherited pretrained processor")
+        warmup_source = args.skip_head_warmup_from
+        if not (warmup_source / "config.json").is_file():
+            raise FileNotFoundError(f"head warm-up checkpoint is missing config.json: {warmup_source}")
+        # Reload the saved head-only checkpoint so the restart begins exactly
+        # where the interrupted two-stage run finished. The source checkpoint
+        # is never modified; joint fine-tuning writes only to output_dir.
+        processor_source = warmup_source
+        if not (processor_source / "preprocessor_config.json").is_file():
+            processor_source = warmup_source.parent
+        processor = make_processor(str(processor_source), None)
+        model = AutoModelForCTC.from_pretrained(str(warmup_source))
+        if int(getattr(model.config, "vocab_size", 0)) != len(processor.tokenizer):
+            raise ValueError(
+                f"{warmup_source}: config vocab_size={model.config.vocab_size} does not match "
+                f"saved tokenizer size={len(processor.tokenizer)}"
+            )
+    else:
+        warmup_source = None
     model.config.layerdrop = 0.0
     if args.gradient_checkpointing:
         model.gradient_checkpointing_enable()
@@ -300,6 +321,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "model_id": args.model_id,
         "pretrained_path": str(init_path),
         "pretrained_ctc_head": pretrained_ctc_head,
+        "head_warmup_skipped": warmup_source is not None,
+        "head_warmup_source": None if warmup_source is None else str(warmup_source),
         "train_manifest": str(args.train_manifest),
         "dev_manifest": str(args.dev_manifest),
         "test_manifest": None if args.test_manifest is None else str(args.test_manifest),
@@ -341,11 +364,35 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         (args.output_dir / "config.json").write_text(json.dumps(config_payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     head_stats = freeze_for_phase(model, "head")
-    head_trainer = build_trainer(model, processor, train_dataset, dev_dataset, args.output_dir / "head_warmup", args, "head")
-    head_result = head_trainer.train()
-    head_trainer.save_model(str(args.output_dir / "head_warmup"))
-    if head_trainer.is_world_process_zero():
-        processor.save_pretrained(str(args.output_dir / "head_warmup"))
+    if warmup_source is None:
+        head_trainer = build_trainer(model, processor, train_dataset, dev_dataset, args.output_dir / "head_warmup", args, "head")
+        head_result = head_trainer.train()
+        head_trainer.save_model(str(args.output_dir / "head_warmup"))
+        if head_trainer.is_world_process_zero():
+            processor.save_pretrained(str(args.output_dir / "head_warmup"))
+        head_summary = {
+            **head_stats,
+            "skipped": False,
+            "best_checkpoint": head_trainer.state.best_model_checkpoint,
+            "best_dev_wer": head_trainer.state.best_metric,
+            "global_step": head_trainer.state.global_step,
+            "epoch": head_trainer.state.epoch,
+            "train_metrics": head_result.metrics,
+        }
+    else:
+        saved_state: dict[str, Any] = {}
+        state_path = warmup_source / "trainer_state.json"
+        if state_path.is_file():
+            saved_state = json.loads(state_path.read_text(encoding="utf-8"))
+        head_summary = {
+            **head_stats,
+            "skipped": True,
+            "best_checkpoint": str(warmup_source),
+            "best_dev_wer": saved_state.get("best_metric"),
+            "global_step": saved_state.get("global_step"),
+            "epoch": saved_state.get("epoch"),
+            "train_metrics": None,
+        }
 
     joint_stats = freeze_for_phase(model, "joint")
     joint_trainer = build_trainer(model, processor, train_dataset, dev_dataset, args.output_dir / "joint", args, "joint")
@@ -364,14 +411,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     state = joint_trainer.state
     summary = {
         **config_payload,
-        "head": {
-            **head_stats,
-            "best_checkpoint": head_trainer.state.best_model_checkpoint,
-            "best_dev_wer": head_trainer.state.best_metric,
-            "global_step": head_trainer.state.global_step,
-            "epoch": head_trainer.state.epoch,
-            "train_metrics": head_result.metrics,
-        },
+        "head": head_summary,
         "joint": {
             **joint_stats,
             "best_checkpoint": state.best_model_checkpoint,
@@ -409,6 +449,12 @@ def main() -> None:
         help="legacy custom vocab; omit to inherit the pretrained processor and CTC head",
     )
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument(
+        "--skip-head-warmup-from",
+        type=Path,
+        default=None,
+        help="load a completed head-only checkpoint and begin directly with joint fine-tuning",
+    )
     parser.add_argument("--learning-rate", type=float, default=1e-5)
     parser.add_argument("--head-learning-rate", type=float, default=3e-6)
     parser.add_argument("--head-per-device-batch-size", type=int, default=4)
