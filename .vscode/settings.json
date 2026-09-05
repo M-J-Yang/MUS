@@ -1,0 +1,45 @@
+{
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk-local-texlive",
+      "command": "/data/zb/ymj/MUS/.texlive/bin/x86_64-linux/latexmk",
+      "args": [
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "-file-line-error",
+        "-pdf",
+        "-outdir=%OUTDIR%",
+        "-auxdir=%AUXDIR%",
+        "%DOC%"
+      ],
+      "env": {
+        "PATH": "/data/zb/ymj/MUS/.texlive/bin/x86_64-linux:/usr/local/bin:/usr/bin:/bin",
+        "TEXLIVE_ROOT": "/data/zb/ymj/MUS/.texlive",
+        "TEXMFVAR": "/data/zb/ymj/MUS/.texlive/texmf-var",
+        "TEXMFCONFIG": "/data/zb/ymj/MUS/.texlive/texmf-config"
+      }
+    }
+  ],
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "latexmk-local-texlive",
+      "tools": ["latexmk-local-texlive"]
+    }
+  ],
+  "latex-workshop.latex.recipe.default": "latexmk-local-texlive",
+  "latex-workshop.latex.clean.command": "/data/zb/ymj/MUS/.texlive/bin/x86_64-linux/latexmk",
+  "latex-workshop.latex.clean.args": [
+    "-outdir=%OUTDIR%",
+    "-c",
+    "%TEX%"
+  ],
+  "terminal.integrated.env.linux": {
+    "PATH": "/data/zb/ymj/MUS/.texlive/bin/x86_64-linux:/usr/local/bin:/usr/bin:/bin",
+    "TEXLIVE_ROOT": "/data/zb/ymj/MUS/.texlive",
+    "TEXMFVAR": "/data/zb/ymj/MUS/.texlive/texmf-var",
+    "TEXMFCONFIG": "/data/zb/ymj/MUS/.texlive/texmf-config"
+  },
+  "latex-workshop.latex.search.rootFiles.exclude": [
+    "**/.texlive/**"
+  ]
+}

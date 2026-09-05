@@ -1,0 +1,69 @@
+# Data2Vec-Audio-Large-960h official Fold0 backbone replication.
+# This is a zero-retuning transfer of the formal two-stage CTC recipe.
+protocol:
+  name: official_l2_arctic_fold0_data2vec_audio_large_960h_replication
+  version: 1
+  backbone: facebook/data2vec-audio-large-960h
+  local_pretrained_path: checkpoints/data2vec_audio_large_960h
+  processor: inherit_from_backbone
+  ctc_head: inherit_from_backbone
+  custom_vocab: forbidden
+  split_source: artifacts/protocol_audit/official_l2_arctic_8fold_0
+  manifest_root: manifests/l2_arctic_official_ut8/fold0
+  seed: 1337
+  selection_metric: dev_wer
+  decode: greedy_ctc
+
+paths:
+  train_manifest: manifests/l2_arctic_official_ut8/fold0/train.jsonl
+  train_utility_manifest: manifests/l2_arctic_official_ut8/fold0/train_utility.jsonl
+  dev_manifest: manifests/l2_arctic_official_ut8/fold0/dev.jsonl
+  test_manifest: manifests/l2_arctic_official_ut8/fold0/test.jsonl
+  checkpoint: artifacts/runs/l2_arctic_official_ut8/fold0/data2vec_audio_large_960h_ctc_formal_b4
+  shift_cache: artifacts/features/l2_arctic_official_ut8/fold0/data2vec_audio_large_960h_shift
+  utility_output: artifacts/results/l2_arctic_official_ut8/fold0/data2vec_audio_large_960h_shift_utility
+  result_output: artifacts/results/l2_arctic_official_ut8/fold0/data2vec_audio_large_960h_shift
+
+training:
+  recipe: two_stage_ctc
+  head_warmup:
+    epochs: 1
+    learning_rate: 3.0e-6
+    per_device_batch_size: 4
+    gradient_accumulation_steps: 1
+    precision: fp32
+  joint_finetune:
+    max_epochs: 40
+    learning_rate: 1.0e-5
+    per_device_batch_size: 4
+    gradient_accumulation_steps: 1
+    eval_per_device_batch_size: 1
+    weight_decay: 0.01
+    scheduler: cosine
+    warmup_ratio: 0.1
+    early_stopping_patience: 5
+    precision: bf16
+  shared:
+    optimizer: AdamW
+    gradient_clip_norm: 1.0
+    convolutional_feature_encoder_frozen: true
+    gradient_checkpointing: true
+    layerdrop: 0.0
+
+shift:
+  layer: final_encoder_hidden_state
+  definition: E_ft(x) - E_0(x)
+  identity: E_0 + Delta == E_ft
+  streams: [e0, eft, delta]
+  utility_split: train_utility
+  ranking: mean_over_valid_frames_abs_delta_times_ctc_gradient
+  head_training_after_cache: forbidden
+
+conditions:
+  - full
+  - no_shift
+  - utility75
+  - utility50
+  - magnitude50
+  - drop_worst25
+  - drop_best25
