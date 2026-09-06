@@ -1,0 +1,373 @@
+                                              HETEROGENEOUS SELF-SUPERVISED ACOUSTIC PRE-TRAINING WITH LOCAL
+                                                                      CONSTRAINTS
+
+                                                                      Xiaodong Cui1 , A F M Saif2 , Brian Kingsbury1 , Tianyi Chen3
+                                                    1
+                                                        IBM Research, IBM T. J. Watson Research Center, Yorktown Heights, New York, USA
+                                                                     2
+                                                                       Rensselaer Polytechnic Institute, Troy, New York, USA
+                                                                            3
+                                                                              Cornell Tech, New York, New York, USA
+arXiv:2508.19990v2 [cs.LG] 8 Sep 2025
+
+
+
+
+                                                                    ABSTRACT                                       its connection with model-agnostic meta-learning (MAML) [10]. We
+                                                                                                                   build pre-trained acoustic models using the proposed PTLOC ap-
+                                        Self-supervised pre-training using unlabeled data is widely used in
+                                                                                                                   proach and conduct downstream automatic speech recognition (ASR)
+                                        automatic speech recognition. In this paper, we propose a new self-
+                                                                                                                   tasks on two scenarios. One scenario uses speech data from multiple
+                                        supervised pre-training approach to dealing with heterogeneous data.
+                                                                                                                   domains and the other uses multilingual speech data. We compare the
+                                        Instead of mixing all the data and minimizing the averaged global
+                                                                                                                   performance of PTLOC with that of the conventional self-supervised
+                                        loss in the conventional way, we impose additional local constraints
+                                                                                                                   pre-trained models. Our experiments show that the proposed PTLOC
+                                        to ensure that the model optimizes each source of heterogeneous data
+                                                                                                                   can give rise to a better pre-trained model with superior adaptivity in
+                                        to its local optimum after K-step gradient descent initialized from
+                                                                                                                   downstream ASR fine-tuning (FT) tasks.
+                                        the model. We formulate this as a bilevel optimization problem, and
+                                                                                                                        The remainder of the paper is organized as follows. We formulate
+                                        use the first-order approximation method to solve the problem. We
+                                                                                                                   the problem of PTLOC in Section 2. Its optimization in given in
+                                        discuss its connection to model-agnostic meta learning. Experiments
+                                                                                                                   Section 3 and the pseudo-code implementation is given in Section 4.
+                                        are carried out on self-supervised pre-training using multi-domain and
+                                                                                                                   The experimental results on multi-domain and multilingual ASR are
+                                        multilingual datasets, demonstrating that the proposed approach can
+                                                                                                                   reported in Section 5. Finally, we conclude the paper with a summary
+                                        significantly improve the adaptivity of the self-supervised pre-trained
+                                                                                                                   in Section 6.
+                                        model for the downstream supervised fine-tuning tasks.
+                                           Index Terms— self-supervised learning, pre-training, acoustic
+                                                                                                                                    2. PROBLEM FORMULATION
+                                        models, bilevel optimization, automatic speech recognition
+
+                                                               1. INTRODUCTION                                     Suppose the unlabeled data D is collected from M sources:
+                                                                                                                   D = {D1 , · · · , DM }. Conventional self-supervised learning (CSSL)
+                                        Since labeled data is expensive to obtain while unlabeled data is          trains a model that minimizes the following empirical risk
+                                        readily available, a common practice in machine learning is a two-                                      M
+                                                                                                                                            1 X X
+                                        stage approach where a large amount of unlabeled data is first used                            min               ℓi (θ; x, Di )              (1)
+                                                                                                                                        θ M
+                                        for self-supervised pre-training and the pre-trained foundation model                                  i=1 x∈D   i
+                                        is then fine-tuned using labeled data in downstream tasks. In speech
+                                        related applications, self-supervised pre-training has been actively       where x ∈ Di is a sample from source Di ; θ is the model param-
+                                        investigated and broadly used [1–4].                                       eters; ℓi (θ; x, Di ) is the loss defined on data source Di . In CSSL,
+                                             When carrying out self-supervised acoustic pre-training using         the objective function in Eq. (1) simply mixes heterogeneous data
+                                        unlabeled data, it is inevitable to deal with data heterogeneity as the    from various sources together. Since each source of data may bear its
+                                        large amount of training data may come from various sources (e.g.,         unique characteristics in feature representations, we want the model
+                                        domains and languages) bearing different acoustic characteristics.         to preserve these characteristics to offer more robustness and general-
+                                        The conventional approach to self-supervised pre-training mixes all        ization after pre-training. However, this is not guaranteed in Eq. (1)
+                                        data together and minimizes the averaged loss. A drawback of this          by only optimizing towards the averaged global loss. Also consider-
+                                        strategy is that a low average global loss does not guarantee a low loss   ing that the pre-trained model will serve as an initialization point for
+                                        for each source of the heterogeneous data. In this paper, we propose       downstream tasks, we are interested in its adaptivity after multiple
+                                        a new self-supervised pre-training approach. In this approach, in          steps of gradient descent. To that end, we propose PTLOC, where
+                                        addition to the averaged global loss across all heterogeneous data         local constraints for each data source are imposed in addition to the
+                                        sources, we also impose constraints that require each source of the        global averaged loss, requiring that the model also optimize each
+                                        heterogeneous data to reach its local loss optimum after K-step gradi-     source of heterogeneous data to its local optimum after K-step gra-
+                                        ent descent initialized from the model. Such constraints on the local      dient descent initialized from θ. This is formulated as the following
+                                        optimum will ensure that, when optimizing the averaged loss, a good        bilevel optimization problem:
+                                        feature representation for each source is also preserved. We formulate                     M
+                                        this self-supervised pre-training with local constraints (PTLOC) as a                 1 X X
+                                                                                                                         min               ℓi (ϕ∗i (θ); x, Di )
+                                        bilevel optimization problem [5–9] where the upper problem is the                  θ M
+                                                                                                                                  i=1 x∈Di
+                                        averaged global loss across all data sources, while the lower problem                  ∗
+                                                                                                                                                   X
+                                        is the local loss of each data source. We use the first-order approxi-           s.t. ϕi (θ) = argmin           ℓi (ϕi (θ); x, Di ), i ∈ [M ].   (2)
+                                                                                                                                            ϕi
+                                        mation method to solve this bilevel optimization problem and discuss                                      x∈Di
+where the upper level problem is the averaged global loss with θ being               Applying the chain rule, we have
+the initialization model parameter shared by data from all sources
+                                                                                                  M                    M
+and the lower level problem is M local losses with model parameter                             1 X                  1 X
+ϕi (θ) for each data source. The dependency of ϕi (θ) on θ is through             ∇θ f (θ) ≈         ∇θ gi (ϕiK ) =       ∇ϕi gi (ϕiK )∇θ (ϕiK )
+                                                                                               M i=1                M i=1
+a function of K-step gradient descent starting from θ, which will
+                                                                                                  M
+become clear in Section 3. By imposing the constraints in the lower-                           1 X
+level problem, we ensure that the resulting model not only produces                        =         ∇ϕi gi (ϕiK )∇ϕi (ϕiK ) · · · ∇ϕi (ϕi1 )∇θ (ϕi0 )
+                                                                                               M i=1                K−1              0
+a good average global loss but also serves as a good initialization that
+                                                                                                  M                K
+can reach a local optimal point of the local loss from each data source                        1 X                 Y
+after a few steps of gradient descent.                                                     =         ∇ϕi gi (ϕiK )   ∇ϕi (ϕik ) · I                   (9)
+                                                                                               M i=1                   k−1
+                                                                                                                    k=1
+
+
+                           3. OPTIMIZATION                                       In the last step ∇θ (ϕi0 ) = I which is due to ϕi0 = θ since the gradient
+                                                                                 descent starts from the shared parameter θ.
+To solve the bilevel optimization problem in Eq. (2), we first define                 We then expand each ϕik with its gradient descent update in Eq.
+the following functions to simplify the derivation                               (5)
+                            M
+                         1 X X                                                                    M                K
+               f (θ) ≜                 ℓi (ϕ∗i (θ); x, Di )       (3)                          1 X                 Y
+                        M i=1 x∈D                                                ∇θ f (θ) ≈          ∇ϕi gi (ϕiK )   ∇ϕi [ϕik−1 − α∇ϕi gi (ϕik−1 )]
+                                     i                                                         M i=1                   k−1
+                                                                                                                   k=1
+                        X
+             gi (ϕi ) ≜      ℓi (ϕi (θ); x, Di ), i ∈ [M ]        (4)                       1 X
+                                                                                               M                K
+                                                                                                                Y
+                           x∈Di                                                           =       ∇ϕi gi (ϕiK )   [I − α∇2ϕi gi (ϕik−1 )]
+                                                                                            M i=1
+                                                                                                                   k=1
+where f (·) and gi (·) denote the upper level and lower level problems                         M
+in Eq. 2 respectively.                                                                      1 X
+                                                                                          ≈       ∇ϕi gi (ϕiK )                                      (10)
+                                                                                            M i=1
+3.1. Solving the lower level problem                                             where in the last step we apply the first-order approximation by
+There are M lower-level problems, one for each data source. We                   assuming the second-order Hessian matrix is zero
+first solve each of the lower-level problems gi (ϕi ) using K-step gra-                              ∇2ϕi gi (ϕik−1 ) = 0, k ∈ [K].                  (11)
+dient descent starting from a common parameter θ shared by all data
+sources from the upper level, with a learning rate α                             Particularly, if we only conduct gradient descent on the lower level
+                                                                                 for just one step (i.e., K = 1), we have
+               ϕik   =   ϕik−1   −   α∇ϕi gi (ϕik−1 ),   i ∈ [M ]         (5)
+                                                                                                                    M
+                                                                                                                 1 X
+where ϕi0 = θ. ϕiK is used to approximate ϕ∗i (θ): ϕ∗i (θ) ≈ ϕiK .                                  ∇θ f (θ) ≈         ∇ϕi gi (ϕi1 ).                (12)
+Particularly, when K = 1, we have                                                                                M i=1
+
+                          ϕ∗i (θ) ≈ θ − α∇ϕi gi (θ).                      (6)
+                                                                                                      4. IMPLEMENTATION
+The dependency of ϕi (θ) on θ is obvious in Eq. 5 with Eq. (6) being
+a special case when K = 1.                                                       Based on the derivation in Secs. 3.1 and 3.2, the pseudo-code imple-
+                                                                                 mentation of PTLOC is given in Algorithm 1. The PTLOC training is
+3.2. Solving the upper level problem                                             carried out in T iterations, where the problems of the lower and upper
+                                                                                 levels are alternately optimized. Specifically, in each iteration, the M
+The upper level problem f (θ) is the global loss of all data sources             lower-level problems on each data source are first (approximately)
+starting from a shared parameter θ. We also solve it using gradient              solved individually using K-step gradient descent. The gradient de-
+descent with a learning rate β                                                   scent is initialized with the global model parameter from the upper
+                                                                                 level, which is the same for each of the M problems. After the lower-
+                     θt = θt−1 − β∇θ f (θt−1 ).                  (7)
+                                                                                 level problem is (approximately) solved, the resulting local optimum
+Its gradient ∇θ f (θ) is computed based on gradient unrolling [11–13]            of each problem is used to evaluate its gradient. The upper-level prob-
+as follows 1                                                                     lem is then optimized using gradient descent based on the averaged
+                                                                               gradients evaluated from the M lower-level problems. We find that
+                         M                                                       in order for PTLOC to perform well, it needs to be appropriately
+                    1 X           X
+       ∇θ f (θ) =           ∇θ       ℓi (ϕ∗i (θ); x, Di )                      initialized. In our experiments, we always initialize PTLOC with a
+                    M i=1        x∈D         i                                   model trained from CSSL. Based on the observation in [14], when a
+                      M                       M                                  deep model is sufficiently trained, the majority of the eigenvalues of
+                   1 X                     1 X
+                 =       ∇θ gi (ϕ∗i (θ)) ≈       ∇θ gi (ϕiK )             (8)    the Hessian matrix of the loss function tend to be zero. This makes
+                   M i=1                   M i=1                                 the assumption in Eq. (11) more accurate and therefore the first-order
+                                                                                 approximation more legitimate.
+The last step is because ϕ∗i (θ) is approximated by ϕiK .                             When considering the first-order approximation with one step
+                                                                                 gradient descent, PTLOC shares similarity with MAML from the
+    1 To avoid cluttered notation, we will drop the step index t in θ and θ in
+                                                                     t           optimization perspective, as MAML can also be interpreted from
+ϕi (θ) and ϕ∗i (θ) in the derivation.                                            a bilevel optimization framework [15, 16]. There are works using
+  Algorithm 1: Self-Supervised Pre-Training with Local                       Domain              Pre-training       Fine-tuning      Test
+  Constraints (PTLOC)                                                        Broadcast News         420h                 -             -
+                                                                             ViaVoice               450h                 -             -
+   Input: data sources M , iterations T , local update steps K,
+                                                                             AMI meetings            80h                 -             -
+     local learning rate α, global learning rate β.
+                                                                             GB English             183h                50h          6.2h
+    Initialize model parameters θ0 ;                                         Librispeech            860h               100h       5.4h/5.3h
+    // T iterations                                                          AU English                -               250h          1.3h
+    for t = 1 : T do                                                         Hospitality               -                40h          1.2h
+         // lower level optimization                                         Accented                  -                40h       2.1h/2.4h
+         for i = 1 : M do
+                                                                         Table 1. Speech data from multiple domains used in self-supervised
+              Copy the model from upper level ϕi0 = θt−1 ;
+                                                                         pre-training and downstream fine-tuning/test tasks.
+              Sample a batch from Di ;
+              for k = 1 : K do                                           are concatenated which gives 240-dimensional input vectors. The
+                                                                         model has 10 conformer blocks. Each block has 512 hidden units and
+                  Compute gradient ∇ϕi gi (ϕik−1 ) on this batch;
+                                                                         8 attention heads of 64 dimensions. The convolution kernel size is 31.
+                  Update local model
+                                                                         The total number of parameters is 70M. The self-supervised training
+                   ϕik ← ϕik−1 − α∇ϕi gi (ϕik−1 );                       is carried out using BEST-RQ. The masking probability in BEST-RQ
+              end                                                        is 0.02. The mask span is 20 frames. The masked frames are replaced
+         end                                                             with Gaussian noise with 0 mean and 0.1 variance. The size of the
+         // upper level optimization                                     random codebook is 256.
+         Compute global gradient
+                            PM                                                For the CSSL baseline, we start the training with a learning rate
+                          1                 i
+           ∇θ f (θt−1 ) = M    i=1 ∇ϕi gi (ϕK );                         2e − 4 for 60 epochs which is then annealed by √12 every epoch
+         Update global model                                             afterward. The training ends after 80 epochs. For PTLOC, we start
+           θt ← θt−1 − β∇θ f (θt−1 );                                    the training with a local learning rate α = 1e−4 and a global learning
+    end                                                                  rate β = 1e−5 for 40 epochs. They are then annealed by √12 every
+                                                                         epoch afterward synchronously. The training ends after 60 epochs.
+MAML in acoustic modeling [17–20], most of which are on super-           The lower-level optimization on each data source is conducted in
+vised learning. However, there are differences between the two: i)       parallel. To deal with the unbalanced data size across different data
+PTLOC is on self-supervised learning without relying on ground-          sources, we make the batch size roughly proportional to the total
+truth labels; and, ii) PTLOC uses the same training data in both the     amount of data to make each data source produce about the same
+upper and lower level problems without any validation data as those      number of batches. In addition, we also make random skipping of
+in the meta learning design [10, 16]. The similarity between the two     batches during the training when a data source has more batches than
+is the outcome of the first-order approximation to the solution of a     the others. All training uses the AdamW optimizer.
+bilevel optimization problem.                                                 After pre-training, a linear layer is added to the pre-trained
+                                                                         conformer model for FT with labeled data on each of the down-
+                       5. EXPERIMENTS                                    stream ASR tasks using the Connectionist Temporal Classification
+                                                                         (CTC) [23] criterion. The softmax layer contains 43 output units,
+We evaluate the proposed PTLOC on two sets of experiments. One is        including 42 characters and the null symbol. The FT starts with a
+a self-supervised English acoustic model pre-training using speech       learning rate β = 1e−4 for 5 epochs which is then annealed by √12
+data from multiple domains based on BEST-RQ [4]. The other is
+                                                                         every epoch afterward. The FT ends after 15 epochs.
+a self-supervised multilingual acoustic model pre-training based on
+contrastive predictive coding (CPC) [21].
+                                                                            Model             Hosp       Acct         AU GB        Libri
+5.1. Multi-Domain Pre-Training                                                                        asian/latin               clean/other
+                                                                           CSSL               22.0    16.6/17.8       35.2 27.9 12.4/24.5
+In this experiment, we use English data collected from a broad variety     PTLOC (K=1)        18.5    15.8/17.0       24.6 24.0 11.5/22.7
+of domains. All the speech signals have a sampling rate of 16KHz.          PTLOC (K=3)        18.7    15.7/17.1       26.9 24.5 11.5/22.7
+Table 1 gives the details of the domain distribution and the amount
+of data from each domain. Data is collected from a total of eight do-    Table 2. WERs of CSSL and PTLOC on five downstream ASR tasks
+mains, including Broadcast News, ViaVoice dictation, AMI meetings,       with different K.
+British (GB) English, Librispeech, Australian (AU) English, Hospi-
+tality, and Accented English (Asian and Latin). Among these eight             Table 2 compares word error rates (WERs) of CSSL as the base-
+domains, data from the first five domains is used for pre-training,      line and the proposed PTLOC on five downstream ASR tasks. Each
+while that from the last five is used for downstream FT and test.        task represents an ASR application in a particular domain. We also
+Therefore, in the downstream FT tasks, two domains are seen in the       compare the performance of PTLOC with different K-step local up-
+pre-training, and three domains are unseen. The data is unbalanced       dates in the lower-level optimization. It can be observed that PTLOC
+in amount. We use this setting to simulate real-world application        shows improvements over CSSL on seven test sets across all down-
+scenarios. The hours of speech on test sets are shown in the table.      stream tasks. It can also be observed that running more local updates
+Note that Librispeech (clean/other) and Accented (Asian/Latin) both      (K=3) may not necessarily yield better performance, but increases the
+have two test sets.                                                      computational cost. Therefore, we will stick to K=1 in the remaining
+     The pre-trained acoustic model is a Conformer model [22]. The       experiments.
+input is 40-dimensional log-Mel spectrogram features and their first          In the experiments in Table 2, we use CSSL to initialize PTLOC.
+and second-order derivatives. Features of every two adjacent frames      This procedure can be iterative where we can use CSSL and PTLOC
+to perform mutual initialization. By doing this, both landscapes of                   Language      Pre-training     Fine-tuning     Test
+the upper global loss and lower local loss will be further explored                   English          357h               -            -
+and hopefully we can end up with a better optimum. The results                        French           180h               -            -
+are given in Table 3. We conduct three rounds of CSSL and PTLOC                       Dutch            119h               -            -
+sequentially (denoted CSSL.i and PTLOC.i, respectively, i = 1, 2, 3).                 Turkish             -              2h           2h
+We initialize PTLOC.i using CSSL.i and initialize CSSL.i+1 using                      Swedish             -              2h           2h
+PTLOC.i. In every round, we use the same training schedule as                         Tamil               -              2h           1h
+that in Table 2. The results clearly show that this iterative training                Welsh               -              1h           1h
+strategy can greatly improve the adaptivity of the pre-trained model
+which obtains significant WER reduction in all downstream ASR              Table 4. Multilingual speech data used in self-supervised pre-training
+tasks. The results also show that CSSL does not always improve over        and downstream fine-tuning/test tasks.
+                                                                            1
+the PTLOC model which initializes it on all downstream domains.            10
+                                                                               every epoch for next 20 epochs. The training ends at 100 epochs.
+This is because the averaged global loss can not guarantee good            For PTLOC, we start the training with a local learning rate α = 5e−3
+performance on each specific domain. On the other hand, PTLOC              and global learning rate β = 5e − 4 for 60 epochs. They are then
+                                                                                          1
+always outperforms its initial CSSL model in every downstream              annealed by 10    every epoch afterward synchronously. The training
+domain and hence demonstrates its superior robustness. Overall,            ends after 80 epochs. All the training uses the AdamW optimizer.
+if we compare the final WERs after the iterative training (the last             After pre-training, a linear classification layer is added to the pre-
+row) to the baseline (the first row), that gives rise to 15%-40%           trained Conformer model for FT on labeled data for each downstream
+relative improvements across the seven test sets and the improvements      ASR task using the CTC criterion. The softmax layer comprises
+are consistent. Note that the WERs of the Librispeech baseline             1,000 labels, which are generated using SentencePiece [25]. FT is
+(12.4/24.5) use only 100 hours of labeled data for supervised FT. It       performed for 30 epochs with an initial learning rate of β =5e−5,
+should not be confused with WERs using 960 hours of labeled data,          which is reduced by a factor of 10 after each subsequent epoch. The
+commonly reported in the literature. Furthermore, its distribution is      FT concludes after 50 epochs.
+further flattened by data from various domains. (As a reference, if we
+only use 860 hours of unlabeled speech and remove data from other                   Model         Turkish     Swedish      Tamil     Welsh
+domains in CSSL.1, the WERs are 7.4/20.1).                                          CSSL.1         41.6        52.1         72.2     57.9
+                                                                                    PTLOC.1        40.2        51.3         71.6     57.1
+   Model         Hosp        Acct       AU       GB         Libri
+                                                                                    CSSL.2         39.9        50.8         71.5     56.8
+                          asian/latin                   clean/other
+                                                                                    PTLOC.2        38.2        48.9         70.7     56.1
+   CSSL.1        22.0     16.6/17.8     35.2    27.9     12.4/24.5
+                                                                                    CSSL.3         38.1        48.5         70.3     56.0
+   PTLOC.1       18.5     15.8/17.0     24.6    24.0     11.5/22.7
+                                                                                    PTLOC.3        37.6        47.8         70.1     55.2
+   CSSL.2        19.6     15.3/16.1     28.4    21.2     10.3/20.1
+   PTLOC.2       16.2     14.2/15.4     24.3    20.1     10.2/19.7         Table 5. WERs of iterative CSSL and PTLOC on four downstream
+   CSSL.3        17.4     15.5/16.1     24.6    18.9     10.2/19.8         fine-tuning ASR tasks on different languages. In the training, CSSL
+   PTLOC.3       15.6     13.7/15.1     21.3    18.4      9.4/18.2         and PTLOC alternately initialize each other.
+Table 3. WERs of iterative CSSL and PTLOC on five downstream
+fine-tuning ASR tasks. In the training, CSSL and PTEC alternately               Table 5 compares the WERs of CSSL, used as the baseline, and
+initialize each other.                                                     the proposed PTLOC across four downstream ASR tasks in different
+                                                                           languages. We also follow the same iterative mutual initialization pro-
+5.2. Multilingual Pre-Training                                             cess as in the multi-domain experiments. We conduct three rounds of
+                                                                           sequential training, where CSSL is trained for 100 epochs, followed
+For the multilingual pre-training experiment, we use a subset of the       by 80 epochs of PTLOC training in each round. The results from the
+multilingual data from the CoVoST v2 dataset [24], which is sampled        multilingual experiments exhibit a similar trend to those observed in
+at 48 kHz. Table 4 provides details on the language distribution           the multi-domain setting. The proposed iterative training strategy sig-
+and the amount of data for each language. The data includes seven          nificantly enhances the adaptivity of the pre-trained model, leading to
+languages. The first three languages (English, French, Dutch) are          consistent WER reductions across all four unseen languages. Specifi-
+used for pre-training and the remaining four (Turkish, Swedish, Tamil,     cally, when comparing the final WERs after iterative training (the last
+Welsh) are used for downstream FT ASR tasks. Unlike the multi-             row) to the baseline (the first row), we observe relative improvements
+domain experiment in Sec.5.1, there is no overlap between the pre-         of 2.9%–9.6% across the four test sets.
+training and FT languages in this experiment. But both the pre-
+training and FT data are unbalanced in quantity.
+     We pre-train a Conformer model using raw audio. We employ                                         6. SUMMARY
+a 1D convolutional layer with a kernel size of 3 to capture local
+temporal dependencies in the input signal before passing it to the         In this paper, we propose PTLOC to deal with data heterogeneity in
+Conformer encoder. During pre-training, the CPC loss is computed           self-supervised pre-training. Local constraints are imposed to ensure
+using a context length of 256 samples, along with 12 positive and 12       that the models optimize each data source to its local optimum after K-
+negative samples per instance. The model consists of 8 Conformer           step gradient descent initialized from the model. We use the first-order
+blocks, each containing 512 hidden units and 8 attention heads of 64       approximation to solve the resulting bilevel optimization problem.
+dimensions. The convolutional kernel size is 31. The total number of       Experiments are carried out on multi-domain and multilingual ASR
+parameters is 59M.                                                         tasks. It shows that PTLOC can significantly improve the adaptivity
+     For the CPC baseline, we start the training with a learning rate of   of the pre-trained model, which can yield improved performance in
+5e−3 and continue training for 80 epochs which is then annealed by         downstream fine-tuning tasks.
+                        7. REFERENCES                                    [15] C. Fan, P. Ram, and S. Liu, “Sign-MAML: efficient model-
+                                                                              agnostic meta-learning by SignSGD,” in 5th NeurIPS Workshop
+ [1] Alexei Baevski, Steffen Schneider, and Michael Auli, “vq-                on Meta-Learning, 2021.
+     wav2vec: Self-supervised learning of discrete speech represen-
+                                                                         [16] M. Abbas, Q. Xiao, L. Chen, P.-Y. Chen, and T. Chen, “Sharp-
+     tations,” arXiv preprint arXiv:1910.05453, 2019.
+                                                                              MAML: sharpness-aware model-agnostic meta learning,” in
+ [2] Alexei Baevski, Yuhao Zhou, Abdelrahman Mohamed, and                     Proceedings of the International Conference on Machine Learn-
+     Michael Auli, “wav2vec 2.0: A framework for self-supervised              ing (ICML), 2022.
+     learning of speech representations,” Advances in neural infor-
+                                                                         [17] J.-Y. Hsu, Y.-J. Chen, and H. y. Lee, “Meta learning for end-
+     mation processing systems, vol. 33, pp. 12449–12460, 2020.
+                                                                              to-end low-resource speech recognition,” in International Con-
+ [3] Wei-Ning Hsu, Benjamin Bolte, Yao-Hung Hubert Tsai, Kushal               ference on Acoustics, Speech and Signal Processing (ICASSP),
+     Lakhotia, Ruslan Salakhutdinov, and Abdelrahman Mohamed,                 2020, pp. 7844–7848.
+     “Hubert: Self-supervised speech representation learning by
+                                                                         [18] R. Zhou, T. Koshikawa, A. Ito, T. Nose, and C.-P. Chen, “Mul-
+     masked prediction of hidden units,” IEEE/ACM Transactions
+                                                                              tilingual meta-transfer learning for low-resource speech recog-
+     on Audio, Speech, and Language Processing, vol. 29, pp. 3451–
+                                                                              nition,” IEEE Access, pp. 158493–158504, 2024.
+     3460, 2021.
+ [4] C.-C. Chiu, J. Qin, Y. Zhang, J. Yu, and Y. Wu, “Self-supervised    [19] C. S. Anoop and A. G. Ramakrishnan, “Meta-learning for
+     learning with random-projection quantizer for speech recog-              Indian languages: performance analysis and improvements with
+     nition,” in International Conference on Machine Learning                 linguistic similarity measures,” IEEE Access, vol. 11, pp. 82050–
+     (ICML), 2022, pp. 3915–3924.                                             820645, 2023.
+
+ [5] Risheng Liu, Jiaxin Gao, Jin Zhang, Deyu Meng, and Zhouchen         [20] W. Lin and M.-W. Mak, “Model-agnostic meta-learning for
+     Lin, “Investigating bi-level optimization for learning and vision        fast text-dependent speaker embedding adaptation,” IEEE/ACM
+     from a unified perspective: A survey and beyond,” IEEE Trans-            Transactions on Audio, Speech, and Language Processing, vol.
+     actions on Pattern Analysis and Machine Intelligence, vol. 44,           31, pp. 1866–1876, 2023.
+     no. 12, pp. 10045–10067, 2021.                                      [21] Aaron van den Oord, Yazhe Li, and Oriol Vinyals, “Representa-
+ [6] Caroline Crockett and Jeffrey A Fessler, “Bilevel methods for            tion learning with contrastive predictive coding,” arXiv preprint
+     image reconstruction,” Foundations and Trends® in Signal                 arXiv:1807.03748, 2018.
+     Processing, vol. 15, no. 2-3, pp. 121–289, 2022.                    [22] A. Gulati, J. Qin, C.-C. Chiu, N. Parmar, Y. Zhang, J. Yu,
+ [7] Lisha Chen, Sharu Theresa Jose, Ivana Nikoloska, Sangwoo                 W. Han, S. Wang, Z. Zhang, Y. Wu, and R. Pang, “Conformer:
+     Park, Tianyi Chen, and Osvaldo Simeone, “Learning with lim-              Convolution-augmented transformer for speech recognition,” in
+     ited samples: Meta-learning and applications to communication            Interspeech, 2020, pp. 5036–5040.
+     systems,” Foundations and Trends® in Signal Processing, vol.        [23] A. Graves, S. Fernandez, F. Gomez, and J. Schmidhuber, “Con-
+     17, no. 2, pp. 79–208, 2023.                                             nectionist temporal classification: labelling unsegmented se-
+ [8] Songtao Lu and Tian Gao, “Meta-DAG: Meta causal discovery                quence data with recurrent neural networks,” in Proceedings
+     via bilevel optimization,” in IEEE International Conference on           of the 35th International Conference on Machine Learning
+     Acoustics, Speech and Signal Processing (ICASSP), 2023.                  (ICML), 2006, pp. 369–376.
+ [9] Luca Franceschi, Paolo Frasconi, Saverio Salzo, Riccardo            [24] Changhan Wang, Anne Wu, and Juan Pino, “Covost 2 and mas-
+     Grazzi, and Massimiliano Pontil, “Bilevel programming for hy-            sively multilingual speech-to-text translation,” arXiv preprint
+     perparameter optimization and meta-learning,” in International           arXiv:2007.10310, 2020.
+     Conference on Machine Learning, 2018, pp. 1568–1577.                [25] Taku Kudo and John Richardson, “Sentencepiece: A simple
+[10] Chelsea Finn, Pieter Abbeel, and Sergey Levine, “Model-                  and language independent subword tokenizer and detokenizer
+     agnostic meta-learning for fast adaptation of deep networks,”            for neural text processing,” arXiv preprint arXiv:1808.06226,
+     in International Conference on Machine Learning, 2017, pp.               2018.
+     1126–1135.
+[11] A. Shaban, C.-A. Cheng, N. Hatch, and B. Boots, “Truncated
+     back-propagation for bilevel optimization,” in International
+     Conference on Artificial Intelligence and Statistics (AISTATS),
+     2019.
+[12] R. Liu, P. Mu, X. Yuan, S. Zeng, and J. Zhang, “A generic first-
+     order algorithmic framework for bi-level programming beyond
+     lower-level singleton,” in International Conference on Machine
+     Learning (ICML), 2020.
+[13] Q. Shen, Y. Wang, Z. Yang, X. Li, H. Wang, Y. Zhang, J. Scar-
+     lett, Z. Zhu, and K. Kawaguchi, “Memory-efficient gradient
+     unrolling for large-scale bi-level optimization,” in Advances in
+     Neural Information Processing Systems (NeurIPS), 2024.
+[14] L. Sagun, L. Bottou, and Y. LeCun, “Eigenvalues of the Hessian
+     in deep learning: singularity and beyond,” arXiv:1611.07476,
+     2016.
+

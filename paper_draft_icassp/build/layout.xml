@@ -1,0 +1,939 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pdf2xml SYSTEM "pdf2xml.dtd">
+
+<pdf2xml producer="poppler" version="0.86.1">
+<page number="1" position="absolute" top="0" left="0" height="792" width="612">
+	<fontspec id="0" size="11" family="UABOIZ+NimbusRomNo9L-Medi" color="#000000"/>
+	<fontspec id="1" size="11" family="BMGPNX+NimbusRomNo9L-ReguItal" color="#000000"/>
+	<fontspec id="2" size="11" family="LSWZHY+NimbusRomNo9L-Regu" color="#000000"/>
+	<fontspec id="3" size="9" family="UABOIZ+NimbusRomNo9L-Medi" color="#000000"/>
+	<fontspec id="4" size="9" family="LSWZHY+NimbusRomNo9L-Regu" color="#000000"/>
+	<fontspec id="5" size="9" family="SJISBO+NimbusRomNo9L-MediItal" color="#000000"/>
+	<fontspec id="6" size="9" family="BMGPNX+NimbusRomNo9L-ReguItal" color="#000000"/>
+<text top="98" left="182" width="250" height="11" font="0">WHICH FINE-TUNING CHANGES MATTER?</text>
+<text top="112" left="87" width="440" height="11" font="0">PROBING REPRESENTATION SHIFTS IN ACCENTED SPEECH RECOGNITION</text>
+<text top="141" left="254" width="106" height="10" font="1">TODO: Author names</text>
+<text top="169" left="201" width="211" height="11" font="2">TODO: Affiliations and contact information</text>
+<text top="209" left="149" width="54" height="9" font="3">ABSTRACT</text>
+<text top="227" left="54" width="244" height="9" font="4">Fine-tuning changes speech representations, but recognition</text>
+<text top="239" left="54" width="244" height="9" font="4">accuracy alone does not reveal which changes an adapted</text>
+<text top="251" left="54" width="244" height="9" font="4">model uses. We study this dependence by selectively revert-</text>
+<text top="263" left="54" width="244" height="9" font="4">ing final-layer coordinates to their values before adaptation</text>
+<text top="275" left="54" width="163" height="9" font="4">while freezing the adapted CTC head.</text>
+<text top="275" left="227" width="71" height="9" font="4">Decision-Aligned</text>
+<text top="287" left="54" width="244" height="9" font="4">Delta Selection ranks these changes using the product of their</text>
+<text top="299" left="54" width="244" height="9" font="4">displacement and CTC-loss gradient. On two L2-ARCTIC</text>
+<text top="311" left="54" width="244" height="9" font="4">splits, reverting the lowest-ranked quarter of wav2vec 2.0</text>
+<text top="322" left="54" width="244" height="9" font="4">shift coordinates increases word error rate by 0.22 and 0.08</text>
+<text top="334" left="54" width="244" height="9" font="4">percentage points; reverting the highest-ranked quarter in-</text>
+<text top="346" left="54" width="244" height="9" font="4">creases it by 7.10 and 9.86 points. A data2vec checkpoint</text>
+<text top="358" left="54" width="244" height="9" font="4">exhibits the same deletion asymmetry, but rescaled random</text>
+<text top="370" left="54" width="244" height="9" font="4">selection outperforms the Taylor ranking at 50% retention.</text>
+<text top="382" left="54" width="244" height="9" font="4">These results establish uneven functional dependence on rep-</text>
+<text top="394" left="54" width="244" height="9" font="4">resentation shifts in the evaluated models, while showing that</text>
+<text top="406" left="54" width="244" height="9" font="4">a useful deletion ranking need not yield the best retained</text>
+<text top="418" left="54" width="122" height="9" font="4">representation at every budget.</text>
+<text top="435" left="69" width="51" height="9" font="5">Index Terms</text>
+<text top="435" left="120" width="10" height="9" font="3">—</text>
+<text top="435" left="134" width="164" height="9" font="4">speech recognition, self-supervised learn-</text>
+<text top="447" left="54" width="207" height="9" font="4">ing, model adaptation, representation analysis, CTC</text>
+<text top="476" left="130" width="93" height="9" font="3">1. INTRODUCTION</text>
+<text top="499" left="54" width="244" height="9" font="4">Adapting a speech recognizer to non-native speakers requires</text>
+<text top="511" left="54" width="244" height="9" font="4">it to accommodate pronunciation variability while preserving</text>
+<text top="523" left="54" width="244" height="9" font="4">linguistic distinctions. Self-supervised speech encoders pro-</text>
+<text top="535" left="54" width="244" height="9" font="4">vide a strong starting point for this adaptation <a href="layout.html#5">[1, 2]. </a>Super-</text>
+<text top="547" left="54" width="244" height="9" font="4">vised contrastive regularization, for example, uses repeated</text>
+<text top="559" left="54" width="244" height="9" font="4">transcripts to improve accented speech recognition <a href="layout.html#5">[3]. </a>Yet</text>
+<text top="571" left="54" width="244" height="9" font="4">the resulting word error rate (WER) summarizes the adapted</text>
+<text top="583" left="54" width="244" height="9" font="4">system as a whole. It does not tell us whether the recognizer</text>
+<text top="595" left="54" width="244" height="9" font="4">relies on changes distributed throughout its representation or</text>
+<text top="607" left="54" width="244" height="9" font="4">on a more selective set of changes. Understanding this depen-</text>
+<text top="618" left="54" width="244" height="9" font="4">dence would help distinguish what fine-tuning changes from</text>
+<text top="630" left="54" width="188" height="9" font="4">what the learned recognition rule actually uses.</text>
+<text top="643" left="69" width="229" height="9" font="4">Representation analyses offer part of this picture. Layer-</text>
+<text top="655" left="54" width="244" height="9" font="4">wise probes and similarity measures characterize acoustic</text>
+<text top="667" left="54" width="244" height="9" font="4">and linguistic information and its evolution during ASR</text>
+<text top="679" left="54" width="244" height="9" font="4">fine-tuning <a href="layout.html#5">[4, 5]. </a>Multitask fine-tuning can also preserve</text>
+<text top="690" left="54" width="244" height="9" font="4">acoustic and semantic information in separate final-layer</text>
+<text top="702" left="54" width="244" height="9" font="4">branches <a href="layout.html#5">[6]. </a>Such studies describe the information available</text>
+<text top="714" left="54" width="244" height="9" font="4">to downstream tasks. A complementary question concerns</text>
+<text top="209" left="315" width="244" height="9" font="4">the changes used by a particular adapted recognizer, whose</text>
+<text top="221" left="315" width="154" height="9" font="4">decision rule has already been learned.</text>
+<text top="246" left="330" width="229" height="9" font="4">Fine-tuning differences provide a natural object for this</text>
+<text top="258" left="315" width="244" height="9" font="4">question. In parameter space, task arithmetic uses differences</text>
+<text top="270" left="315" width="244" height="9" font="4">between source and adapted weights to edit model behav-</text>
+<text top="282" left="315" width="139" height="9" font="4">ior <a href="layout.html#5">[7]. </a>At the representation level,</text>
+<text top="282" left="457" width="57" height="9" font="6">Mind the Shift</text>
+<text top="282" left="517" width="42" height="9" font="4">shows that</text>
+<text top="294" left="315" width="244" height="9" font="4">differences between fine-tuned and pretrained speech embed-</text>
+<text top="306" left="315" width="244" height="9" font="4">dings can improve child ASR when fused with another en-</text>
+<text top="318" left="315" width="244" height="9" font="4">coder <a href="layout.html#5">[8]. </a>Its newly trained fusion head establishes that the</text>
+<text top="330" left="315" width="244" height="9" font="4">complete difference contains useful information. It leaves</text>
+<text top="342" left="315" width="244" height="9" font="4">open how an existing recognizer depends on individual com-</text>
+<text top="353" left="315" width="244" height="9" font="4">ponents of its own representation change. Likewise, learn-</text>
+<text top="365" left="315" width="244" height="9" font="4">able layer and dimension-wise source selection <a href="layout.html#5">[9] </a>optimizes</text>
+<text top="377" left="315" width="244" height="9" font="4">a downstream representation, allowing the readout to adjust</text>
+<text top="389" left="315" width="86" height="9" font="4">to the selected inputs.</text>
+<text top="414" left="330" width="229" height="9" font="4">We instead examine the adapted recognizer directly. For</text>
+<text top="426" left="315" width="244" height="9" font="4">the same waveform, we subtract the representation before</text>
+<text top="438" left="315" width="244" height="9" font="4">target-domain adaptation from the adapted representation.</text>
+<text top="450" left="315" width="244" height="9" font="4">We then retain selected coordinates of this shift and supply</text>
+<text top="462" left="315" width="244" height="9" font="4">the resulting representation to the original, frozen CTC head.</text>
+<text top="474" left="315" width="244" height="9" font="4">A removed shift coordinate reverts to its source value. No</text>
+<text top="486" left="315" width="244" height="9" font="4">readout is refitted. To order the coordinates, we use a Tay-</text>
+<text top="498" left="315" width="244" height="9" font="4">lor saliency criterion <a href="layout.html#5">[10] </a>that combines displacement with</text>
+<text top="510" left="315" width="202" height="9" font="4">sensitivity to the CTC loss. We call this procedure</text>
+<text top="510" left="520" width="39" height="9" font="6">Decision-</text>
+<text top="522" left="315" width="96" height="9" font="6">Aligned Delta Selection</text>
+<text top="522" left="414" width="145" height="9" font="4">(DADS). Its role is to probe depen-</text>
+<text top="534" left="315" width="244" height="9" font="4">dence on the shift, with magnitude selection serving as a</text>
+<text top="546" left="315" width="97" height="9" font="4">matched-budget control.</text>
+<text top="571" left="330" width="229" height="9" font="4">Our experiments support two findings. First, two locally</text>
+<text top="583" left="315" width="244" height="9" font="4">adapted wav2vec 2.0 models retain nearly their full-shift</text>
+<text top="595" left="315" width="244" height="9" font="4">WER after the lowest-ranked quarter of coordinates is re-</text>
+<text top="607" left="315" width="244" height="9" font="4">verted, while reverting the highest-ranked quarter causes</text>
+<text top="619" left="315" width="244" height="9" font="4">a much larger loss. Second, a data2vec model shares this</text>
+<text top="631" left="315" width="244" height="9" font="4">asymmetry but favors rescaled random masks over DADS</text>
+<text top="643" left="315" width="244" height="9" font="4">at 50% retention. The contribution is thus an intervention-</text>
+<text top="655" left="315" width="244" height="9" font="4">based account of uneven dependence on final-layer adaptation</text>
+<text top="667" left="315" width="244" height="9" font="4">changes, together with evidence that coordinate importance</text>
+<text top="679" left="315" width="244" height="9" font="4">and retained-representation quality can diverge. We study</text>
+<text top="690" left="315" width="244" height="9" font="4">this dependence in each encoder’s native coordinate basis on</text>
+<text top="702" left="315" width="244" height="9" font="4">L2-ARCTIC, using checkpoint pairs with recorded initializa-</text>
+<text top="714" left="315" width="18" height="9" font="4">tion.</text>
+</page>
+<page number="2" position="absolute" top="0" left="0" height="792" width="612">
+	<fontspec id="7" size="9" family="QXGWEP+CMMI10" color="#000000"/>
+	<fontspec id="8" size="6" family="WJKJIZ+CMR7" color="#000000"/>
+	<fontspec id="9" size="9" family="SABWNE+CMR10" color="#000000"/>
+	<fontspec id="10" size="9" family="SDNRQD+CMSY10" color="#000000"/>
+	<fontspec id="11" size="9" family="QDTWCG+MSBM10" color="#000000"/>
+	<fontspec id="12" size="6" family="TEVPOY+CMMI7" color="#000000"/>
+	<fontspec id="13" size="4" family="UHBMYO+CMMI5" color="#000000"/>
+	<fontspec id="14" size="6" family="WLPWCB+CMSY7" color="#000000"/>
+	<fontspec id="15" size="9" family="NUHBJW+CMEX10" color="#000000"/>
+	<fontspec id="16" size="9" family="LDBHLR+CMBX10" color="#000000"/>
+<text top="75" left="93" width="167" height="9" font="3">2. PROBING FINE-TUNING SHIFTS</text>
+<text top="97" left="54" width="225" height="9" font="3">2.1. Paired representations and coordinate reversion</text>
+<text top="116" left="54" width="13" height="9" font="4">Let</text>
+<text top="116" left="70" width="5" height="9" font="7">f</text>
+<text top="120" left="75" width="4" height="6" font="8">0</text>
+<text top="116" left="82" width="204" height="9" font="4">be the encoder before target-domain adaptation and</text>
+<text top="116" left="287" width="5" height="9" font="7">f</text>
+<text top="120" left="292" width="6" height="6" font="8">ft</text>
+<text top="128" left="54" width="166" height="9" font="4">its adapted descendant. Given waveform</text>
+<text top="128" left="224" width="6" height="9" font="7">x</text>
+<text top="128" left="230" width="68" height="9" font="4">, their final-layer</text>
+<text top="140" left="54" width="75" height="9" font="4">representations are</text>
+<text top="162" left="59" width="7" height="9" font="7">E</text>
+<text top="165" left="67" width="4" height="6" font="8">0</text>
+<text top="162" left="71" width="4" height="9" font="9">(</text>
+<text top="162" left="75" width="6" height="9" font="7">x</text>
+<text top="162" left="81" width="4" height="9" font="9">)</text>
+<text top="162" left="85" width="12" height="9" font="7">, E</text>
+<text top="165" left="96" width="6" height="6" font="8">ft</text>
+<text top="162" left="103" width="4" height="9" font="9">(</text>
+<text top="162" left="106" width="6" height="9" font="7">x</text>
+<text top="162" left="112" width="4" height="9" font="9">)</text>
+<text top="161" left="119" width="7" height="9" font="10">∈</text>
+<text top="164" left="128" width="7" height="8" font="11">R</text>
+<text top="160" left="135" width="5" height="6" font="12">T</text>
+<text top="162" left="140" width="4" height="4" font="13">x</text>
+<text top="159" left="144" width="6" height="7" font="14">×</text>
+<text top="160" left="151" width="4" height="6" font="12">d</text>
+<text top="162" left="155" width="3" height="9" font="7">,</text>
+<text top="162" left="180" width="12" height="9" font="9">∆(</text>
+<text top="162" left="192" width="6" height="9" font="7">x</text>
+<text top="162" left="198" width="14" height="9" font="9">) =</text>
+<text top="162" left="215" width="7" height="9" font="7">E</text>
+<text top="165" left="222" width="6" height="6" font="8">ft</text>
+<text top="162" left="228" width="4" height="9" font="9">(</text>
+<text top="162" left="232" width="6" height="9" font="7">x</text>
+<text top="162" left="238" width="4" height="9" font="9">)</text>
+<text top="161" left="244" width="8" height="9" font="10">−</text>
+<text top="162" left="254" width="7" height="9" font="7">E</text>
+<text top="165" left="261" width="4" height="6" font="8">0</text>
+<text top="162" left="265" width="4" height="9" font="9">(</text>
+<text top="162" left="269" width="6" height="9" font="7">x</text>
+<text top="162" left="275" width="4" height="9" font="9">)</text>
+<text top="162" left="279" width="3" height="9" font="7">.</text>
+<text top="162" left="287" width="12" height="9" font="4">(1)</text>
+<text top="184" left="54" width="244" height="9" font="4">Both encoders receive the same input and preserve frame</text>
+<text top="196" left="54" width="244" height="9" font="4">alignment. The source models in our experiments already</text>
+<text top="207" left="54" width="144" height="9" font="4">include LibriSpeech ASR training;</text>
+<text top="207" left="203" width="5" height="9" font="9">0</text>
+<text top="207" left="212" width="86" height="9" font="4">denotes the state be-</text>
+<text top="219" left="54" width="244" height="9" font="4">fore L2-ARCTIC adaptation, rather than an exclusively self-</text>
+<text top="231" left="54" width="219" height="9" font="4">supervised checkpoint. Unlike a parameter task vector,</text>
+<text top="231" left="276" width="12" height="9" font="9">∆(</text>
+<text top="231" left="289" width="6" height="9" font="7">x</text>
+<text top="231" left="294" width="4" height="9" font="9">)</text>
+<text top="243" left="54" width="128" height="9" font="4">depends on the input waveform.</text>
+<text top="255" left="69" width="13" height="9" font="4">Let</text>
+<text top="255" left="85" width="5" height="9" font="7">g</text>
+<text top="259" left="90" width="6" height="6" font="8">ft</text>
+<text top="255" left="96" width="4" height="9" font="9">(</text>
+<text top="255" left="100" width="6" height="9" font="7">h</text>
+<text top="255" left="106" width="15" height="9" font="9">) =</text>
+<text top="255" left="123" width="9" height="9" font="7">W</text>
+<text top="259" left="132" width="6" height="6" font="8">ft</text>
+<text top="255" left="139" width="6" height="9" font="7">h</text>
+<text top="255" left="147" width="8" height="9" font="9">+</text>
+<text top="255" left="157" width="4" height="9" font="7">b</text>
+<text top="259" left="161" width="6" height="6" font="8">ft</text>
+<text top="255" left="169" width="129" height="9" font="4">be the adapted linear CTC head,</text>
+<text top="267" left="54" width="183" height="9" font="4">applied frame by frame. For a binary mask</text>
+<text top="267" left="241" width="9" height="9" font="7">m</text>
+<text top="267" left="255" width="17" height="9" font="10">∈ {</text>
+<text top="267" left="272" width="5" height="9" font="9">0</text>
+<text top="267" left="277" width="3" height="9" font="7">,</text>
+<text top="267" left="281" width="5" height="9" font="9">1</text>
+<text top="267" left="286" width="5" height="9" font="10">}</text>
+<text top="266" left="291" width="4" height="6" font="12">d</text>
+<text top="267" left="296" width="2" height="9" font="4">,</text>
+<text top="279" left="54" width="172" height="9" font="4">shared across frames and utterances, define</text>
+<text top="305" left="56" width="6" height="4" font="15">˜︁</text>
+<text top="301" left="54" width="7" height="9" font="7">E</text>
+<text top="304" left="62" width="7" height="6" font="12">m</text>
+<text top="301" left="69" width="4" height="9" font="9">(</text>
+<text top="301" left="73" width="6" height="9" font="7">x</text>
+<text top="301" left="79" width="14" height="9" font="9">) =</text>
+<text top="301" left="96" width="7" height="9" font="7">E</text>
+<text top="304" left="103" width="4" height="6" font="8">0</text>
+<text top="301" left="108" width="4" height="9" font="9">(</text>
+<text top="301" left="112" width="6" height="9" font="7">x</text>
+<text top="301" left="117" width="13" height="9" font="9">) +</text>
+<text top="301" left="132" width="9" height="9" font="7">m</text>
+<text top="300" left="142" width="8" height="9" font="10">⊙</text>
+<text top="301" left="151" width="12" height="9" font="9">∆(</text>
+<text top="301" left="163" width="6" height="9" font="7">x</text>
+<text top="301" left="169" width="4" height="9" font="9">)</text>
+<text top="301" left="173" width="3" height="9" font="7">,</text>
+<text top="301" left="198" width="5" height="9" font="9">ˆ</text>
+<text top="301" left="197" width="5" height="9" font="7">y</text>
+<text top="304" left="202" width="7" height="6" font="12">m</text>
+<text top="301" left="212" width="27" height="9" font="9">= Dec</text>
+<text top="299" left="239" width="5" height="4" font="15">(︁</text>
+<text top="301" left="244" width="5" height="9" font="7">g</text>
+<text top="304" left="249" width="6" height="6" font="8">ft</text>
+<text top="301" left="255" width="4" height="9" font="9">(</text>
+<text top="305" left="261" width="6" height="4" font="15">˜︁</text>
+<text top="301" left="259" width="7" height="9" font="7">E</text>
+<text top="304" left="266" width="7" height="6" font="12">m</text>
+<text top="301" left="274" width="4" height="9" font="9">(</text>
+<text top="301" left="277" width="6" height="9" font="7">x</text>
+<text top="301" left="283" width="8" height="9" font="9">))</text>
+<text top="299" left="291" width="5" height="4" font="15">)︁</text>
+<text top="301" left="295" width="3" height="9" font="7">,</text>
+<text top="313" left="287" width="12" height="9" font="4">(2)</text>
+<text top="325" left="54" width="24" height="9" font="4">where</text>
+<text top="325" left="83" width="16" height="9" font="9">Dec</text>
+<text top="325" left="105" width="106" height="9" font="4">is greedy CTC decoding.</text>
+<text top="325" left="221" width="77" height="9" font="4">A retained coordi-</text>
+<text top="337" left="54" width="244" height="9" font="4">nate equals its adapted value; a reverted coordinate equals</text>
+<text top="349" left="54" width="93" height="9" font="4">its source value. Thus</text>
+<text top="349" left="151" width="9" height="9" font="7">m</text>
+<text top="349" left="165" width="8" height="9" font="9">=</text>
+<text top="349" left="177" width="6" height="9" font="16">1</text>
+<text top="349" left="187" width="111" height="9" font="4">recovers the adapted repre-</text>
+<text top="361" left="54" width="54" height="9" font="4">sentation and</text>
+<text top="361" left="112" width="9" height="9" font="7">m</text>
+<text top="361" left="126" width="8" height="9" font="9">=</text>
+<text top="361" left="139" width="6" height="9" font="16">0</text>
+<text top="361" left="148" width="150" height="9" font="4">supplies the source representation to</text>
+<text top="373" left="54" width="171" height="9" font="4">the adapted head. We call these endpoints</text>
+<text top="373" left="229" width="17" height="9" font="6">Full</text>
+<text top="373" left="248" width="14" height="9" font="4">and</text>
+<text top="373" left="266" width="30" height="9" font="6">NoShift</text>
+<text top="373" left="296" width="2" height="9" font="4">.</text>
+<text top="385" left="54" width="244" height="9" font="4">NoShift measures compatibility with the fixed adapted head;</text>
+<text top="397" left="54" width="244" height="9" font="4">evaluating the original recognizer would require its original</text>
+<text top="409" left="54" width="52" height="9" font="4">head as well.</text>
+<text top="420" left="69" width="75" height="9" font="4">All masks retain a</text>
+<text top="420" left="147" width="5" height="9" font="7">d</text>
+<text top="420" left="152" width="146" height="9" font="4">-dimensional representation and use</text>
+<text top="432" left="54" width="244" height="9" font="4">the same encoders and readout. The intervention changes</text>
+<text top="444" left="54" width="244" height="9" font="4">which adaptation displacements are supplied, without reduc-</text>
+<text top="456" left="54" width="244" height="9" font="4">ing encoder parameter count. This construction also requires</text>
+<text top="468" left="54" width="244" height="9" font="4">a valid source–descendant pair: matching hidden dimensions</text>
+<text top="480" left="54" width="56" height="9" font="4">and satisfying</text>
+<text top="480" left="114" width="7" height="9" font="7">E</text>
+<text top="484" left="121" width="4" height="6" font="8">0</text>
+<text top="480" left="128" width="30" height="9" font="9">+ ∆ =</text>
+<text top="480" left="163" width="7" height="9" font="7">E</text>
+<text top="484" left="170" width="6" height="6" font="8">ft</text>
+<text top="480" left="179" width="119" height="9" font="4">alone cannot establish check-</text>
+<text top="492" left="54" width="54" height="9" font="4">point lineage.</text>
+<text top="519" left="54" width="127" height="9" font="3">2.2. Decision-aligned ranking</text>
+<text top="537" left="54" width="244" height="9" font="4">We estimate coordinate importance on a labeled calibration</text>
+<text top="549" left="54" width="25" height="9" font="4">subset</text>
+<text top="549" left="81" width="8" height="9" font="10">D</text>
+<text top="553" left="89" width="5" height="6" font="12">u</text>
+<text top="549" left="96" width="202" height="9" font="4">of the adaptation training set. Define the transcript-</text>
+<text top="561" left="54" width="91" height="9" font="4">length-normalized loss</text>
+<text top="587" left="85" width="4" height="9" font="7">ℓ</text>
+<text top="591" left="89" width="11" height="6" font="12">x,y</text>
+<text top="587" left="101" width="27" height="9" font="9">(∆) =</text>
+<text top="581" left="135" width="5" height="9" font="9">1</text>
+<text top="594" left="132" width="3" height="9" font="10">|</text>
+<text top="594" left="134" width="5" height="9" font="7">y</text>
+<text top="594" left="140" width="3" height="9" font="10">|</text>
+<text top="587" left="144" width="7" height="9" font="10">L</text>
+<text top="591" left="150" width="17" height="6" font="8">CTC</text>
+<text top="586" left="168" width="5" height="4" font="15">(︁</text>
+<text top="587" left="173" width="5" height="9" font="7">g</text>
+<text top="591" left="177" width="6" height="6" font="8">ft</text>
+<text top="587" left="183" width="4" height="9" font="9">(</text>
+<text top="587" left="187" width="7" height="9" font="7">E</text>
+<text top="591" left="195" width="4" height="6" font="8">0</text>
+<text top="587" left="199" width="4" height="9" font="9">(</text>
+<text top="587" left="203" width="6" height="9" font="7">x</text>
+<text top="587" left="209" width="28" height="9" font="9">) + ∆(</text>
+<text top="587" left="237" width="6" height="9" font="7">x</text>
+<text top="587" left="243" width="8" height="9" font="9">))</text>
+<text top="587" left="250" width="9" height="9" font="7">, y</text>
+<text top="586" left="260" width="5" height="4" font="15">)︁</text>
+<text top="587" left="265" width="3" height="9" font="7">,</text>
+<text top="587" left="287" width="12" height="9" font="4">(3)</text>
+<text top="615" left="54" width="24" height="9" font="4">where</text>
+<text top="614" left="82" width="3" height="9" font="10">|</text>
+<text top="615" left="84" width="5" height="9" font="7">y</text>
+<text top="614" left="90" width="3" height="9" font="10">|</text>
+<text top="615" left="95" width="203" height="9" font="4">is the number of target characters. CTC sums over</text>
+<text top="627" left="54" width="244" height="9" font="4">valid frame-to-label alignments <a href="layout.html#5">[11]. </a>Gradients are evaluated</text>
+<text top="639" left="54" width="244" height="9" font="4">at the full adapted representation; neither model parameters</text>
+<text top="651" left="54" width="164" height="9" font="4">nor the calibration examples are updated.</text>
+<text top="663" left="69" width="84" height="9" font="4">Reverting coordinate</text>
+<text top="663" left="156" width="3" height="9" font="7">i</text>
+<text top="663" left="162" width="137" height="9" font="4">at all frames changes its values by</text>
+<text top="674" left="54" width="8" height="9" font="10">−</text>
+<text top="675" left="62" width="8" height="9" font="9">∆</text>
+<text top="678" left="70" width="8" height="6" font="12">t,i</text>
+<text top="675" left="79" width="207" height="9" font="4">. The first-order approximation to the loss change is</text>
+<text top="707" left="115" width="9" height="9" font="7">δℓ</text>
+<text top="710" left="124" width="3" height="6" font="12">i</text>
+<text top="706" left="130" width="18" height="9" font="10">≈ −</text>
+<text top="696" left="152" width="5" height="6" font="12">T</text>
+<text top="698" left="157" width="4" height="4" font="13">x</text>
+<text top="704" left="150" width="14" height="4" font="15">∑︂</text>
+<text top="720" left="150" width="3" height="6" font="12">t</text>
+<text top="720" left="153" width="10" height="6" font="8">=1</text>
+<text top="707" left="166" width="8" height="9" font="9">∆</text>
+<text top="710" left="174" width="8" height="6" font="12">t,i</text>
+<text top="707" left="183" width="4" height="9" font="9">(</text>
+<text top="707" left="187" width="6" height="9" font="7">x</text>
+<text top="707" left="192" width="4" height="9" font="9">)</text>
+<text top="700" left="205" width="10" height="9" font="7">∂ℓ</text>
+<text top="703" left="215" width="11" height="6" font="12">x,y</text>
+<text top="713" left="198" width="5" height="9" font="7">∂</text>
+<text top="713" left="203" width="8" height="9" font="9">∆</text>
+<text top="717" left="212" width="8" height="6" font="12">t,i</text>
+<text top="713" left="220" width="4" height="9" font="9">(</text>
+<text top="713" left="224" width="6" height="9" font="7">x</text>
+<text top="713" left="230" width="4" height="9" font="9">)</text>
+<text top="707" left="235" width="3" height="9" font="7">.</text>
+<text top="707" left="287" width="12" height="9" font="4">(4)</text>
+<text top="75" left="315" width="227" height="9" font="4">We rank coordinates by the following nonnegative score:</text>
+<text top="106" left="351" width="7" height="9" font="7">U</text>
+<text top="109" left="358" width="3" height="6" font="12">i</text>
+<text top="106" left="364" width="8" height="9" font="9">=</text>
+<text top="99" left="380" width="5" height="9" font="9">1</text>
+<text top="112" left="376" width="8" height="9" font="7">N</text>
+<text top="116" left="384" width="5" height="6" font="12">u</text>
+<text top="103" left="401" width="14" height="4" font="15">∑︂</text>
+<text top="120" left="392" width="3" height="6" font="8">(</text>
+<text top="120" left="395" width="11" height="6" font="12">x,y</text>
+<text top="120" left="406" width="3" height="6" font="8">)</text>
+<text top="120" left="409" width="12" height="7" font="14">∈D</text>
+<text top="122" left="421" width="4" height="4" font="13">u</text>
+<text top="95" left="430" width="5" height="6" font="12">T</text>
+<text top="98" left="434" width="4" height="4" font="13">x</text>
+<text top="103" left="427" width="14" height="4" font="15">∑︂</text>
+<text top="119" left="428" width="3" height="6" font="12">t</text>
+<text top="119" left="431" width="10" height="6" font="8">=1</text>
+<text top="98" left="443" width="3" height="4" font="15">⃓</text>
+<text top="104" left="443" width="3" height="4" font="15">⃓</text>
+<text top="110" left="443" width="3" height="4" font="15">⃓</text>
+<text top="116" left="443" width="3" height="4" font="15">⃓</text>
+<text top="106" left="446" width="8" height="9" font="9">∆</text>
+<text top="109" left="455" width="8" height="6" font="12">t,i</text>
+<text top="106" left="463" width="4" height="9" font="9">(</text>
+<text top="106" left="467" width="6" height="9" font="7">x</text>
+<text top="106" left="473" width="4" height="9" font="9">)</text>
+<text top="99" left="485" width="10" height="9" font="7">∂ℓ</text>
+<text top="102" left="495" width="11" height="6" font="12">x,y</text>
+<text top="112" left="478" width="5" height="9" font="7">∂</text>
+<text top="112" left="484" width="8" height="9" font="9">∆</text>
+<text top="116" left="492" width="8" height="6" font="12">t,i</text>
+<text top="112" left="501" width="4" height="9" font="9">(</text>
+<text top="112" left="505" width="6" height="9" font="7">x</text>
+<text top="112" left="510" width="4" height="9" font="9">)</text>
+<text top="98" left="515" width="3" height="4" font="15">⃓</text>
+<text top="104" left="515" width="3" height="4" font="15">⃓</text>
+<text top="110" left="515" width="3" height="4" font="15">⃓</text>
+<text top="116" left="515" width="3" height="4" font="15">⃓</text>
+<text top="106" left="520" width="3" height="9" font="7">.</text>
+<text top="106" left="547" width="12" height="9" font="4">(5)</text>
+<text top="138" left="315" width="19" height="9" font="4">Here</text>
+<text top="138" left="337" width="8" height="9" font="7">N</text>
+<text top="142" left="345" width="5" height="6" font="12">u</text>
+<text top="138" left="353" width="8" height="9" font="9">=</text>
+<text top="137" left="363" width="11" height="4" font="15">∑︁</text>
+<text top="143" left="374" width="3" height="6" font="8">(</text>
+<text top="143" left="377" width="11" height="6" font="12">x,y</text>
+<text top="143" left="388" width="3" height="6" font="8">)</text>
+<text top="143" left="391" width="12" height="7" font="14">∈D</text>
+<text top="146" left="403" width="4" height="4" font="13">u</text>
+<text top="138" left="409" width="6" height="9" font="7">T</text>
+<text top="142" left="415" width="5" height="6" font="12">x</text>
+<text top="138" left="420" width="139" height="9" font="4">. The absolute value is taken before</text>
+<text top="150" left="315" width="244" height="9" font="4">summing over frames, avoiding cancellation between positive</text>
+<text top="162" left="315" width="175" height="9" font="4">and negative contributions. Consequently,</text>
+<text top="162" left="495" width="7" height="9" font="7">U</text>
+<text top="166" left="502" width="3" height="6" font="12">i</text>
+<text top="162" left="509" width="50" height="9" font="4">is an aggre-</text>
+<text top="174" left="315" width="244" height="9" font="4">gate local saliency score, rather than the signed loss change</text>
+<text top="186" left="315" width="244" height="9" font="4">in Eq. <a href="layout.html#2">4. </a>Its usefulness for a finite coordinate reversion is</text>
+<text top="198" left="315" width="244" height="9" font="4">assessed by recognition error. Padded frames are excluded;</text>
+<text top="210" left="315" width="244" height="9" font="4">all valid frames, including those involved in blank decisions,</text>
+<text top="222" left="315" width="43" height="9" font="4">contribute.</text>
+<text top="234" left="330" width="229" height="9" font="4">The magnitude and gradient controls use the same aggre-</text>
+<text top="246" left="315" width="28" height="9" font="4">gation:</text>
+<text top="271" left="367" width="10" height="9" font="7">M</text>
+<text top="275" left="376" width="3" height="6" font="12">i</text>
+<text top="271" left="382" width="8" height="9" font="9">=</text>
+<text top="265" left="398" width="5" height="9" font="9">1</text>
+<text top="278" left="394" width="8" height="9" font="7">N</text>
+<text top="282" left="402" width="5" height="6" font="12">u</text>
+<text top="268" left="414" width="14" height="4" font="15">∑︂</text>
+<text top="286" left="410" width="3" height="6" font="8">(</text>
+<text top="286" left="413" width="11" height="6" font="12">x,y</text>
+<text top="286" left="424" width="3" height="6" font="8">)</text>
+<text top="286" left="428" width="5" height="6" font="12">,t</text>
+<text top="271" left="435" width="3" height="9" font="10">|</text>
+<text top="271" left="437" width="8" height="9" font="9">∆</text>
+<text top="275" left="446" width="8" height="6" font="12">t,i</text>
+<text top="271" left="454" width="4" height="9" font="9">(</text>
+<text top="271" left="458" width="6" height="9" font="7">x</text>
+<text top="271" left="464" width="4" height="9" font="9">)</text>
+<text top="271" left="468" width="3" height="9" font="10">|</text>
+<text top="271" left="471" width="3" height="9" font="7">,</text>
+<text top="271" left="547" width="12" height="9" font="4">(6)</text>
+<text top="304" left="369" width="8" height="9" font="7">G</text>
+<text top="307" left="376" width="3" height="6" font="12">i</text>
+<text top="304" left="382" width="8" height="9" font="9">=</text>
+<text top="297" left="398" width="5" height="9" font="9">1</text>
+<text top="310" left="394" width="8" height="9" font="7">N</text>
+<text top="314" left="402" width="5" height="6" font="12">u</text>
+<text top="301" left="414" width="14" height="4" font="15">∑︂</text>
+<text top="318" left="410" width="3" height="6" font="8">(</text>
+<text top="318" left="413" width="11" height="6" font="12">x,y</text>
+<text top="318" left="424" width="3" height="6" font="8">)</text>
+<text top="318" left="428" width="5" height="6" font="12">,t</text>
+<text top="303" left="435" width="3" height="9" font="10">|</text>
+<text top="304" left="437" width="10" height="9" font="7">∂ℓ</text>
+<text top="307" left="447" width="11" height="6" font="12">x,y</text>
+<text top="304" left="459" width="10" height="9" font="7">/∂</text>
+<text top="304" left="470" width="8" height="9" font="9">∆</text>
+<text top="307" left="478" width="8" height="6" font="12">t,i</text>
+<text top="304" left="487" width="4" height="9" font="9">(</text>
+<text top="304" left="491" width="6" height="9" font="7">x</text>
+<text top="304" left="496" width="4" height="9" font="9">)</text>
+<text top="303" left="500" width="3" height="9" font="10">|</text>
+<text top="304" left="505" width="3" height="9" font="7">.</text>
+<text top="304" left="547" width="12" height="9" font="4">(7)</text>
+<text top="336" left="315" width="244" height="9" font="4">These controls isolate displacement size and loss sensitivity,</text>
+<text top="348" left="315" width="244" height="9" font="4">respectively. DADS combines both, following the established</text>
+<text top="360" left="315" width="210" height="9" font="4">use of activation–gradient products for saliency <a href="layout.html#5">[10].</a></text>
+<text top="386" left="315" width="117" height="9" font="3">2.3. Retention and deletion</text>
+<text top="405" left="315" width="105" height="9" font="4">For retention, we keep the</text>
+<text top="405" left="423" width="8" height="9" font="7">K</text>
+<text top="405" left="434" width="125" height="9" font="4">highest-ranked coordinates and</text>
+<text top="417" left="315" width="80" height="9" font="4">revert the remaining</text>
+<text top="416" left="398" width="5" height="9" font="7">d</text>
+<text top="416" left="405" width="8" height="9" font="10">−</text>
+<text top="416" left="415" width="8" height="9" font="7">K</text>
+<text top="417" left="424" width="135" height="9" font="4">. This tests how much recognition</text>
+<text top="429" left="315" width="244" height="9" font="4">performance the selected changes preserve. For deletion, we</text>
+<text top="441" left="315" width="244" height="9" font="4">start from Full and revert either the highest- or lowest-ranked</text>
+<text top="452" left="315" width="8" height="9" font="7">Q</text>
+<text top="453" left="326" width="233" height="9" font="4">coordinates. The difference between these two conditions</text>
+<text top="464" left="315" width="244" height="9" font="4">tests whether the ranking distinguishes changes with unequal</text>
+<text top="476" left="315" width="244" height="9" font="4">effects on the fixed readout. Removing the lowest-ranked</text>
+<text top="488" left="315" width="244" height="9" font="4">quarter is exactly the same mask as retaining the highest-</text>
+<text top="500" left="315" width="244" height="9" font="4">ranked 75%; these are two interpretations of one measure-</text>
+<text top="512" left="315" width="22" height="9" font="4">ment.</text>
+<text top="524" left="330" width="87" height="9" font="4">Random masks retain</text>
+<text top="524" left="420" width="8" height="9" font="7">K</text>
+<text top="524" left="433" width="126" height="9" font="4">uniformly selected coordinates.</text>
+<text top="536" left="315" width="194" height="9" font="4">A further control rescales their displacements by</text>
+<text top="536" left="511" width="19" height="9" font="7">d/K</text>
+<text top="536" left="531" width="3" height="9" font="4">:</text>
+<text top="566" left="389" width="6" height="4" font="15">˜︁</text>
+<text top="562" left="387" width="7" height="9" font="7">E</text>
+<text top="560" left="395" width="10" height="6" font="8">RS</text>
+<text top="567" left="395" width="7" height="6" font="12">m</text>
+<text top="562" left="409" width="8" height="9" font="9">=</text>
+<text top="562" left="419" width="7" height="9" font="7">E</text>
+<text top="566" left="427" width="4" height="6" font="8">0</text>
+<text top="562" left="433" width="8" height="9" font="9">+</text>
+<text top="556" left="446" width="5" height="9" font="7">d</text>
+<text top="569" left="444" width="8" height="9" font="7">K</text>
+<text top="562" left="455" width="9" height="9" font="7">m</text>
+<text top="562" left="466" width="8" height="9" font="10">⊙</text>
+<text top="562" left="476" width="8" height="9" font="9">∆</text>
+<text top="562" left="484" width="3" height="9" font="7">.</text>
+<text top="562" left="547" width="12" height="9" font="4">(8)</text>
+<text top="586" left="315" width="244" height="9" font="4">For uniform fixed-size masks, this preserves the expected dis-</text>
+<text top="598" left="315" width="244" height="9" font="4">placement over mask draws. It probes the effect of attenuating</text>
+<text top="610" left="315" width="244" height="9" font="4">the total shift, although an individual rescaled coordinate can</text>
+<text top="622" left="315" width="125" height="9" font="4">move beyond its adapted value.</text>
+<text top="649" left="373" width="129" height="9" font="3">3. EXPERIMENTAL SETUP</text>
+<text top="672" left="315" width="129" height="9" font="3">3.1. Data and adapted models</text>
+<text top="690" left="315" width="244" height="9" font="4">We use L2-ARCTIC, a corpus of non-native English read</text>
+<text top="702" left="315" width="244" height="9" font="4">speech <a href="layout.html#5">[12], </a>with the released split CSVs of Thai et al. <a href="layout.html#5">[3].</a></text>
+<text top="714" left="315" width="244" height="9" font="4">Each evaluated split has 18 training/development speakers</text>
+</page>
+<page number="3" position="absolute" top="0" left="0" height="792" width="612">
+<text top="82" left="54" width="32" height="9" font="3">Table 1</text>
+<text top="82" left="87" width="211" height="9" font="4">. Utterance counts in the evaluated released splits.</text>
+<text top="94" left="54" width="147" height="9" font="4">Calibration is a subset of training.</text>
+<text top="94" left="211" width="87" height="9" font="4">W1/W2 denote local</text>
+<text top="106" left="54" width="194" height="9" font="4">wav2vec 2.0 models; D0 denotes local data2vec.</text>
+<text top="120" left="83" width="50" height="9" font="4">Model / fold</text>
+<text top="120" left="150" width="21" height="9" font="4">Train</text>
+<text top="120" left="190" width="16" height="9" font="4">Dev</text>
+<text top="120" left="218" width="16" height="9" font="4">Test</text>
+<text top="120" left="246" width="24" height="9" font="4">Calib.</text>
+<text top="137" left="83" width="27" height="9" font="4">W1 / 1</text>
+<text top="137" left="144" width="27" height="9" font="4">16,070</text>
+<text top="137" left="184" width="22" height="9" font="4">1,979</text>
+<text top="137" left="220" width="15" height="9" font="4">686</text>
+<text top="137" left="248" width="22" height="9" font="4">1,615</text>
+<text top="149" left="83" width="27" height="9" font="4">W2 / 2</text>
+<text top="149" left="144" width="27" height="9" font="4">15,953</text>
+<text top="149" left="184" width="22" height="9" font="4">2,086</text>
+<text top="149" left="220" width="15" height="9" font="4">691</text>
+<text top="149" left="248" width="22" height="9" font="4">1,600</text>
+<text top="161" left="83" width="25" height="9" font="4">D0 / 0</text>
+<text top="161" left="144" width="27" height="9" font="4">16,312</text>
+<text top="161" left="184" width="22" height="9" font="4">1,867</text>
+<text top="161" left="220" width="15" height="9" font="4">675</text>
+<text top="161" left="248" width="22" height="9" font="4">1,640</text>
+<text top="198" left="54" width="244" height="9" font="4">and six disjoint test speakers, spanning the same six first-</text>
+<text top="210" left="54" width="244" height="9" font="4">language groups. Training and development share speakers.</text>
+<text top="222" left="54" width="244" height="9" font="4">The normalized transcript strings do not overlap across train,</text>
+<text top="234" left="54" width="244" height="9" font="4">development, and test. Some canonical prompt identifiers do</text>
+<text top="246" left="54" width="244" height="9" font="4">overlap, so this is not a strictly unseen-prompt evaluation.</text>
+<text top="258" left="54" width="155" height="9" font="4">Table <a href="layout.html#3">1 </a>gives the actual manifest sizes.</text>
+<text top="270" left="69" width="229" height="9" font="4">W1 and W2 start from the LibriSpeech-960h wav2vec 2.0</text>
+<text top="282" left="54" width="244" height="9" font="4">Large checkpoint and use local CTC plus supervised con-</text>
+<text top="294" left="54" width="244" height="9" font="4">trastive fine-tuning. D0 starts from data2vec Audio Large,</text>
+<text top="306" left="54" width="244" height="9" font="4">also trained on LibriSpeech-960h, and uses CTC-only adap-</text>
+<text top="318" left="54" width="226" height="9" font="4">tation. All three encoders have 24 Transformer layers and</text>
+<text top="318" left="282" width="5" height="9" font="7">d</text>
+<text top="318" left="290" width="8" height="9" font="9">=</text>
+<text top="330" left="54" width="20" height="9" font="9">1024</text>
+<text top="330" left="74" width="224" height="9" font="4">, and inherit a 32-symbol character vocabulary and CTC</text>
+<text top="342" left="54" width="244" height="9" font="4">head. We use the original head from each resulting check-</text>
+<text top="354" left="54" width="244" height="9" font="4">point. These are separate adaptation settings, not a matched</text>
+<text top="366" left="54" width="148" height="9" font="4">comparison of pretraining objectives.</text>
+<text top="378" left="69" width="229" height="9" font="4">Both recipes warm up the head for one epoch at learn-</text>
+<text top="390" left="54" width="30" height="9" font="4">ing rate</text>
+<text top="390" left="88" width="5" height="9" font="9">3</text>
+<text top="390" left="95" width="8" height="9" font="10">×</text>
+<text top="390" left="105" width="10" height="9" font="9">10</text>
+<text top="388" left="115" width="6" height="7" font="14">−</text>
+<text top="389" left="121" width="4" height="6" font="8">6</text>
+<text top="390" left="126" width="128" height="9" font="4">, followed by joint adaptation at</text>
+<text top="390" left="257" width="10" height="9" font="9">10</text>
+<text top="388" left="267" width="6" height="7" font="14">−</text>
+<text top="389" left="273" width="4" height="6" font="8">5</text>
+<text top="390" left="280" width="18" height="9" font="4">with</text>
+<text top="402" left="54" width="244" height="9" font="4">the convolutional feature encoder frozen. The maximum joint</text>
+<text top="414" left="54" width="244" height="9" font="4">budget is 40 epochs and selection uses development WER.</text>
+<text top="426" left="54" width="244" height="9" font="4">W1/W2 use transcript-grouped batches of 24 per GPU on</text>
+<text top="438" left="54" width="244" height="9" font="4">two GPUs, contrastive weight 0.05, temperature 0.1, projec-</text>
+<text top="450" left="54" width="244" height="9" font="4">tion dimension 256, and a linear learning-rate schedule. D0</text>
+<text top="462" left="54" width="244" height="9" font="4">uses batches of four on one GPU and a cosine schedule. The</text>
+<text top="474" left="54" width="244" height="9" font="4">selected joint checkpoints occur at steps 2,204, 1,406, and</text>
+<text top="486" left="54" width="244" height="9" font="4">16,312 for W1, W2, and D0, respectively. Each is one adap-</text>
+<text top="498" left="54" width="244" height="9" font="4">tation run with seed 1337. W1/W2 training clips audio to 10 s</text>
+<text top="510" left="54" width="244" height="9" font="4">and targets to 128 characters; shift evaluation uses complete</text>
+<text top="522" left="54" width="43" height="9" font="4">utterances.</text>
+<text top="551" left="54" width="135" height="9" font="3">3.2. Calibration and evaluation</text>
+<text top="570" left="54" width="244" height="9" font="4">Calibration takes every tenth utterance after sorting by utter-</text>
+<text top="582" left="54" width="244" height="9" font="4">ance identifier within each training speaker. This subset is</text>
+<text top="594" left="54" width="244" height="9" font="4">part of encoder training, rather than held out from adaptation.</text>
+<text top="606" left="54" width="244" height="9" font="4">Its labels determine a single ranking per checkpoint; devel-</text>
+<text top="618" left="54" width="244" height="9" font="4">opment and test labels are not used to calculate the scores.</text>
+<text top="630" left="54" width="244" height="9" font="4">We report the recorded retention budgets and compare them</text>
+<text top="642" left="54" width="95" height="9" font="4">within each checkpoint.</text>
+<text top="655" left="69" width="229" height="9" font="4">Both encoder passes use the same 16-kHz waveform and</text>
+<text top="667" left="54" width="244" height="9" font="4">the source processor, in evaluation mode. Features are cached</text>
+<text top="679" left="54" width="244" height="9" font="4">in float32. Full-shift reconstruction agrees with the adapted</text>
+<text top="690" left="54" width="61" height="9" font="4">features within</text>
+<text top="690" left="119" width="5" height="9" font="9">4</text>
+<text top="690" left="124" width="3" height="9" font="7">.</text>
+<text top="690" left="127" width="10" height="9" font="9">77</text>
+<text top="690" left="140" width="8" height="9" font="10">×</text>
+<text top="690" left="151" width="10" height="9" font="9">10</text>
+<text top="688" left="161" width="6" height="7" font="14">−</text>
+<text top="689" left="168" width="4" height="6" font="8">7</text>
+<text top="690" left="176" width="65" height="9" font="4">for W1/W2 and</text>
+<text top="690" left="245" width="5" height="9" font="9">1</text>
+<text top="690" left="250" width="3" height="9" font="7">.</text>
+<text top="690" left="253" width="10" height="9" font="9">20</text>
+<text top="690" left="266" width="8" height="9" font="10">×</text>
+<text top="690" left="278" width="10" height="9" font="9">10</text>
+<text top="688" left="288" width="6" height="7" font="14">−</text>
+<text top="689" left="294" width="4" height="6" font="8">7</text>
+<text top="702" left="54" width="186" height="9" font="4">for D0; maximum logit differences are below</text>
+<text top="702" left="244" width="5" height="9" font="9">7</text>
+<text top="702" left="249" width="3" height="9" font="7">.</text>
+<text top="702" left="252" width="10" height="9" font="9">63</text>
+<text top="702" left="264" width="8" height="9" font="10">×</text>
+<text top="702" left="275" width="10" height="9" font="9">10</text>
+<text top="700" left="285" width="6" height="7" font="14">−</text>
+<text top="701" left="291" width="4" height="6" font="8">6</text>
+<text top="702" left="296" width="2" height="9" font="4">.</text>
+<text top="714" left="54" width="244" height="9" font="4">All conditions use greedy CTC decoding without a language</text>
+<text top="82" left="315" width="31" height="9" font="3">Table 2</text>
+<text top="82" left="347" width="212" height="9" font="4">. Test WER (%) under the original frozen head. Re-</text>
+<text top="94" left="315" width="244" height="9" font="4">tention percentages refer to shift coordinates; all inputs re-</text>
+<text top="106" left="315" width="97" height="9" font="4">main 1024-dimensional.</text>
+<text top="119" left="351" width="40" height="9" font="4">Condition</text>
+<text top="119" left="437" width="14" height="9" font="4">W1</text>
+<text top="119" left="472" width="14" height="9" font="4">W2</text>
+<text top="119" left="508" width="12" height="9" font="4">D0</text>
+<text top="136" left="351" width="32" height="9" font="4">NoShift</text>
+<text top="136" left="429" width="22" height="9" font="4">20.33</text>
+<text top="136" left="464" width="22" height="9" font="4">19.15</text>
+<text top="136" left="498" width="22" height="9" font="4">13.77</text>
+<text top="148" left="351" width="16" height="9" font="4">Full</text>
+<text top="148" left="429" width="22" height="9" font="4">15.14</text>
+<text top="148" left="464" width="22" height="9" font="4">14.46</text>
+<text top="148" left="498" width="22" height="9" font="4">11.39</text>
+<text top="160" left="351" width="50" height="9" font="4">DADS, 75%</text>
+<text top="160" left="429" width="22" height="9" font="4">15.36</text>
+<text top="160" left="464" width="22" height="9" font="4">14.54</text>
+<text top="160" left="498" width="22" height="9" font="4">10.96</text>
+<text top="172" left="351" width="50" height="9" font="4">DADS, 50%</text>
+<text top="172" left="429" width="22" height="9" font="4">16.01</text>
+<text top="172" left="464" width="22" height="9" font="4">15.58</text>
+<text top="172" left="498" width="22" height="9" font="4">12.94</text>
+<text top="184" left="351" width="66" height="9" font="4">Magnitude, 50%</text>
+<text top="184" left="429" width="22" height="9" font="4">16.63</text>
+<text top="184" left="464" width="22" height="9" font="4">16.48</text>
+<text top="184" left="498" width="22" height="9" font="4">13.75</text>
+<text top="221" left="315" width="27" height="9" font="4">model.</text>
+<text top="221" left="352" width="207" height="9" font="4">WER is total word edit distance divided by total</text>
+<text top="233" left="315" width="244" height="9" font="4">reference words, reported as a percentage. References use</text>
+<text top="245" left="315" width="244" height="9" font="4">the project English normalizer; decoded hypotheses are low-</text>
+<text top="257" left="315" width="244" height="9" font="4">ercased and whitespace-tokenized. We report comparisons</text>
+<text top="269" left="315" width="145" height="9" font="4">within this common evaluation path.</text>
+<text top="281" left="330" width="229" height="9" font="4">W1/W2 have Full, NoShift, 75% and 50% DADS reten-</text>
+<text top="293" left="315" width="244" height="9" font="4">tion, 50% magnitude retention, and high/low-quarter deletion</text>
+<text top="305" left="315" width="244" height="9" font="4">results. D0 additionally has 25% retention, gradient-only,</text>
+<text top="317" left="315" width="244" height="9" font="4">random, and rescaled-random controls. Random results give</text>
+<text top="329" left="315" width="244" height="9" font="4">mean and sample standard deviation over masks with seeds</text>
+<text top="341" left="315" width="239" height="9" font="4">1337, 2027, and 31415; these are not repeated training runs.</text>
+<text top="371" left="370" width="134" height="9" font="3">4. RESULTS AND ANALYSIS</text>
+<text top="394" left="315" width="213" height="9" font="3">4.1. How much of the shift preserves recognition?</text>
+<text top="414" left="315" width="244" height="9" font="4">Table <a href="layout.html#3">2 </a>compares the endpoints and retained shifts. Keep-</text>
+<text top="426" left="315" width="244" height="9" font="4">ing 75% of DADS-ranked coordinates gives WERs of 15.36%</text>
+<text top="438" left="315" width="244" height="9" font="4">and 14.54% for W1 and W2, close in absolute terms to Full at</text>
+<text top="450" left="315" width="244" height="9" font="4">15.14% and 14.46%. Keeping half raises WER by 0.87 and</text>
+<text top="462" left="315" width="244" height="9" font="4">1.12 percentage points. The same budget selected by magni-</text>
+<text top="474" left="315" width="244" height="9" font="4">tude is worse by a further 0.62 and 0.91 points. Thus, loss</text>
+<text top="486" left="315" width="244" height="9" font="4">sensitivity improves on displacement size alone for these re-</text>
+<text top="498" left="315" width="244" height="9" font="4">tained masks, while full-shift performance is not completely</text>
+<text top="510" left="315" width="72" height="9" font="4">recovered at 50%.</text>
+<text top="522" left="330" width="229" height="9" font="4">For D0, 75% retention yields 10.96% WER versus</text>
+<text top="534" left="315" width="244" height="9" font="4">11.39% for Full, whereas 50% gives 12.94%. These point</text>
+<text top="546" left="315" width="244" height="9" font="4">estimates show that more retained change need not give lower</text>
+<text top="558" left="315" width="244" height="9" font="4">error. The NoShift endpoints are worse than Full for all three</text>
+<text top="570" left="315" width="244" height="9" font="4">models, establishing that the adapted head benefits from the</text>
+<text top="582" left="315" width="244" height="9" font="4">complete representation change. We use the WER difference</text>
+<text top="594" left="315" width="244" height="9" font="4">from Full to quantify the cost of reversion; the NoShift gap</text>
+<text top="606" left="315" width="207" height="9" font="4">also reflects the head’s compatibility with its inputs.</text>
+<text top="635" left="315" width="212" height="9" font="3">4.2. Which reverted changes are most damaging?</text>
+<text top="655" left="315" width="244" height="9" font="4">Figure <a href="layout.html#4">1 </a>gives the complementary deletion comparison. Re-</text>
+<text top="667" left="315" width="244" height="9" font="4">moving the highest-ranked quarter raises WER to 22.24%,</text>
+<text top="679" left="315" width="244" height="9" font="4">24.32%, and 14.64% for W1, W2, and D0. Removing the</text>
+<text top="690" left="315" width="244" height="9" font="4">lowest-ranked quarter gives 15.36%, 14.54%, and 10.96%,</text>
+<text top="702" left="315" width="244" height="9" font="4">respectively. The separation is much larger than the small</text>
+<text top="714" left="315" width="237" height="9" font="4">departures from Full after low-ranked changes are reverted.</text>
+</page>
+<page number="4" position="absolute" top="0" left="0" height="792" width="612">
+	<fontspec id="17" size="9" family="BXGEVL+DejaVuSerif" color="#000000"/>
+<text top="199" left="92" width="6" height="12" font="17">0</text>
+<text top="199" left="141" width="6" height="12" font="17">3</text>
+<text top="199" left="190" width="6" height="12" font="17">6</text>
+<text top="199" left="239" width="6" height="12" font="17">9</text>
+<text top="199" left="285" width="13" height="12" font="17">12</text>
+<text top="213" left="104" width="166" height="12" font="17">WER change (percentage points)</text>
+<text top="122" left="59" width="16" height="12" font="17">W1</text>
+<text top="149" left="59" width="16" height="12" font="17">W2</text>
+<text top="176" left="61" width="14" height="12" font="17">D0</text>
+<text top="116" left="214" width="30" height="12" font="17">+7.10</text>
+<text top="143" left="259" width="30" height="12" font="17">+9.86</text>
+<text top="170" left="151" width="30" height="12" font="17">+3.25</text>
+<text top="126" left="102" width="30" height="12" font="17">+0.22</text>
+<text top="153" left="99" width="30" height="12" font="17">+0.08</text>
+<text top="180" left="98" width="25" height="12" font="17">-0.43</text>
+<text top="83" left="151" width="91" height="12" font="17">Revert high utility</text>
+<text top="95" left="151" width="87" height="12" font="17">Revert low utility</text>
+<text top="247" left="54" width="24" height="9" font="3">Fig. 1</text>
+<text top="248" left="78" width="220" height="9" font="4">. Change in test WER after reverting 25% of shift coor-</text>
+<text top="260" left="54" width="244" height="9" font="4">dinates, relative to Full. High/low refers to the DADS rank-</text>
+<text top="271" left="54" width="244" height="9" font="4">ing. Negative values indicate an improvement. Each pair uses</text>
+<text top="283" left="54" width="117" height="9" font="4">one fixed adapted recognizer.</text>
+<text top="314" left="54" width="32" height="9" font="3">Table 3</text>
+<text top="314" left="86" width="212" height="9" font="4">. D0 test WER (%) at three retention budgets. Ran-</text>
+<text top="326" left="54" width="94" height="9" font="4">dom entries show mean</text>
+<text top="326" left="150" width="8" height="9" font="10">±</text>
+<text top="326" left="161" width="138" height="9" font="4">sample SD over three masks of the</text>
+<text top="338" left="54" width="127" height="9" font="4">same checkpoint. Full: 11.39%.</text>
+<text top="353" left="57" width="31" height="9" font="4">Method</text>
+<text top="353" left="158" width="18" height="9" font="4">25%</text>
+<text top="353" left="217" width="18" height="9" font="4">50%</text>
+<text top="353" left="275" width="18" height="9" font="4">75%</text>
+<text top="370" left="57" width="27" height="9" font="4">DADS</text>
+<text top="370" left="154" width="22" height="9" font="4">15.20</text>
+<text top="370" left="213" width="22" height="9" font="4">12.94</text>
+<text top="370" left="271" width="22" height="9" font="4">10.96</text>
+<text top="382" left="57" width="43" height="9" font="4">Magnitude</text>
+<text top="382" left="154" width="22" height="9" font="4">13.30</text>
+<text top="382" left="213" width="22" height="9" font="4">13.75</text>
+<text top="382" left="271" width="22" height="9" font="4">11.10</text>
+<text top="394" left="57" width="35" height="9" font="4">Gradient</text>
+<text top="394" left="154" width="22" height="9" font="4">15.41</text>
+<text top="394" left="213" width="22" height="9" font="4">13.68</text>
+<text top="394" left="271" width="22" height="9" font="4">11.11</text>
+<text top="406" left="57" width="34" height="9" font="4">Random</text>
+<text top="406" left="124" width="10" height="9" font="9">13</text>
+<text top="406" left="134" width="3" height="9" font="7">.</text>
+<text top="406" left="137" width="10" height="9" font="9">00</text>
+<text top="405" left="149" width="8" height="9" font="10">±</text>
+<text top="406" left="159" width="5" height="9" font="9">0</text>
+<text top="406" left="164" width="3" height="9" font="7">.</text>
+<text top="406" left="166" width="26" height="9" font="9">03 15</text>
+<text top="406" left="192" width="3" height="9" font="7">.</text>
+<text top="406" left="195" width="10" height="9" font="9">08</text>
+<text top="405" left="207" width="8" height="9" font="10">±</text>
+<text top="406" left="217" width="5" height="9" font="9">0</text>
+<text top="406" left="222" width="3" height="9" font="7">.</text>
+<text top="406" left="225" width="26" height="9" font="9">31 11</text>
+<text top="406" left="251" width="3" height="9" font="7">.</text>
+<text top="406" left="254" width="10" height="9" font="9">35</text>
+<text top="405" left="266" width="8" height="9" font="10">±</text>
+<text top="406" left="276" width="5" height="9" font="9">0</text>
+<text top="406" left="281" width="3" height="9" font="7">.</text>
+<text top="406" left="284" width="10" height="9" font="9">08</text>
+<text top="418" left="57" width="61" height="9" font="4">Random scaled</text>
+<text top="418" left="124" width="10" height="9" font="9">12</text>
+<text top="418" left="134" width="3" height="9" font="7">.</text>
+<text top="418" left="137" width="10" height="9" font="9">58</text>
+<text top="417" left="149" width="8" height="9" font="10">±</text>
+<text top="418" left="159" width="5" height="9" font="9">0</text>
+<text top="418" left="164" width="3" height="9" font="7">.</text>
+<text top="418" left="166" width="26" height="9" font="9">37 11</text>
+<text top="418" left="192" width="3" height="9" font="7">.</text>
+<text top="418" left="195" width="10" height="9" font="9">95</text>
+<text top="417" left="207" width="8" height="9" font="10">±</text>
+<text top="418" left="217" width="5" height="9" font="9">0</text>
+<text top="418" left="222" width="3" height="9" font="7">.</text>
+<text top="418" left="225" width="26" height="9" font="9">33 11</text>
+<text top="418" left="251" width="3" height="9" font="7">.</text>
+<text top="418" left="254" width="10" height="9" font="9">58</text>
+<text top="417" left="266" width="8" height="9" font="10">±</text>
+<text top="418" left="276" width="5" height="9" font="9">0</text>
+<text top="418" left="281" width="3" height="9" font="7">.</text>
+<text top="418" left="284" width="10" height="9" font="9">07</text>
+<text top="454" left="69" width="229" height="9" font="4">This is direct evidence of uneven dependence on groups of</text>
+<text top="466" left="54" width="244" height="9" font="4">shift coordinates under the fixed decision rule. It goes beyond</text>
+<text top="478" left="54" width="244" height="9" font="4">observing unequal shift magnitudes or probe scores. It does</text>
+<text top="490" left="54" width="244" height="9" font="4">not establish that each high-ranked coordinate is individually</text>
+<text top="502" left="54" width="244" height="9" font="4">necessary, because coordinates are removed jointly and their</text>
+<text top="514" left="54" width="244" height="9" font="4">effects can interact. In addition, the 75% retained represen-</text>
+<text top="526" left="54" width="244" height="9" font="4">tation still uses source values in all reverted coordinates; the</text>
+<text top="538" left="54" width="234" height="9" font="4">retained shift is not a stand-alone representation of speech.</text>
+<text top="564" left="54" width="244" height="9" font="3">4.3. Does the Taylor ranking always retain the best shift?</text>
+<text top="583" left="54" width="244" height="9" font="4">The wider D0 comparison in Table <a href="layout.html#4">3 </a>separates the usefulness</text>
+<text top="595" left="54" width="244" height="9" font="4">of a deletion ranking from its quality at a particular retention</text>
+<text top="607" left="54" width="244" height="9" font="4">budget. DADS has the lowest observed WER at 75%, but</text>
+<text top="619" left="54" width="177" height="9" font="4">at 50% the rescaled random control reaches</text>
+<text top="619" left="234" width="10" height="9" font="9">11</text>
+<text top="619" left="244" width="3" height="9" font="7">.</text>
+<text top="619" left="247" width="10" height="9" font="9">95</text>
+<text top="618" left="259" width="8" height="9" font="10">±</text>
+<text top="619" left="270" width="5" height="9" font="9">0</text>
+<text top="619" left="275" width="3" height="9" font="7">.</text>
+<text top="619" left="277" width="18" height="9" font="9">33%</text>
+<text top="619" left="296" width="2" height="9" font="4">,</text>
+<text top="631" left="54" width="244" height="9" font="4">compared with 12.94% for DADS. At 25%, both magnitude</text>
+<text top="643" left="54" width="244" height="9" font="4">and random selection also outperform DADS. Its ranking</text>
+<text top="655" left="54" width="244" height="9" font="4">therefore does not define a consistently superior sequence of</text>
+<text top="667" left="54" width="97" height="9" font="4">retained representations.</text>
+<text top="679" left="69" width="229" height="9" font="4">Rescaling reduces the mean 50% random-mask WER</text>
+<text top="690" left="54" width="244" height="9" font="4">from 15.08% to 11.95%. Thus, changing displacement scale</text>
+<text top="702" left="54" width="244" height="9" font="4">substantially improves these fixed random masks, making</text>
+<text top="714" left="54" width="244" height="9" font="4">unscaled random selection an incomplete control for the</text>
+<text top="75" left="315" width="244" height="9" font="4">ranking. The comparison does not isolate a single adapta-</text>
+<text top="87" left="315" width="244" height="9" font="4">tion mechanism: coordinate composition and displacement</text>
+<text top="99" left="315" width="244" height="9" font="4">scale both influence the fixed head, and the Taylor score is</text>
+<text top="111" left="315" width="98" height="9" font="4">evaluated locally at Full.</text>
+<text top="123" left="330" width="229" height="9" font="4">Existing D0 calibration-size results give a further check.</text>
+<text top="135" left="315" width="244" height="9" font="4">With 128 calibration utterances, 75% DADS retention yields</text>
+<text top="147" left="315" width="244" height="9" font="4">a mean 11.11% WER across three sampled subsets, compared</text>
+<text top="159" left="315" width="244" height="9" font="4">with 10.96% using all 1,640 utterances. At 50%, the cor-</text>
+<text top="171" left="315" width="244" height="9" font="4">responding values are 13.11% and 12.94%. The 50% deficit</text>
+<text top="183" left="315" width="244" height="9" font="4">relative to rescaled random masks remains even with the com-</text>
+<text top="195" left="315" width="244" height="9" font="4">plete calibration set, so it cannot be attributed simply to using</text>
+<text top="207" left="315" width="78" height="9" font="4">a very small subset.</text>
+<text top="234" left="353" width="168" height="9" font="3">5. DISCUSSION AND CONCLUSION</text>
+<text top="257" left="315" width="244" height="9" font="4">The common finding across these three checkpoints is selec-</text>
+<text top="269" left="315" width="244" height="9" font="4">tive dependence on final-layer changes: reverting low-ranked</text>
+<text top="281" left="315" width="244" height="9" font="4">groups has a much smaller effect than reverting equally sized</text>
+<text top="292" left="315" width="244" height="9" font="4">high-ranked groups. DADS supplies a simple way to ex-</text>
+<text top="304" left="315" width="244" height="9" font="4">pose this dependence. Its advantage over magnitude at 50%</text>
+<text top="316" left="315" width="244" height="9" font="4">on W1/W2 is a useful selection result, while the D0 con-</text>
+<text top="328" left="315" width="244" height="9" font="4">trols demonstrate that deletion asymmetry is a more consis-</text>
+<text top="340" left="315" width="244" height="9" font="4">tent finding than a single ranking’s superiority across budgets.</text>
+<text top="352" left="330" width="229" height="9" font="4">These interventions characterize the adapted CTC deci-</text>
+<text top="364" left="315" width="244" height="9" font="4">sion rule in the learned coordinate basis. They do not sep-</text>
+<text top="376" left="315" width="244" height="9" font="4">arate phonetic adaptation from readout compatibility, iden-</text>
+<text top="388" left="315" width="244" height="9" font="4">tify independent linguistic features, or establish the behav-</text>
+<text top="400" left="315" width="244" height="9" font="4">ior of other layers. W1/W2 share a source model and train-</text>
+<text top="412" left="315" width="244" height="9" font="4">ing recipe, whereas D0 changes both the encoder family and</text>
+<text top="424" left="315" width="244" height="9" font="4">adaptation objective. Broader architectural conclusions re-</text>
+<text top="436" left="315" width="244" height="9" font="4">quire those factors to be varied separately. The current com-</text>
+<text top="448" left="315" width="244" height="9" font="4">parisons also describe single training runs on one read-speech</text>
+<text top="460" left="315" width="244" height="9" font="4">corpus; they do not measure training variability or transfer to</text>
+<text top="472" left="315" width="52" height="9" font="4">child speech.</text>
+<text top="484" left="315" width="244" height="9" font="6">TODO before submission: add paired uncertainty estimates</text>
+<text top="496" left="315" width="244" height="9" font="6">for the reported local checkpoints and complete the W1/W2</text>
+<text top="508" left="315" width="125" height="9" font="6">random and rescaling controls.</text>
+<text top="520" left="330" width="229" height="9" font="4">Fine-tuning shifts therefore provide a useful object for</text>
+<text top="532" left="315" width="244" height="9" font="4">studying recognition behavior when their checkpoint lineage</text>
+<text top="544" left="315" width="244" height="9" font="4">and readout are fixed. In the evaluated models, a substan-</text>
+<text top="556" left="315" width="244" height="9" font="4">tial group of changes can be reverted with little change in</text>
+<text top="567" left="315" width="244" height="9" font="4">WER, but effective selection depends on the model and re-</text>
+<text top="579" left="315" width="244" height="9" font="4">tention budget. Following up this distinction with matched</text>
+<text top="591" left="315" width="244" height="9" font="4">scale controls and independent adaptation runs would clarify</text>
+<text top="603" left="315" width="244" height="9" font="4">which aspects of the observed dependence persist beyond the</text>
+<text top="615" left="315" width="81" height="9" font="4">present checkpoints.</text>
+</page>
+<page number="5" position="absolute" top="0" left="0" height="792" width="612">
+<text top="75" left="136" width="80" height="9" font="3">6. REFERENCES</text>
+<text top="97" left="59" width="239" height="9" font="4">[1] Alexei Baevski, Yuhao Zhou, Abdelrahman Mohamed,</text>
+<text top="109" left="76" width="222" height="9" font="4">and Michael Auli, “wav2vec 2.0: A framework for self-</text>
+<text top="121" left="76" width="205" height="9" font="4">supervised learning of speech representations,” in</text>
+<text top="121" left="284" width="14" height="9" font="6">Ad-</text>
+<text top="133" left="76" width="195" height="9" font="6">vances in Neural Information Processing Systems</text>
+<text top="133" left="271" width="27" height="9" font="4">, 2020,</text>
+<text top="145" left="76" width="105" height="9" font="4">vol. 33, pp. 12449–12460.</text>
+<text top="163" left="59" width="239" height="9" font="4">[2] Alexei Baevski, Wei-Ning Hsu, Qiantong Xu, Arun</text>
+<text top="175" left="76" width="222" height="9" font="4">Babu, Jiatao Gu, and Michael Auli, “data2vec: A gen-</text>
+<text top="187" left="76" width="222" height="9" font="4">eral framework for self-supervised learning in speech,</text>
+<text top="199" left="76" width="99" height="9" font="4">vision and language,” in</text>
+<text top="199" left="178" width="121" height="9" font="6">Proceedings of the 39th Inter-</text>
+<text top="211" left="76" width="175" height="9" font="6">national Conference on Machine Learning</text>
+<text top="211" left="251" width="48" height="9" font="4">. 2022, vol.</text>
+<text top="223" left="76" width="26" height="9" font="4">162 of</text>
+<text top="223" left="105" width="176" height="9" font="6">Proceedings of Machine Learning Research</text>
+<text top="223" left="280" width="18" height="9" font="4">, pp.</text>
+<text top="235" left="76" width="79" height="9" font="4">1298–1312, PMLR.</text>
+<text top="253" left="59" width="239" height="9" font="4">[3] Van-Phat Thai, Aradhya Dhruv, Duc-Thinh Pham, and</text>
+<text top="265" left="76" width="222" height="9" font="4">Sameer Alam, “Contrastive regularization for accent-</text>
+<text top="277" left="76" width="222" height="9" font="4">robust ASR,” arXiv:2605.03297, 2026, Accepted at In-</text>
+<text top="289" left="76" width="63" height="9" font="4">terspeech 2026.</text>
+<text top="307" left="59" width="239" height="9" font="4">[4] Ankita Pasad, Ju-Chieh Chou, and Karen Livescu,</text>
+<text top="319" left="76" width="222" height="9" font="4">“Layer-wise analysis of a self-supervised speech rep-</text>
+<text top="331" left="76" width="79" height="9" font="4">resentation model,”</text>
+<text top="331" left="164" width="8" height="9" font="4">in</text>
+<text top="331" left="176" width="122" height="9" font="6">2021 IEEE Automatic Speech</text>
+<text top="343" left="76" width="220" height="9" font="6">Recognition and Understanding Workshop (ASRU)</text>
+<text top="343" left="296" width="2" height="9" font="4">,</text>
+<text top="355" left="76" width="77" height="9" font="4">2021, pp. 914–921.</text>
+<text top="373" left="59" width="239" height="9" font="4">[5] Ankita Pasad, Bowen Shi, and Karen Livescu, “Com-</text>
+<text top="385" left="76" width="222" height="9" font="4">parative layer-wise analysis of self-supervised speech</text>
+<text top="397" left="76" width="35" height="9" font="4">models,”</text>
+<text top="397" left="120" width="8" height="9" font="4">in</text>
+<text top="397" left="132" width="166" height="9" font="6">2023 IEEE International Conference on</text>
+<text top="409" left="76" width="220" height="9" font="6">Acoustics, Speech and Signal Processing (ICASSP)</text>
+<text top="409" left="296" width="2" height="9" font="4">,</text>
+<text top="421" left="76" width="57" height="9" font="4">2023, pp. 1–5.</text>
+<text top="439" left="59" width="239" height="9" font="4">[6] Minxue Niu, Najmeh Sadoughi, Abhishek Yanaman-</text>
+<text top="451" left="76" width="222" height="9" font="4">dra, Pichao Wang, Zhu Liu, Vimal Bhat, and S. Eliz-</text>
+<text top="463" left="76" width="57" height="9" font="4">abeth Norred,</text>
+<text top="463" left="142" width="156" height="9" font="4">“Learning rich speech representations</text>
+<text top="475" left="76" width="154" height="9" font="4">with acoustic-semantic factorization,”</text>
+<text top="475" left="239" width="8" height="9" font="4">in</text>
+<text top="475" left="251" width="47" height="9" font="6">Proc. IEEE</text>
+<text top="487" left="76" width="32" height="9" font="6">ICASSP</text>
+<text top="487" left="108" width="27" height="9" font="4">, 2025.</text>
+<text top="505" left="59" width="239" height="9" font="4">[7] Gabriel Ilharco, Marco Tulio Ribeiro, Mitchell Worts-</text>
+<text top="517" left="76" width="222" height="9" font="4">man, Ludwig Schmidt, Hannaneh Hajishirzi, and Ali</text>
+<text top="529" left="76" width="33" height="9" font="4">Farhadi,</text>
+<text top="529" left="119" width="161" height="9" font="4">“Editing models with task arithmetic,”</text>
+<text top="529" left="290" width="8" height="9" font="4">in</text>
+<text top="541" left="76" width="220" height="9" font="6">International Conference on Learning Representations</text>
+<text top="541" left="296" width="2" height="9" font="4">,</text>
+<text top="553" left="76" width="22" height="9" font="4">2023.</text>
+<text top="571" left="59" width="239" height="9" font="4">[8] Zilai Wang, Natarajan Balaji Shankar, Kaiyuan Zhang,</text>
+<text top="583" left="76" width="139" height="9" font="4">Zihan Wang, and Abeer Alwan,</text>
+<text top="583" left="229" width="70" height="9" font="4">“Mind the shift:</text>
+<text top="595" left="76" width="222" height="9" font="4">Using delta SSL embeddings to enhance child ASR,”</text>
+<text top="607" left="76" width="212" height="9" font="4">arXiv:2601.20142, 2026, Accepted at ICASSP 2026.</text>
+<text top="625" left="59" width="239" height="9" font="4">[9] Sheng-Chieh Chiu, Chia-Hua Wu, Jih-Kang Hsieh,</text>
+<text top="637" left="76" width="222" height="9" font="4">Yu Tsao, and Hsin-Min Wang, “Learnable layer selec-</text>
+<text top="648" left="76" width="222" height="9" font="4">tion and model fusion for speech self-supervised learn-</text>
+<text top="660" left="76" width="60" height="9" font="4">ing models,” in</text>
+<text top="661" left="138" width="70" height="9" font="6">Proc. Interspeech</text>
+<text top="660" left="207" width="91" height="9" font="4">, 2024, pp. 3914–3918.</text>
+<text top="679" left="54" width="244" height="9" font="4">[10] Pavlo Molchanov, Stephen Tyree, Tero Karras, Timo</text>
+<text top="690" left="76" width="222" height="9" font="4">Aila, and Jan Kautz, “Pruning convolutional neural net-</text>
+<text top="702" left="76" width="167" height="9" font="4">works for resource efficient inference,” in</text>
+<text top="703" left="246" width="53" height="9" font="6">International</text>
+<text top="714" left="76" width="163" height="9" font="6">Conference on Learning Representations</text>
+<text top="714" left="239" width="27" height="9" font="4">, 2017.</text>
+<text top="75" left="315" width="244" height="9" font="4">[11] Alex Graves, Santiago Fern´andez, Faustino Gomez, and</text>
+<text top="87" left="337" width="222" height="9" font="4">J¨urgen Schmidhuber, “Connectionist temporal classi-</text>
+<text top="99" left="337" width="222" height="9" font="4">fication: Labelling unsegmented sequence data with re-</text>
+<text top="111" left="337" width="110" height="9" font="4">current neural networks,” in</text>
+<text top="111" left="449" width="47" height="9" font="6">Proc. ICML</text>
+<text top="111" left="496" width="63" height="9" font="4">, 2006, pp. 369–</text>
+<text top="123" left="337" width="17" height="9" font="4">376.</text>
+<text top="143" left="315" width="244" height="9" font="4">[12] Guanlong Zhao, Sinem Sonsaat, Alif Silpachai, Ivana</text>
+<text top="155" left="337" width="222" height="9" font="4">Lucic, Evgeny Chukharev-Hudilainen, John Levis, and</text>
+<text top="167" left="337" width="222" height="9" font="4">Ricardo Gutierrez-Osuna, “L2-ARCTIC: A non-native</text>
+<text top="179" left="337" width="106" height="9" font="4">english speech corpus,” in</text>
+<text top="179" left="446" width="70" height="9" font="6">Proc. Interspeech</text>
+<text top="179" left="516" width="43" height="9" font="4">, 2018, pp.</text>
+<text top="191" left="337" width="47" height="9" font="4">2783–2787.</text>
+</page>
+<outline>
+<item page="1"> Introduction</item>
+<item page="2"> Probing Fine-Tuning Shifts</item>
+<outline>
+<item page="2"> Paired representations and coordinate reversion</item>
+<item page="2"> Decision-aligned ranking</item>
+<item page="2"> Retention and deletion</item>
+</outline>
+<item page="2"> Experimental Setup</item>
+<outline>
+<item page="2"> Data and adapted models</item>
+<item page="3"> Calibration and evaluation</item>
+</outline>
+<item page="3"> Results and Analysis</item>
+<outline>
+<item page="3"> How much of the shift preserves recognition?</item>
+<item page="3"> Which reverted changes are most damaging?</item>
+<item page="4"> Does the Taylor ranking always retain the best shift?</item>
+</outline>
+<item page="4"> Discussion and Conclusion</item>
+<item page="5"> References</item>
+</outline>
+</pdf2xml>

@@ -1,0 +1,350 @@
+ICASSP 2026 - 2026 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP) | 979-8-3315-6701-9/26/$31.00 ©2026 IEEE | DOI: 10.1109/ICASSP55912.2026.11464156
+
+
+
+
+                                                                                                                                                                                           HYBRID PRUNING: IN-SITU COMPRESSION OF SELF-SUPERVISED SPEECH MODELS
+                                                                                                                                                                                                       FOR SPEAKER VERIFICATION AND ANTI-SPOOFING
+
+                                                                                                                                                                                                                Junyi Peng1 , Lin Zhang2 , Jiangyu Han1 , Oldřich Plchot1 , Johan Rohdin1 ,
+                                                                                                                                                                                                                         Themos Stafylakis3,4,5 , Shuai Wang6 , Jan Černocký1
+                                                                                                                                                                                                      1
+                                                                                                                                                                                                       Speech@FIT, Brno University of Technology, Czechia 2 Johns Hopkins University, USA
+                                                                                                                                                                                                  3
+                                                                                                                                                                                                      Athens University of Economics and Business 4 Omilia 5 Archimedes/Athena R.C., Greece
+                                                                                                                                                                                                                                  6
+                                                                                                                                                                                                                                    Nanjing University, China
+
+
+                                                                                                                                                                                                                      ABSTRACT                                           application. They are typically applied separately either during pre-
+                                                                                                                                                                                         Although large-scale self-supervised learning (SSL) models like                 training [5, 6], agnostic to the downstream task, or as a post-hoc step
+                                                                                                                                                                                         WavLM have achieved state-of-the-art performance in speech pro-                 after fine-tuning [7, 9]. This separation prevents the pruning pro-
+                                                                                                                                                                                         cessing, their significant size impedes deployment on resource-                 cess from being guided by the specific requirements of the end task,
+                                                                                                                                                                                         constrained devices. While structured pruning is a key technique for            making it difficult to find an optimal compressed architecture.
+                                                                                                                                                                                         model compression, existing methods typically separate it from task-                 To investigate these questions in a controlled yet diverse setting,
+                                                                                                                                                                                         specific fine-tuning. This multi-stage approach struggles to create             we focus on SV and anti-spoofing. These tasks provide a compelling
+                                                                                                                                                                                         optimal architectures tailored for diverse downstream tasks. In this            testbed due to their reliance on different acoustic cues. SV aims to
+                                                                                                                                                                                         work, we introduce a unified framework that integrates structured               extract stable, long-term speaker characteristics, while anti-spoofing
+                                                                                                                                                                                         pruning into the downstream fine-tuning process. Our framework                  requires the detection of subtle, transient synthesis artifacts. This
+                                                                                                                                                                                         unifies these steps, jointly optimizing for task performance and                contrast makes them an ideal case study for exploring our research
+                                                                                                                                                                                         model sparsity in a single stage. This allows the model to learn a              questions and testing whether a pruning method can discover truly
+                                                                                                                                                                                         compressed architecture specifically for the end task, eliminating the          task-specific architectures.
+                                                                                                                                                                                         need for complex multi-stage pipelines and knowledge distillation.                   The key research questions can be summarized as three-fold:
+                                                                                                                                                                                         Our pruned models achieve up to a 70% parameter reduction with                  (1) Flexibility of Representations: Do we really need to preserve
+                                                                                                                                                                                         negligible performance degradation on large-scale datasets, attain-             all original layer-wise representations? Given that final performance
+                                                                                                                                                                                         ing equal error rates of 0.7%, 0.8%, and 1.6% on Vox1-O, -E, and                depends on the output embeddings, it’s worth investigating whether
+                                                                                                                                                                                         -H, respectively. Furthermore, our approach demonstrates improved               the model can redistribute representations across layers during prun-
+                                                                                                                                                                                         generalization in low-resource scenarios, reducing overfitting and              ing without decreasing performance. (2) Task-Dependent Sparsity:
+                                                                                                                                                                                         achieving a state-of-the-art 3.7% EER on ASVspoof5.                             Do distinct downstream tasks like SV and anti-spoofing result in
+                                                                                                                                                                                              Index Terms— Self-supervised learning, speaker verification,               unique architectural pruning patterns? It is unclear whether a single
+                                                                                                                                                                                         anti-spoofing, structured pruning, fine-tuning                                  compressed architecture can serve both, or if each requires a task-
+                                                                                                                                                                                                                                                                         specific sparsity signature. (3) Influence of Data: Are pruning pat-
+                                                                                                                                                                                                                                                                         terns driven primarily by dataset characteristics? For example, the
+                                                                                                                                                                                                                1. INTRODUCTION                                          optimal sparsity for a model trained on a large corpus like VoxCeleb
+                                                                                                                                                                                                                                                                         may differ from one trained on a smaller dataset like CN-Celeb.
+                                                                                                                                                                                         Self-supervised learning has advanced speech processing by pro-
+                                                                                                                                                                                                                                                                              To address these challenges and explore the aforementioned re-
+                                                                                                                                                                                         viding versatile pretrained models for downstream tasks like au-
+                                                                                                                                                                                                                                                                         search questions, we propose a hybrid pruning (HP) paradigm that
+                                                                                                                                                                                         tomatic speech recognition (ASR), speaker verification (SV), and
+                                                                                                                                                                                                                                                                         integrates structured pruning and downstream fine-tuning into a uni-
+                                                                                                                                                                                         anti-spoofing [1–3]. Models like WavLM [4], trained on large-scale
+                                                                                                                                                                                                                                                                         fied, efficient training process. As illustrated in Figure 1 (a), we
+                                                                                                                                                                                         speech datasets, achieve strong performance across these tasks.
+                                                                                                                                                                                                                                                                         integrate learnable pruning masks directly into the SSL model archi-
+                                                                                                                                                                                         However, their large size (e.g., 94 million parameters for WavLM-
+                                                                                                                                                                                                                                                                         tecture during fine-tuning. The model is then trained with a joint
+                                                                                                                                                                                         Base and over 300 million for WavLM-Large) makes deployment
+                                                                                                                                                                                                                                                                         objective that simultaneously minimizes a task-specific loss (e.g.,
+                                                                                                                                                                                         challenging in resource-constrained environments, such as mobile
+                                                                                                                                                                                                                                                                         for SV or anti-spoofing) and a pruning loss that encourages sparsity.
+                                                                                                                                                                                         devices or edge systems.
+                                                                                                                                                                                                                                                                         This single-stage approach enables the model to dynamically adapt
+                                                                                                                                                                                              One promising compression approach is structured pruning [5–
+                                                                                                                                                                                                                                                                         its architecture by removing non-essential components, guided di-
+                                                                                                                                                                                         8], which removes entire components like attention heads or net-
+                                                                                                                                                                                                                                                                         rectly by the downstream objective.
+                                                                                                                                                                                         work layers to yield direct reductions in memory and latency. How-
+                                                                                                                                                                                         ever, current pruning methods are often disconnected from the final                  Overall, our contributions are the following: (1) We intro-
+                                                                                                                                                                                                                                                                         duce a unified framework that integrates structured pruning directly
+                                                                                                                                                                                             Models are available at https://huggingface.co/JYP2024/                     into downstream fine-tuning, driven by task-specific classification
+                                                                                                                                                                                         Wedefense_ASV2025_WavLM_Base_Pruning. The work was sup-                         loss, without the need for separate knowledge distillation or multi-
+                                                                                                                                                                                         ported by European Union’s Horizon Europe project No. SEP-210943216             stage pipelines. (2) We conduct a comprehensive evaluation across
+                                                                                                                                                                                         "ELOQUENCE" and by Czech Ministry of Education, Youth and Sports
+                                                                                                                                                                                         (MoE) through the OP JAK project "Linguistics, Artificial Intelligence
+                                                                                                                                                                                                                                                                         tasks, including SV (CNCeleb [10], VoxCeleb [11], anti-spoofing
+                                                                                                                                                                                         and Language and Speech Technologies: from Research to Applications"            (ASVspoof5 [12], SpoofCeleb [13]), model scales (Base, Large),
+                                                                                                                                                                                         (ID:CZ.02.01.01/00/23_020/0008518). Computing on IT4I supercomputer             and dataset sizes (200 hours, 2000 hours). Our method achieves up
+                                                                                                                                                                                         was supported by MoE through the e-INFRA CZ (ID:90254).                         to 70% sparsity with minimal performance loss on large datasets
+
+
+                                                                                                                                                                                         979-8-3315-6701-9/26/$31.00 ©2026 IEEE                                   16442                                                             ICASSP 2026
+
+                                                                                                                                                                                             Authorized licensed use limited to: Brno University of Technology. Downloaded on July 14,2026 at 17:41:41 UTC from IEEE Xplore. Restrictions apply.
+Fig. 1. The proposed Hybrid Pruning (HP) framework in comparison to prior work. (a) Our single-stage approach jointly optimizes for
+the downstream task with downstream back-end, such as speaker extractor back-end and structured sparsity, directly learning a pruned
+architecture. This avoids multi-stage pipelines like (b) task-agnostic pre-training pruning [5] and (c) post-hoc pruning [7]. Notably, our
+method (center detail) does not require the teacher-student knowledge distillation (right detail) common in other lightweight techniques [14].
+and improves results on low-resource datasets by mitigating over-                          3. THE HYBRID PRUNING FRAMEWORK
+fitting. (3) We provide a detailed analysis of the resulting sparsity
+patterns, revealing task-dependent pruning signatures and showing               We introduce Hybrid Pruning (HP), a framework that directly co-
+how data scale influences architectural choices and representational            optimizes a model’s architecture and weights in a single optimiza-
+shifts within the pruned model.                                                 tion stage. Departing from multi-stage pipelines, HP simultaneously
+                                                                                fine-tunes a model for a downstream task while structurally pruning
+                                                                                it to a target sparsity. To achieve this with high precision on down-
+                                                                                stream tasks, we employ a gradient-based L0 regularization method
+                       2. RELATED WORK                                          adapted from [23, 24].
+
+SSL in Speaker and Spoofing Detection. SSL representations                      3.1. Dynamic Architectural Adaptation via Stochastic Gates
+have become foundational in both SV and anti-spoofing tasks. How-
+                                                                                Our framework begins with a pre-trained SSL model (e.g., WavLM)
+ever, a widely used pipeline involves fine-tuning the entire large
+                                                                                whose parameters are unfrozen for fine-tuning. We augment this
+SSL model along with the downstream back-end [15–18] such as
+                                                                                model by inserting learnable stochastic gates at each of its prun-
+ECAPA-TDNN [19] and MHFA [15], leading to high computational
+                                                                                able structural components, including CNN kernels, Multi-headed
+costs and a risk of overfitting, particularly when downstream data
+                                                                                Self-attention (MHSA) heads, and Feed-Forward Network (FFN)
+is limited [20]. Our work directly addresses this by proposing to
+                                                                                neurons. Each gate is a random variable zj ∈ [0, 1] whose value
+simultaneously fine-tune and prune the SSL model. This approach
+                                                                                determines the contribution of the corresponding component to the
+not only simplifies the compression pipeline but also avoids reliance
+                                                                                network’s output.
+on a potentially suboptimal, pre-finetuned teacher model, allowing
+                                                                                    To make this gating mechanism differentiable, we employ the
+the student model to forge its own, more effective optimization path.
+                                                                                Hard Concrete distribution [25, 26] to model each zj . This is a
+Structured Pruning of Speech Models. Structured pruning is an                   continuous distribution that serves as a relaxation of the discrete
+increasingly popular technique for compressing SSL models. Meth-                Bernoulli distribution but has the critical property of being able to
+ods can be broadly categorized as task-agnostic and task-specific               take an exact value of zero with non-zero probability. This allows
+approaches. Task-agnostic method, such as DP-HuBERT [5, 6] as                   the network to learn, via gradient descent, to completely “turn off” or
+shown in Figure 1(b), integrates pruning into the SSL pre-training              partially prune certain components. The probability of a gate being
+stage itself. Task-specific, as shown in Figure 1(c), apply pruning             zero is controlled by a learnable parameter αj , effectively making
+post-hoc to a model already fine-tuned for a task like ASR, often               the model’s architecture itself a subject of the optimization process.
+requiring knowledge distillation to recover performance [7, 21, 22].
+Many existing downstream-focused methods follow a multi-stage                   3.2. Joint Optimization for Performance and Sparsity
+process involving: (1) full fine-tuning, (2) pruning with distillation,
+and (3) a final recovery step. This paper proposes a hybrid approach            The core of HP is a joint optimization objective, where we simulta-
+to address this gap by integrating structured pruning directly into the         neously minimize a loss with respect to the model and gate parame-
+fine-tuning stage, optimizing the model’s architecture and weights              ters while maximizing it with respect to a set of sparsity-controlling
+jointly without dependence on a frozen teacher model.                           parameters. This creates a dynamic equilibrium during training: the
+
+
+                                                                         16443
+
+    Authorized licensed use limited to: Brno University of Technology. Downloaded on July 14,2026 at 17:41:41 UTC from IEEE Xplore. Restrictions apply.
+model strives to improve its performance, while the Lagrangian mul-
+tipliers actively ‘punish’ it for being too complex, effectively forcing        Table 1. The EER results in the ASVSpoof5 eval sets varied across
+the model to find the simplest possible architecture that can still per-        different sparsity targets. FLOPs are calculated based on a 4-second
+form the task well. This allows for a direct trade-off between task             audio input.
+accuracy and model complexity within a single training loop. The                                                                                    Eval
+                                                                                  Sparsity   Methods                #Param      FLOPs
+overall objective is:                                                                                                                      EER (%)       minDCF
+                                                                                  WavLM-SLIM (Best single system in ASVspoof5) [30]         5.16           0.149
+             max min (Ltask (θ) + Rprune (θ, α, λ1 , λ2 ))              (1)       0%         WavLM Base             95.6 M      57.4 G      4.56           0.116
+             λ1 ,λ2 θ,α
+                                                                                             DP-HUBERT              86.2 M      48.0 G      5.13           0.139
+where θ are the model weights and α are the gate distribution pa-                 10%        Structured Pruning     86.7 M      51.7 G      5.57           0.154
+rameters.                                                                                    Ours                   86.0 M      51.9 G      3.75           0.103
+     Task-Specific Loss (Ltask ): The first term anchors the model                           DP-HUBERT              67.3 M      36.4 G      7.23           0.200
+to the downstream objective. For SV, we use the AAM Softmax                       30%        Structured Pruning     67.3 M      36.7 G      5.62           0.149
+loss [27] to learn discriminative embeddings. For anti-spoofing, we                          Ours                   67.3 M      39.1 G      5.14           0.143
+employ a standard Binary Cross-Entropy (BCE) loss. This term en-                             DP-HUBERT              48.5 M      25.8 G      11.73          0.321
+sures that any architectural changes made by the pruning process are              50%        Structured Pruning     48.4 M      25.2 G      10.22          0.269
+evaluated based on their impact on final task performance.                                   Ours                   48.4 M      26.9 G      8.74           0.233
+     Pruning Regularizer (Rprune ): The second term drives the
+model towards a target sparsity level. Given the ideal regularizer
+                                                                                Table 2. Performance and efficiency trade-offs on the VoxCeleb
+is the non-differentiable L0 norm, we adopt the tractable varia-
+                                                                                dataset. EERs% are reported for the VoxCeleb1-O/E/H test sets.
+tional approximation from [23]. To precisely steer the model to a
+                                                                                Speedups measured on an AMD EPYC 7A53 CPU and an AMD
+pre-defined target sparsity (i.e. the ratio of pruned parameters to
+                                                                                MI250 GPU are reported relative to the unpruned model.
+the original model size), t, we use an augmented Lagrangian con-
+troller [24]. The regularizer is therefore the expected value of this                                                         Speedup             VoxCeleb
+                                                                                  Model             Sparsity      #Param
+controller over the distribution of the stochastic gates:                                                                    CPU    GPU     O        E        H
+                                                                                                        0%        95.6 M       -      -    0.70     0.69     1.40
+                                                                                                       60%        38.9 M     2.2×   2.0×   0.70     0.78     1.50
+                                                                                  WavLM Base+
+        Rprune = Eq(θ|θ,α) [λ1 (||θ||0 − t) + λ2 (||θ||0 − t)2 ]        (2)                            70%        29.5 M     2.9×   2.6×   0.73     0.84     1.61
+                                                                                                       80%        19.9 M     3.8×   3.4×   0.92     1.02     1.91
+Here, the expectation of the L0 norm can be calculated analytically
+as a function of the gate parameters α. The learnable Lagrange mul-
+tipliers, λ1 , λ2 ∈ R, are updated via gradient ascent to enforce the           accounts for a total of 1.2 million parameters [15]. During the train-
+sparsity constraint. And θ refers to the deterministic location param-          ing of our HP framework, the parameters of this back-end are jointly
+eters of the variational distribution q.                                        optimized along with the SSL model’s parameters and the pruning
+     Upon completion of training, the stochastic gates are finalized            masks. For SV tasks, we employ the AAM-softmax loss with a mar-
+to deterministic binary values (0 or 1). All structural components              gin of 0.2 and a scaling factor of 32. For the anti-spoofing task, we
+corresponding to a gate value of 0 are permanently removed from                 utilize a standard BCE loss. To ensure stable convergence during
+the model’s computational graph. The result is a physically smaller,            pruning, we implement a warm-up schedule for the target sparsity.
+faster model that can be deployed for inference without any special             The sparsity target is linearly increased from 0 to its final pre-defined
+libraries or dependencies for sparse computation, thereby achieving             value over the first 5 epochs of training.
+a practical reduction in both latency and memory footprint.
+
+                                                                                4.2. Main Results on SV and Anti-Spoofing Benchmarks
+                          4. EXPERIMENTS
+                                                                                We evaluate our HP framework on the anti-spoofing and SV tasks.
+4.1. Setup
+                                                                                    For anti-spoofing, we use the standard ASVspoof5 benchmark,
+Datasets. We conduct a comprehensive evaluation of our proposed                 comparing our HP against two strong pruning baselines: a task-
+framework across two distinct tasks: SV and anti-spoofing. For SV,              agnostic method (DP-HUBERT) and a post-hoc approach (Struc-
+we utilize standard large-scale benchmarks. The models are trained              tured Pruning). As shown in Table 1, our HP method consistently
+on the development set of the VoxCeleb2 dataset [11, 28]. Then the              and significantly outperforms both baselines at every sparsity level.
+performance is evaluated on the three official trials: Vox1-O, Vox1-            Additionally, our method is the only one that improves performance
+E, and Vox1-H. To further assess the generalization capabilities of             over the unpruned baseline at 10% sparsity with 3.70% EER, which
+our method under different language and domain conditions, we also              shows our method acts not only as a compression tool but as a pow-
+report performance on the CNCeleb corpus [29]. For anti-spoofing,               erful regularizer, as further analyzed in Sec 4.4. Furthermore, the
+we train on ASVspoof5 [12] and SpoofCeleb [13], and test on their               FLOPs of our pruned model differ from the baselines at the same
+respective official sets.                                                       sparsity, which indicates distinct sub-architectures are being learned.
+Implementation details. We utilize two scales of pre-trained SSL                    As shown in Table 2, HP attains efficient inference while pre-
+models: (1) The BASE models, consisting of a CNN encoder and                    serving accuracy for SV tasks. At 60% sparsity, WavLM Base+ re-
+12 layers of Transformers with approximately 94M parameters. (2)                duces parameters from 95.6M to 38.9M and yields 2.2× CPU and
+The Large models, which include 24 layers of Transformers with ap-              2.0× GPU inference speedup over the dense WavLM, with EERs of
+proximately 316M parameters. For both SV and anti-spoofing tasks,               0.70%, 0.78%, and 1.50% on Vox1-O/E/H, comparable to the dense
+we employ the same MHFA module with 32 attention heads, which                   model (0.70%, 0.69%, 1.40%).
+
+
+                                                                         16444
+
+    Authorized licensed use limited to: Brno University of Technology. Downloaded on July 14,2026 at 17:41:41 UTC from IEEE Xplore. Restrictions apply.
+                                                                                Fig. 4. EER performance of the HP framework on the CNCeleb-Eval
+                                                                                (purple) and SpoofCeleb-Eval (green) datasets.
+
+
+Fig. 2. Layer-wise pruning patterns (on FFN and MHSA) for
+WavLM Base across different methods. All methods were trained
+on the ASVspoof5 dataset and pruned to 50% target sparsity.
+
+
+
+
+                                                                                Fig. 5. EER vs. number of parameters for pruned WavLM Base Plus
+                                                                                and WavLM Large models on the Vox1-H test sets.
+
+                                                                                model focus on learning more robust and discriminative features.
+
+
+Fig. 3. Layer-wise pruning patterns, comparing (a) task-specificity             4.5. Pruning Effectiveness Across Model Scales
+between SV and anti-spoofing, and (b) domain-specificity for SV
+between VoxCeleb and CNCeleb datasets.                                          To investigate the impact of model scale on pruning effectiveness,
+                                                                                we conducted experiments on both the WavLM Base Plus and Large
+4.3. Task- and Domain-Adaptive Architectures after Pruning                      models, with the results shown in Figure 5. The pruned Base model
+                                                                                consistently outperforms the pruned Large model, suggesting that
+Our HP framework learns non-uniform, specialized sub-architectures              starting with a larger model is not always the optimal strategy. More-
+that adapt to both the downstream task and the data domain with                 over, our HP framework can prune the Base model by over 70%
+50% sparsity, in contrast to the more uniform strategies of the base-           with negligible performance degradation compared to its unpruned
+lines (Figure 2). This task-specificity is evident in Figure 3(a), where        version. It is noted that selecting a suitable foundation model and
+the pruning patterns for SV and anti-spoofing are nearly opposite:              applying fine-grained pruning is a more effective path to an efficient
+the anti-spoofing model preserves lower-layer MHSA modules to                   system than simply compressing the largest available model.
+detect acoustic artifacts, while the SV model retains upper-middle
+layers to capture speaker identity. Moreover, the framework shows
+domain-specificity (Figure 3b); the SV model trained on the more                                           5. CONCLUSION
+diverse CNCeleb dataset prunes upper layers more aggressively than
+when trained on VoxCeleb.                                                       In this work, we introduced Hybrid Pruning (HP), a single-stage
+                                                                                framework that integrates structured pruning into downstream fine-
+4.4. Generalization Gains from Moderate Pruning                                 tuning to efficiently compress large SSL models. Our experiments
+                                                                                on SV and anti-spoofing benchmarks demonstrate that HP can
+                                                                                achieve up to a 70% parameter reduction with negligible perfor-
+A key finding is that moderate pruning can act as an effective regular-         mance degradation. Notably, we found that HP acts as a regularizer,
+izer, improving generalization of over-parameterized SSL-based sys-             improving generalization in low-resource scenarios by mitigating
+tems compared to unpruned ones. As illustrated in Figure 4, both the            overfitting. Further analysis revealed that the framework learns
+results on CNCeleb and SpoofCeleb exhibit a distinct “U-shaped”                 task-specific architectures, retaining different layers for SV versus
+performance curve, where an optimal level of sparsity outperforms               anti-spoofing, and that pruning a smaller base model can be more
+the baseline. This suggests that standard fine-tuning of SSL mod-               effective than compressing a larger one. Ultimately, HP provides a
+els may lead to suboptimal generalization, possibly due to overfit-             principled and efficient path for deploying high-performance SSL
+ting to the downstream set. By removing redundant parameters, our               models on resource-constrained devices, with future work poten-
+HP method reduces model capacity in a controlled way, helping the               tially extending to other tasks like speech large language models.
+
+
+                                                                         16445
+
+    Authorized licensed use limited to: Brno University of Technology. Downloaded on July 14,2026 at 17:41:41 UTC from IEEE Xplore. Restrictions apply.
+                            6. REFERENCES                                        [17] J. Peng, L. Mošner, L. Zhang, O. Plchot, T. Stafylakis, L. Burget, and
+                                                                                      J. Černockỳ, “Ca-mhfa: A context-aware multi-head factorized atten-
+ [1] W.-N. Hsu, B. Bolte, Y.-H. H. Tsai, K. Lakhotia, R. Salakhutdinov,               tive pooling for ssl-based speaker verification,” in ICASSP 2025-2025
+     and A. Mohamed, “HuBERT: Self-Supervised Speech Representation                   IEEE International Conference on Acoustics, Speech and Signal Pro-
+     Learning by Masked Prediction of Hidden Units,” IEEE/ACM Transac-                cessing (ICASSP). IEEE, 2025, pp. 1–5.
+     tions on Audio, Speech, and Language Processing, vol. 29, pp. 3451–
+                                                                                 [18] J. Rohdin, L. Zhang, P. Oldřich, V. Staněk, D. Mihola, J. Peng, T. Stafy-
+     3460, 2021.
+                                                                                      lakis, D. Beveraki, A. Silnova, J. Brukner, and L. Burget, “But sys-
+ [2] Z. Li, T. Graave, J. Liu, T. Lohrenz, S. Kunzmann, and T. Fingscheidt,           tems and analyses for the asvspoof 5 challenge,” in The Automatic
+     “Parameter-efficient cross-language transfer learning for a language-            Speaker Verification Spoofing Countermeasures Workshop (ASVspoof
+     modular audiovisual speech recognition,” in 2023 IEEE Automatic                  2024), 2024, pp. 24–31.
+     Speech Recognition and Understanding Workshop (ASRU). IEEE,
+     2023, pp. 1–8.                                                              [19] B. Desplanques, J. Thienpondt, and K. Demuynck, “ECAPA-TDNN:
+                                                                                      Emphasized Channel Attention, Propagation and Aggregation in
+ [3] X. Wang and J. Yamagishi, “Investigating self-supervised front ends              TDNN Based Speaker Verification,” in Proc. Interspeech 2020, 2020,
+     for speech spoofing countermeasures,” in The Speaker and Language                pp. 3830–3834.
+     Recognition Workshop (Odyssey 2022), 2022, pp. 100–106.
+                                                                                 [20] J. Peng, T. Stafylakis, R. Gu, O. Plchot, L. Mošner, L. Burget, and
+ [4] S. Chen, C. Wang, Z. Chen, Y. Wu, S. Liu, Z. Chen, J. Li, N. Kanda,              J. Černockỳ, “Parameter-efficient transfer learning of pre-trained trans-
+     T. Yoshioka, X. Xiao et al., “WavLM: Large-scale self-supervised pre-            former models for speaker verification using adapters,” in ICASSP
+     training for full stack speech processing,” IEEE Journal of Selected             2023-2023 IEEE International Conference on Acoustics, Speech and
+     Topics in Signal Processing, 2022.                                               Signal Processing (ICASSP). IEEE, 2023, pp. 1–5.
+ [5] Y. Peng, Y. Sudo, S. Muhammad, and S. Watanabe, “Dphubert: Joint            [21] H. Jiang, L. L. Zhang, Y. Li, Y. Wu, S. Cao, T. Cao, Y. Yang, J. Li,
+     distillation and pruning of self-supervised speech models,” in Inter-            M. Yang, and L. Qiu, “Accurate and structured pruning for efficient
+     speech 2023, 2023, pp. 62–66.                                                    automatic speech recognition,” in Interspeech 2023, 2023, pp. 4104–
+ [6] H. Wang, S. Wang, W.-Q. Zhang, S. Hongbin, and Y. Wan, “Task-                    4108.
+     agnostic structured pruning of speech representation models,” in In-        [22] J. Han, F. Landini, J. Rohdin, A. Silnova, M. Diez, J. Cernocky, and
+     terspeech 2023, 2023, pp. 231–235.                                               L. Burget, “Fine-tune before structured pruning: Towards compact and
+ [7] J. Han, P. Pálka, M. Delcroix, F. Landini, J. Rohdin, J. Cer-                    accurate self-supervised models for speaker diarization,” arXiv preprint
+     nockỳ, and L. Burget, “Efficient and generalizable speaker diariza-             arXiv:2505.24111, 2025.
+     tion via structured pruning of self-supervised models,” arXiv preprint      [23] C. Louizos, M. Welling, and D. P. Kingma, “Learning sparse neural
+     arXiv:2506.18623, 2025.                                                          networks through l_0 regularization,” in International Conference on
+ [8] S. M. Ebrahimipour, S. H. Mozafari, J. J. Clark, W. J. Gross, and B. H.          Learning Representations, 2018.
+     Meyer, “Latency-aware pruning and quantization of self-supervised           [24] Z. Wang, J. Wohlwend, and T. Lei, “Structured pruning of large lan-
+     speech transformers for edge devices,” ACM Transactions on Embed-                guage models,” in Proceedings of the 2020 Conference on Empirical
+     ded Computing Systems, 2025.                                                     Methods in Natural Language Processing (EMNLP), 2020, pp. 6151–
+ [9] Y. Peng, K. Kim, F. Wu, P. Sridhar, and S. Watanabe, “Structured prun-           6162.
+     ing of self-supervised pre-trained models for speech recognition and        [25] C. J. Maddison, A. Mnih, and Y. W. Teh, “The concrete distribution:
+     understanding,” in ICASSP 2023 - 2023 IEEE International Confer-                 A continuous relaxation of discrete random variables,” arXiv preprint
+     ence on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp.              arXiv:1611.00712, 2016.
+     1–5.
+                                                                                 [26] C. Louizos, M. Welling, and D. P. Kingma, “Learning sparse neural net-
+[10] L. Li, R. Liu, J. Kang, Y. Fan, H. Cui, Y. Cai, R. Vipperla, T. F. Zheng,        works through l_0 regularization,” arXiv preprint arXiv:1712.01312,
+     and D. Wang, “Cn-celeb: multi-genre speaker recognition,” Speech                 2017.
+     Communication, vol. 137, pp. 77–91, 2022.
+                                                                                 [27] J. Deng, J. Guo, N. Xue, and S. Zafeiriou, “Arcface: Additive an-
+[11] J. S. Chung, A. Nagrani, and A. Zisserman, “Voxceleb2: Deep speaker              gular margin loss for deep face recognition,” in Proceedings of the
+     recognition,” Proc. Interspeech 2018, pp. 1086–1090, 2018.                       IEEE/CVF conference on computer vision and pattern recognition,
+[12] X. Wang, H. Delgado, H. Tak, J. weon Jung, H. jin Shim, M. Todisco,              2019, pp. 4690–4699.
+     I. Kukanov, X. Liu, M. Sahidullah, T. H. Kinnunen, N. Evans, K. A.          [28] A. Nagrani, J. S. Chung, and A. Zisserman, “Voxceleb: A large-scale
+     Lee, and J. Yamagishi, “Asvspoof 5: crowdsourced speech data, deep-              speaker identification dataset,” Proc. Interspeech 2017, pp. 2616–2620,
+     fakes, and adversarial attacks at scale,” in The Automatic Speaker Ver-          2017.
+     ification Spoofing Countermeasures Workshop (ASVspoof 2024), 2024,
+     pp. 1–8.                                                                    [29] Y. Fan, J. Kang, L. Li, K. Li, H. Chen, S. Cheng, P. Zhang, Z. Zhou,
+                                                                                      Y. Cai, and D. Wang, “Cn-celeb: a challenging chinese speaker recog-
+[13] J.-w. Jung, Y. Wu, X. Wang, J.-H. Kim, S. Maiti, Y. Matsunaga, H.-
+                                                                                      nition dataset,” in ICASSP 2020-2020 IEEE International Conference
+     j. Shim, J. Tian, N. Evans, J. S. Chung et al., “Spoofceleb: Speech
+                                                                                      on Acoustics, Speech and Signal Processing (ICASSP). IEEE, 2020,
+     deepfake detection and sasv in the wild,” IEEE Open Journal of Signal
+                                                                                      pp. 7604–7608.
+     Processing, 2025.
+                                                                                 [30] Y. Zhu, C. Goel, S. Koppisetti, T. Tran, A. Kumar, and G. Bharaj,
+[14] Y.-L. Liao, X. Chen, C.-C. Wang, and J.-S. R. Jang, “Adversarial
+                                                                                      “Learn from real: Reality defender’s submission to asvspoof5 chal-
+     speaker distillation for countermeasure model on automatic speaker
+                                                                                      lenge,” arXiv preprint arXiv:2410.07379, 2024.
+     verification,” in 2nd Symposium on Security and Privacy in Speech
+     Communication, 2022, pp. 30–34.
+[15] J. Peng, O. Plchot, T. Stafylakis, L. Mošner, L. Burget, and J. Čer-
+     nockỳ, “An attention-based backend allowing efficient fine-tuning of
+     transformer models for speaker verification,” in 2022 IEEE Spoken
+     Language Technology Workshop (SLT). IEEE, 2023, pp. 555–562.
+[16] Z. Chen, S. Chen, Y. Wu, Y. Qian, C. Wang, S. Liu, Y. Qian, and
+     M. Zeng, “Large-scale self-supervised speech representation learning
+     for automatic speaker verification,” in ICASSP 2022-2022 IEEE In-
+     ternational Conference on Acoustics, Speech and Signal Processing
+     (ICASSP). IEEE, 2022, pp. 6147–6151.
+
+
+                                                                            16446
+
+     Authorized licensed use limited to: Brno University of Technology. Downloaded on July 14,2026 at 17:41:41 UTC from IEEE Xplore. Restrictions apply.
+

@@ -1,0 +1,10 @@
+{
+  "ICASSP2027_Paper_Templates/Template.tex": "f74ae5b655c9a27b9400912f364278fff794e9bf71c4ebcb6135e3936065b34d",
+  "ICASSP2027_Paper_Templates/dads_refs.bib": "2db3ef0a27ceb1e6c7edb5df18bf2d5d4e0883716de0af2e98356712a86adb83",
+  "writing_templates/01_mind_the_shift_delta_ssl_child_asr.pdf": "83558655cf912338996d48b513d2190877e52e21bde085cbf5f244f9b61f37a6",
+  "writing_templates/02_heterogeneous_ssl_acoustic_pretraining_local_constraints.pdf": "5d979a069723756956d02ec003f662852a67c7896415691bad77d7b78279aa35",
+  "writing_templates/03_windowed_summarymixing_efficient_finetuning_ssl_low_resource_asr.pdf": "a8e367b6166be0f5ca9488c2d90c92ca19c8e27f09ec398dd086137aec0e191b",
+  "writing_templates/05_learning_rich_speech_representations_acoustic_semantic_factorization.pdf": "4857a60fe353f77a811d892943590e725b133e5b71498ffa7308150848bd18ef",
+  "writing_templates/06_speech_recognition_rescoring_speech_text_foundation_models.pdf": "c783d3085edb5243615a5aabe899a0452aab5a5fb14edbc070371d6c20af3218",
+  "writing_templates/07_hybrid_pruning_ssl_speech_models.pdf": "46f4ae7a642b13410c71365dfbd57e1e40a958f9761dc7e969768e443a52a598"
+}

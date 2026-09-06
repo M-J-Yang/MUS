@@ -1,0 +1,347 @@
+           Learning Rich Speech Representations with
+                Acoustic-Semantic Factorization
+                   Minxue Niu1,2 Najmeh Sadoughi1 Abhishek Yanamandra1 Pichao Wang1
+                                Zhu Liu1 Vimal Bhat1 S. Elizabeth Norred1
+                               Amazon Prime Video1 University of Michigan2
+           sandymn@umich.edu, {nnnourab, ayyanama, wpichao, zhuzliu, vimalb, liznor}@amazon.com
+
+   Abstract—Self-supervised pretraining has transformed speech        is often deployed as a second phase of the pretraining (we refer
+representation learning, enabling models to generalize across         to this phase as “ASR finetuning”), significantly improving the
+various downstream tasks. However, empirical studies have             performance on semantic tasks [3, 4].
+highlighted two notable gaps. First, different speech tasks require
+varying levels of acoustic and semantic information, which are           Speech understanding is inherently complex, as different
+encoded at different layers within the model. This adds the           tasks require different amounts of lexical and para-linguistic
+extra complexity of layer selection on downstream tasks to reach      information. For instance, speaker recognition depends heavily
+optimal performance. Second, the entanglement of acoustic and         on local acoustic features, enabling models to identify voices
+semantic information can undermine model robustness, particu-         from brief audio snippets, while tasks like ASR necessitate
+larly in varied acoustic environments. To address these issues,
+we propose a two-branch multitask finetuning strategy that            higher-level abstractions focused on the semantic content.
+integrates Automatic Speech Recognition and transcript-aligned        Previous work investigating the localization of acoustic and
+audio reconstruction, designed to preserve and disentangle se-        semantic information within the layers of speech models
+mantic and acoustic information in a final layer of a pretrained      has shown that early layers in pretrained models typically
+model. Experiments with the pretrained Wav2Vec 2.0 model              capture more general acoustic characteristics, while semantic
+demonstrate that our approach surpasses ASR-only finetuning
+across multiple downstream tasks, and it significantly improves       information emerges in the middle and later layers [10, 11].
+ASR robustness in acoustically varied (emotional) speech.             The information encoded in the last layer is dominated by
+   Index Terms—Large Speech Models, Speech Representation,            the last seen task. For instance, ASR finetuning encourages a
+Factorization                                                         better preservation of semantic information in the Wav2Vec 2.0
+                                                                      model, but it causes a significant loss of acoustic information
+                       I. I NTRODUCTION                               in the final layer: finetuning Wav2Vec 2.0 with 100 hours
+   Advancements in Large Speech Models through self-                  and 960 hours of ASR data reduces acoustic information
+supervised pretraining have significantly improved the efficacy       preservation by about 50% and 75%, respectively [11]. As
+and generalizability of learned speech representations [1].           a result, downstream applications often have to handle the
+These pretrained speech models can produce general speech             extra complexity of model and layer selection for optimal
+representations, which can be applied to a wide array of speech       performance [12], where the optimal layer is specific to
+tasks, often approaching or even outperforming small models           individual model, task and dataset [10]. It remains unclear
+trained on individual tasks [2]. Recently, representations from       whether this acoustic-semantic trade-off is inherent to the
+prominent models such as Wav2Vec 2.0 [3] and HuBERT [4]               tasks themselves, or can be mitigated through novel training
+have frequently been used as baselines when exploring new             techniques.
+speech applications. However, Large Speech Models vary in                Moreover, semantic and acoustic information are entangled
+their performance across tasks, and creating robust, re-usable        in the representations at each layer, which reduces model
+representations that can generalize across many tasks remains         robustness when acoustic variations or text domain shift occur.
+an ongoing challenge [2, 5].                                          For example, emotional speech often contains acoustic varia-
+   Various self-supervised tasks have been used for learning          tions (e.g. change of pitch or tone) that can cause extra chal-
+speech representations, including reconstructing the original         lenges for ASR systems [13]. Factorization techniques have
+audio signal (VQ-VAE [6]), contrastive next-token prediction          been helpful in many speech tasks, where learning benefits
+(CPC [7], Wav2Vec [8]), masked token prediction (Wav2Vec              from disentangling one or more information components. For
+2.0 [3], HuBERT [4], WavLM [9]), among others. Though                 instance, i-vectors and x-vectors are well-known methods for
+these pretraining tasks rely solely on the raw audio signal to        factorizing speaker representations [14, 15]. More applications
+construct the prediction target, the contextualized nature of         include target speaker extraction [16], speech recognition [17],
+these tasks enables models to capture higher-level semantic           voice conversion [18], and even learning version-invariant
+information from low-level acoustic patterns. This enables            music features [19], beyond speech. However, factorization
+downstream adaptation for semantic tasks like Automatic               has not been sufficiently explored in learning general speech
+Speech Recognition (ASR) [3]. To more directly inject seman-          representations.
+tic information into the model, subsequent finetuning on ASR             To address the challenge of preserving both acoustic and
+      TABLE I: Summary of downstream evaluation tasks.              extracted from Youtube Videos. We follow the train-validation-
+ task        dataset    metric   #train/#test    lr     #steps
+                                                                    test split provided in its official release. The performance is
+                                                                    measured by Accuracy (ACC).
+ SID       Voxceleb1     ACC       149k/5k      0.01     50k        Speech Emotion Recognition (SER) Emotional Activation
+ SER       IEMOCAP       CCC        6k/2k       0.01     5k
+ E-ASR     IEMOCAP       WER         /10k         /       /         is a measure of emotion, ranging from calm to excited. It is
+             Speech                                                 highly linked to acoustic signals in speech [21]. Therefore, we
+ KS                      ACC       51k/3k       0.001    50k
+           Commands                                                 use the Activation regression task to measure the preservation
+                                                                    of acoustic information. We use the IEMOCAP dataset [22],
+                                                                    which contains approximately 12 hours of speech data and
+semantic information in speech representations, we propose a        emotion activation labels annotated on a 5-point scale. We use
+factorized (two-branch) multitask finetuning framework. This        Concordance Correlation Coefficient (CCC) as the evaluation
+framework is built on top of the Wav2Vec 2.0 model but              metric, which assesses the agreement between predicted and
+can be easily adapted for other speech representation mod-          true levels. The dataset contains five recording sessions, and
+els. Our approach simultaneously performs ASR and audio             we follow previous work [23] to run cross validation and report
+reconstruction, utilizing a novel design that factorizes semantic   CCC mean and standard deviation across sessions.
+and acoustic information into two separate representations at       ASR for Emotion Speech (E-ASR) To evaluate the robustness
+the last layer of the speech model. Specifically, the semantic      of semantic representations in acoustically challenging situa-
+branch follows the traditional ASR finetuning approach, while       tions, we compare the ASR performance on emotional speech
+the acoustic branch is tailored to capture the rich, non-semantic   using speech transcripts from IEMOCAP, using Word Error
+features of speech by reconstructing the audio signal based on      Rate (WER) as the metric. Note that the models are trained
+the output of the semantic head, which we call “transcript-         to perform ASR, so no extra downstream training is involved.
+aligned audio reconstruction”. By leveraging this two-branch        Keyword Spotting (KS) KS is a semantic-dominant speech
+architecture, we ensure that each branch specializes in different   task that involves detecting specific keywords or phrases
+aspects of the speech signal, encouraging the separation and        within an audio. We use the Speech Commands dataset [24]
+preservation of both types of information. Experiments demon-       v0.01, which has speech utterances containing 31 words such
+strate that our method benefits both semantic and acoustic          as “bird”, “house”. ACC is used as the evaluation metric.
+tasks, surpassing both the base and ASR-finetuned model on
+three out of four downstream tasks. This indicates a good                                      III. M ODEL
+preservation of both semantic and acoustic information as well         We propose a two-branch multitask framework to learn
+as enhanced robustness.                                             factorized acoustic and semantic representations of speech,
+   Together, our work highlights two key contributions: 1) we       illustrated in Figure 1a.
+show the feasibility of preserving both semantic and acoustic          Semantic Branch and ASR Supervision The orange
+information in the same layer of a speech model through multi-      blocks show our semantic branch, which is also the baseline
+task training, and 2) we show the promise of factorization for      ASR-only finetuning approach as used in the Wav2Vec 2.0
+more robust general speech representation learning, benefiting      model [3]. The output frame-level representations from the
+various downstream tasks.                                           base model are fed into a linear layer with layer normalization
+                                                                    to obtain the semantic representations. Then, another linear
+                  II. TASKS AND DATASETS                            classification head is applied as a simple decoder to predict
+A. Upstream Finetuning                                              the logits. The ASR head is trained with a Connectionist
+                                                                    Temporal Classification (CTC) Loss [25]. Given a batch of
+   Automatic Speech Recognition (ASR) The Librispeech               target sequences y and predicted sequences of logits x,
+dataset consists of read English speech from audiobooks, along
+with rich labels including transcripts and speaker information.
+                                                                                                                        
+                                                                                            N
+The full version contains 960 hours of speech (and has been                              1 X            X
+                                                                               LASR =            − log         p(s | xi )      (1)
+used in Wav2Vec 2.0 pretraining). We use its 100 hour train-                            N i=1
+                                                                                                         s∈S(yi )
+clean split for finetuning our upstream model.
+                                                                       S(yi ) is the set of all possible alignments of yi with xi . Note
+B. Downstream Evaluation                                            that pretrained Language Model decoders have been applied
+   We evaluate our learned semantic and acoustic representa-        and can achieve better results on ASR [3]. However, since
+tions on several downstream tasks. Details of the downstream        our goal here is to preserve more information in the semantic
+datasets and finetuning setups are summarized in Table I.           embedding rather than the decoder, we use a simple linear
+Speaker Identification (SID) SID aims to classify a given           layer as the decoder.
+audio into one of many previously-seen speakers, and we use            Acoustic Branch and Reconstruction Supervision Sim-
+this task to evaluate the preservation of acoustic information      ilarly, we obtain the acoustic representations with a linear
+in our representations. We use the VoxCeleb1 dataset [20],          layer from the base model output. To supervise the learning of
+which contains over 100,000 utterances from 1,251 celebrities       acoustic information, individual tasks may pay more attention
+                                                                semantic embeddings
+
+   Prediction
+   Head         Reconstruct       ASR Head                                                              Softmax                      …
+                   Head            Linear                              Linear
+
+
+
+
+                                                                                                                                    …
+                                                                                                         Linear
+                                                                                                                                     …
+
+                                                                                                         GeLU
+    Encodec       Acoustic         Semantic                                                                                       CE Loss
+
+
+
+
+                                                                …
+                                                                …
+                                                                …
+                                                                …
+                                                                …
+                                                                …
+                                                                …
+                                                                …
+    Encoder        Branch           Branch                                                            Layer_norm       x2
+                                                                                                         Linear
+                                                               <sep> <h> <h> <h> <sep> …
+                 Wav2Vec 2.0 Base model
+
+
+                                                                      CTC Loss                  acoustic embeddings
+        (a) Full model structure and modules.                            (b) Details of the multitask factorization head.
+                                                     Fig. 1: Model Structure.
+
+
+to certain aspects like voice characteristics (Speaker Identifi-    sufficient information for reconstructing the audio.
+cation) or prosody (Emotion Recognition), but non-semantic             Therefore, the reconstruction loss on each frame of sample
+audio components themselves are multi-faceted and difficult to      i at frame t is a Cross Entropy Loss between the actual and
+define. In order to give a comprehensive representation of the      predicted class, summed across C codebooks.
+acoustic information, we design the task of transcript-aligned
+                                                                                            C X
+                                                                                              K
+audio reconstruction. As shown in Figure 1a, the acoustic em-                               X
+                                                                                 li,t = −             yi,t,c,k log p(xi,t,c,k )             (2)
+beddings (output of the acoustic branch) are concatenated with
+                                                                                            c=1 k=1
+the output character logits from the ASR head, and are together
+used to reconstruct the audio signal through a reconstruction         The reconstruction loss weighs each frame equally and is
+decoder. The idea is that the acoustic representations need to      averaged across sequence lengths T and batch size N:
+embed all information about the original speech other than the                                            N T
+semantic information, which can be learned from the character                                       1 XX
+                                                                                        LRec =                   li,t                       (3)
+logits. For the acoustic decoder, we use a stack of two linear                                     N · T i=1 t=1
+layers with normalization and GeLU activation [26].                  Together, we train the model with a weighted sum of the
+   Reconstruction Target Another design choice of the re-           ASR loss and Reconstruction loss:
+construction head is what to use as the reconstruct target.
+One straightforward approach is to reconstruct the original                                L = LASR + λLRec                                 (4)
+waveform or spectrogram [27]. However, doing this usually
+involves a much more complicated decoder to handle the sam-                        IV. E XPERIMENTS AND R ESULTS
+pling rate mismatch between the features and original signals,      A. Experiment Setup
+which adds to the model complexity and the difficulty of               Training. We use the pretrained base Wav2Vec 2.0 check-
+learning. Another natural approach is to continue the masked        point provided in the transformers library1 . The acoustic and
+prediction pretraining task to recover local acoustic features,     semantic branch each has hidden size of 768. We finetune the
+but that has the drawback that it is model-dependent: for           base model with our multitask factorization head with λ = 1
+example, Wav2Vec 2.0 is pretrained to reconstruct low-level         and an AdamW optimizer (learning rate = 1e-4) for 10,000
+local acoustic features learned by its CNN feature extractor [3],   steps with a batch size of 128. We select the model with the
+while HuBERT [4] uses more intermediate codebooks learned           lowest WER on the Librispeech dev-clean set.
+by two-phase clustering. If we simply keep the pretrain task as     Downstream evaluation. For the E-ASR task, we directly
+another head, the learned representations may not be consistent     run model inference with the upstream model and decode the
+in terms of abstraction levels across models. Therefore, we         output logits from the semantic branch. We use the output
+chose Encodec [28], an off-the-shelf model-agnostic audio           from the acoustic branch for the SID and SER, and the output
+signal representation as our reconstruction target. Encodec         from the semantic branch for the semantic-focused task KS.
+is a neural audio codec model that compresses audio into            For all utterance-level tasks (SID, SER, KS), we use a simple
+sequences of discrete class tokens. We use its 6kbps model,         pooling layer followed by a linear classification head as the
+which learns to quantize and represent each frame with tokens       downstream mode, following previous approach [2]. The up-
+in eight codebooks, each of size 1024. Since Encodec provides       stream model is frozen during evaluation. All representations
+trained encoder and decoder and has good reconstruction per-
+formance, being able to predict the Encodec tokens indicates         1 https://huggingface.co/facebook/wav2vec2-base
+TABLE II: Performance on downstream tasks. mtt.- multitask, fct. - factorization. The best performance across all models
+are highlighted in bold. Underscore indicates the better performance with or without factorization. The “#p train” column
+shows the number of trainable parameters in upstream finetuning, while “#p inference” indicates the number of parameters
+for inference, to obtain the representations (excluding task-specific head).
+
+                                 #p train     #p inference    E-ASR (WER↓)       SER (CCC↑)      SID (ACC↑)     KS (ACC↑)
+               w2v2-base             /          94.4M                /           0.462±0.010        0.366           0.805
+               w2v2-100h          90.2M         94.4M             43.29%         0.406±0.009        0.134           0.874
+               ours, mtt.+fct.   114.0M         95.6M             40.90%         0.500±0.011        0.387           0.869
+               ours, mtt.-only   113.4M         95.0M             41.63%         0.485±0.006        0.335           0.852
+
+
+TABLE III: Performance on upstream tasks. mtt. - multitask;               further reduces WER from 41.63% to 40.90%, indicating
+fct. - factorization. ’/’ indicates that the model is not trained         enhanced robustness. Further, we note that our approach only
+on and thus unable to perform the task.                                   adds a small computation overhead (1.3% more parameters)
+                        ASR (WER↓)            Reconstruction (ACC↑)
+                                                                          for downstream inference, compared to the baseline models.
+                    test-clean   test-other   test-clean     test-other   C. Upstream Analysis
+w2v2-100h             6.10%        13.3%           /              /
+ours, mtt. + fct.     5.65%       13.90%           0.349         0.286       Although our goal is to learn a general representation
+ours, asr-only        5.81%       14.33%           /              /       that benefits various downstream tasks, we also analyze the
+ours, rec-only           /            /            0.372         0.319    upstream tasks’ performance to better understand the model’s
+ours, mtt. only       5.68%       13.84%           0.348         0.285
+                                                                          behavior.
+                                                                             As shown in Table III, our model can achieve reasonable
+                                                                          reconstruction performance without hurting ASR perfor-
+we evaluate have the same dimension of 768. We tune the
+                                                                          mance, compared to the model solely finetuned on ASR. On
+number of training steps and learning rate for each task to
+                                                                          the clean speech test set (the same domain as training data),
+ensure convergence, and the optimal setups we report are
+                                                                          our model gets 5.65% WER– lower than the semantic-only
+detailed in Table I.
+                                                                          baseline (5.81%) and the w2v2-100h model (6.10%). It has a
+B. Downstream Results                                                     slightly worse but comparable performance on the noisier test-
+                                                                          other set, despite not being trained with data augmentation
+   We compare our model to the pretrain-only Wav2Vec2
+                                                                          (ours 13.90%, wav2vec2 13.30%), outperforming the ASR-
+model (w2v2-base) and the same model finetuned on 100 hour
+                                                                          only model (14.33%). Comparing the multitask model with
+of speech (w2v2-100h) on downstream tasks (E-ASR, SER,
+                                                                          models trained solely with ASR or Reconstruction, we find
+SID and KS) in Table II. Note that the base model represents
+                                                                          that the two tasks have a small conflict with each other to
+a stronger baseline for acoustic tasks while the 100h model
+                                                                          achieve the best performance, but can both achieve reasonable
+is stronger at semantics [11]. As an ablation study, we also
+                                                                          performance through multitask training. Additionally, factor-
+include a multitask-only model, where only one branch is
+                                                                          ization doesn’t make a significant difference on the upstream
+trained with both heads.
+                                                                          performance, compared to the multitask-only model. However,
+   First, the performance of baseline models (w2v2-base,
+                                                                          as we show in Section IV-B, this extra factorization constraint
+w2v2-100h) verifies our assumption that ASR-only finetuning
+                                                                          brings robustness to downstream tasks.
+does cause a loss of acoustic information. Performance on
+acoustic tasks (SER and SID) both see a significant drop after
+                                                                                                 V. C ONCLUSION
+finetuning with 100 hour of ASR data. On the other hand, the
+semantic task KS is improved by the finetuning, showing a                    In this work, we study the challenge of learning factorized
+trade-off between acoustic and semantic information.                      acoustic and semantic information in speech representations.
+   Then, our model outperforms both baseline models on both               We proposed a two-branch multitask finetuning framework
+acoustic tasks (SER ours 0.500 vs. base 0.462, SID ours 0.387             that integrates ASR and transcript-aligned audio reconstruction
+vs. base 0.366). On the downstream semantic task KS, our                  to factorize and preserve these different types of informa-
+model approaches the better performance (ours 0.869, base                 tion in the final layer of a pretrained model. Our results
+0.805, 100h 0.874). Those results indicate that our model can             demonstrate superior performance and enhanced robustness
+successfully preserve both acoustic and semantic informa-                 across multiple downstream tasks. Furthermore, our analysis
+tion in the last layer of a speech model. What’s more, the                shows the feasibility of co-training ASR and reconstruction.
+factorization design provides an extra bump in the models                 We believe our experiments offer valuable insights for building
+performance: it performs better across all four downstream                more informative and robust speech models. While our work
+tasks compared to multitask-only finetuning. Notably, on the              focuses on factorization at the final layer, earlier separation of
+challenging task of E-ASR, where semantic extraction can be               the branches may offer further benefits. Future research will
+biased by acoustic variations, using factorized representation            explore factorization across different layers.
+                              R EFERENCES                                         [19] Jiahao Xun, Shengyu Zhang, Yanting Yang, Jieming Zhu, Liqun Deng,
+                                                                                       Zhou Zhao, Zhenhua Dong, Ruiqi Li, Lichao Zhang, and Fei Wu,
+ [1] Abdelrahman Mohamed, Hung-Yi Lee, Lasse Borgholt, Jakob D Hav-                    “Discover: Disentangled music representation learning for cover song
+     torn, Joakim Edin, Christian Igel, Katrin Kirchhoff, Shang-Wen Li,                identification,” in Proceedings of the 46th International ACM SIGIR
+     Karen Livescu, Lars Maaløe, Tara N Sainath, and Shinji Watanabe,                  Conference on Research and Development in Information Retrieval,
+     “Self-supervised speech representation learning: A review,” IEEE J.               2023, pp. 453–463.
+     Sel. Top. Signal Process., vol. 16, no. 6, pp. 1179–1210, Oct. 2022.         [20] A. Nagrani, J. S. Chung, and A. Zisserman, “Voxceleb: a large-scale
+ [2] Shu-Wen Yang, Po-Han Chi, Yung-Sung Chuang, Cheng-I Jeff Lai,                     speaker identification dataset,” in INTERSPEECH, 2017.
+     Kushal Lakhotia, Yist Y Lin, Andy T Liu, Jiatong Shi, Xuankai                [21] Jo-Anne Bachorowski and Michael J Owren, “Vocal expression of
+     Chang, Guan-Ting Lin, Tzu-Hsien Huang, Wei-Cheng Tseng, Ko-Tik                    emotion: Acoustic properties of speech are associated with emotional
+     Lee, Da-Rong Liu, Zili Huang, Shuyan Dong, Shang-Wen Li, Shinji                   intensity and context,” Psychological science, vol. 6, no. 4, pp. 219–
+     Watanabe, Abdelrahman Mohamed, and Hung-Yi Lee, “SUPERB:                          224, 1995.
+     Speech processing universal PERformance benchmark,” arXiv [cs.CL],           [22] Carlos Busso, Murtaza Bulut, Chi-Chun Lee, Abe Kazemzadeh, Emily
+     May 2021.                                                                         Mower, Samuel Kim, Jeannette N Chang, Sungbok Lee, and Shrikanth S
+ [3] Alexei Baevski, Yuhao Zhou, Abdelrahman Mohamed, and Michael                      Narayanan, “Iemocap: Interactive emotional dyadic motion capture
+     Auli, “wav2vec 2.0: A framework for self-supervised learning of speech            database,” Language resources and evaluation, vol. 42, pp. 335–359,
+     representations,” NeurIPS, vol. 33, pp. 12449–12460, 2020.                        2008.
+ [4] Wei-Ning Hsu, Benjamin Bolte, Yao-Hung Hubert Tsai, Kushal Lakho-            [23] Sandeep Kumar Pandey, Hanumant Singh Shekhawat, and SR Mahadeva
+     tia, Ruslan Salakhutdinov, and Abdelrahman Mohamed, “HuBERT:                      Prasanna, “Deep learning techniques for speech emotion recognition: A
+     Self-supervised speech representation learning by masked prediction of            review,” in 2019 29th international conference RADIOELEKTRONIKA
+     hidden units,” IEEE/ACM Transactions on Audio, Speech, and Language               (RADIOELEKTRONIKA). IEEE, 2019, pp. 1–6.
+     Processing, vol. 29, pp. 3451–3460, 2021.                                    [24] Pete Warden, “Speech commands: A dataset for limited-vocabulary
+ [5] Joseph Turian, Jordie Shier, Humair Raj Khan, Bhiksha Raj, Björn W               speech recognition,” arXiv preprint arXiv:1804.03209, 2018.
+     Schuller, Christian J Steinmetz, Colin Malloy, George Tzanetakis, Gissel     [25] Alex Graves, Santiago Fernández, Faustino Gomez, and Jürgen Schmid-
+     Velarde, Kirk McNally, Max Henry, Nicolas Pinto, Camille Noufi,                   huber, “Connectionist temporal classification: labelling unsegmented
+     Christian Clough, Dorien Herremans, Eduardo Fonseca, Jesse Engel,                 sequence data with recurrent neural networks,” in ICML, June 2006.
+     Justin Salamon, Philippe Esling, Pranay Manocha, Shinji Watanabe,            [26] Dan Hendrycks and Kevin Gimpel, “Gaussian error linear units (gelus),”
+     Zeyu Jin, and Yonatan Bisk, “HEAR: Holistic evaluation of audio                   arXiv preprint arXiv:1606.08415, 2016.
+     representations,” arXiv [cs.SD], Mar. 2022.                                  [27] Marco Tagliasacchi, Beat Gfeller, Félix de Chaumont Quitry, and Do-
+ [6] Aaron Van Den Oord, Oriol Vinyals, et al., “Neural discrete representa-           minik Roblek, “Pre-training audio representations with self-supervision,”
+     tion learning,” Advances in neural information processing systems, vol.           IEEE Signal Processing Letters, vol. 27, pp. 600–604, 2020.
+     30, 2017.                                                                    [28] Alexandre Défossez, Jade Copet, Gabriel Synnaeve, and Yossi Adi,
+ [7] Aaron van den Oord, Yazhe Li, and Oriol Vinyals, “Representation                  “High fidelity neural audio compression,” arXiv [eess.AS], Oct. 2022.
+     learning with contrastive predictive coding,” arXiv [cs.LG], July 2018.
+ [8] Steffen Schneider, Alexei Baevski, Ronan Collobert, and Michael Auli,
+     “wav2vec: Unsupervised pre-training for speech recognition,” arXiv
+     [cs.CL], Apr. 2019.
+ [9] Sanyuan Chen, Chengyi Wang, Zhengyang Chen, Yu Wu, Shujie Liu,
+     Zhuo Chen, Jinyu Li, Naoyuki Kanda, Takuya Yoshioka, Xiong Xiao,
+     et al., “Wavlm: Large-scale self-supervised pre-training for full stack
+     speech processing,” IEEE Journal of Selected Topics in Signal Process-
+     ing, vol. 16, no. 6, pp. 1505–1518, 2022.
+[10] Ankita Pasad, Bowen Shi, and Karen Livescu, “Comparative layer-wise
+     analysis of self-supervised speech models,” in ICASSP. IEEE, 2023, pp.
+     1–5.
+[11] Ankita Pasad, Ju-Chieh Chou, and Karen Livescu, “Layer-wise analysis
+     of a self-supervised speech representation model,” in 2021 IEEE
+     Automatic Speech Recognition and Understanding Workshop (ASRU),
+     Dec. 2021, pp. 914–921.
+[12] Leonardo Pepino, Pablo Riera, and Luciana Ferrer, “Emotion recognition
+     from speech using Wav2vec 2.0 embeddings,” arXiv [cs.SD], Apr. 2021.
+[13] Yuanchao Li, Zeyu Zhao, Ondrej Klejch, Peter Bell, and Catherine Lai,
+     “ASR and emotional speech: A word-level investigation of the mutual
+     impact of speech and emotion recognition,” arXiv [eess.AS], May 2023.
+[14] Najim Dehak, Patrick J Kenny, Réda Dehak, Pierre Dumouchel, and
+     Pierre Ouellet, “Front-end factor analysis for speaker verification,” IEEE
+     Transactions on Audio, Speech, and Language Processing, vol. 19, no.
+     4, pp. 788–798, 2010.
+[15] David Snyder, Daniel Garcia-Romero, Gregory Sell, Daniel Povey, and
+     Sanjeev Khudanpur, “X-vectors: Robust dnn embeddings for speaker
+     recognition,” in ICASSP. IEEE, 2018, pp. 5329–5333.
+[16] Zhaoxi Mu, Xinyu Yang, Sining Sun, and Qing Yang, “Self-supervised
+     disentangled representation learning for robust target speech extraction,”
+     AAAI, vol. 38, no. 17, pp. 18815–18823, Mar. 2024.
+[17] Yuying Xie, Thomas Arildsen, and Zheng-Hua Tan, “Disentangled
+     speech representation learning based on factorized hierarchical varia-
+     tional autoencoder with self-supervised objective,” in 2021 IEEE 31st
+     International Workshop on Machine Learning for Signal Processing
+     (MLSP). IEEE, 2021, pp. 1–6.
+[18] SiCheng Yang, Methawee Tantrawenith, Haolin Zhuang, Zhiyong Wu,
+     Aolan Sun, Jianzong Wang, Ning Cheng, Huaizhen Tang, Xintao Zhao,
+     Jie Wang, et al., “Speech representation disentanglement with adversarial
+     mutual information learning for one-shot voice conversion,” arXiv
+     preprint arXiv:2208.08757, 2022.
+

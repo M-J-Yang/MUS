@@ -138,10 +138,6 @@ INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msb
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm5.tfm
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/adobe/times/ptmbi7t.tfm
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/adobe/times/ptmri7t.tfm
-INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd
-INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd
-INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd
-INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/adobe/times/ptmr8c.tfm
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/vf/adobe/times/ptmb7t.vf
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/adobe/times/ptmb8r.tfm
 INPUT /data/zb/ymj/MUS/.texlive/texmf-var/fonts/map/pdftex/updmap/pdftex.map
@@ -158,7 +154,6 @@ INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/vf/adobe/times/ptmbi7t.vf
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/adobe/times/ptmbi8r.tfm
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/vf/adobe/times/ptmri7t.vf
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/adobe/times/ptmri8r.tfm
-INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/vf/adobe/times/ptmr8c.vf
 INPUT ./figures/formal_shift_pruning.pdf
 INPUT ./figures/formal_shift_pruning.pdf
 INPUT ./figures/formal_shift_pruning.pdf

@@ -1,0 +1,362 @@
+                                                 MIND THE SHIFT: USING DELTA SSL EMBEDDINGS TO ENHANCE CHILD ASR
+
+                                                         Zilai Wang, Natarajan Balaji Shankar, Kaiyuan Zhang, Zihan Wang, Abeer Alwan
+
+                                                                                   University of California, Los Angeles
+                                                                             Department of Electrical and Computer Engineering
+                                                                                            Los Angeles, USA
+
+
+                                                                     ABSTRACT                                      may yield complementary representations. This has motivated work
+arXiv:2601.20142v1 [cs.CL] 28 Jan 2026
+
+
+
+
+                                                                                                                   on feature fusion, where embeddings from multiple SSL models
+                                         Self-supervised learning (SSL) models have achieved impressive re-
+                                                                                                                   are combined in the representation space. While prior studies have
+                                         sults across many speech tasks, yet child automatic speech recog-
+                                                                                                                   demonstrated the benefits of fusing pre-trained embeddings [20–24],
+                                         nition (ASR) remains challenging due to limited data and pretrain-
+                                                                                                                   the potential of fusion between fine-tuned models remains underex-
+                                         ing domain mismatch. Fine-tuning SSL models on child speech in-
+                                                                                                                   plored, particularly for child ASR.
+                                         duces shifts in the representation space. We hypothesize that delta
+                                         SSL embeddings, the differences between embeddings from a fine-                 In parallel, recent research on model merging for ASR shows
+                                         tuned model and those from its pre-trained counterpart, encode task-      that parameter differences between fine-tuned and pre-trained mod-
+                                         specific information that complements fine-tuned features from an-        els (“task vectors”) encode task-specific knowledge and can transfer
+                                         other SSL model. We evaluate multiple fusion strategies on the            across domains [25–27]. However, most model merging approaches
+                                         MyST children’s corpus with different models. Results show that           assume all constituent models to be fine-tuned from the same pre-
+                                         delta embedding fusion with WavLM yields up to a 10% relative             trained checkpoint, limiting their ability to exploit the complemen-
+                                         WER reduction for HuBERT and a 4.4% reduction for W2V2, com-              tary strengths of heterogeneous SSL encoders. Nevertheless, this
+                                         pared to fine-tuned embedding fusion. Notably, fusing WavLM with          insight suggests that differences themselves carry rich information
+                                         delta W2V2 embeddings achieves a WER of 9.64, setting a new               about adaptation.
+                                         state-of-the-art among SSL models on the MyST corpus. These find-               In this paper, we extend the task vector concept from param-
+                                         ings demonstrate the effectiveness of delta embeddings and highlight      eters to representations. We define delta SSL embeddings as the
+                                         feature fusion as a promising direction for advancing child ASR.          difference between embeddings produced by a fine-tuned model and
+                                                                                                                   those of its pre-trained counterpart. This formulation differs from
+                                             Index Terms— Children’s automatic speech recognition, self-           prior work in NLP [28], where delta embeddings are introduced as
+                                         supervised learning, feature fusion, representation analysis              trainable adjustments to frozen word embeddings to mitigate over-
+                                                                                                                   fitting during fine-tuning. Despite these technical differences, both
+                                                                1. INTRODUCTION                                    approaches share the same intuition: deltas capture task-specific in-
+                                                                                                                   formation as deviations introduced by fine-tuning relative to the pre-
+                                         Self-supervised learning (SSL) has become a cornerstone of modern         trained reference. By incorporating delta embeddings into fusion,
+                                         speech processing. Models pre-trained on large amounts of unla-           we aim to highlight the task-specific information and enhance the
+                                         beled audio routinely achieve impressive performance on automatic         complementarity between SSL models. Our work thus extends the
+                                         speech recognition (ASR) after fine-tuning with a limited set of tran-    notion of delta embeddings from word-level regularization in NLP
+                                         scriptions [1]. Nevertheless, SSL models continue to face difficulties    to representation-level fusion of speech signals, broadening their ap-
+                                         with child ASR, where word error rates (WERs) remain substantially        plicability to low-resource ASR.
+                                         higher than those for adult speech [2]. This gap is largely attributed          Our contributions can be summarized as follows:
+                                         to acoustic and linguistic differences in children’s speech such as
+                                                                                                                      1. We present, to our knowledge, the first study to fuse fine-
+                                         higher fundamental and formant frequencies, greater speaker vari-
+                                                                                                                         tuned SSL model representations using delta embeddings for
+                                         ability, and rapid developmental changes [3–6].
+                                                                                                                         ASR. As a case study, we focus on child ASR and show that
+                                              Recent supervised models like Whisper [7] have shown good
+                                                                                                                         incorporating delta embeddings yields gains across heteroge-
+                                         performance on child ASR [2], in part due to their large-scale train-
+                                                                                                                         neous encoders.
+                                         ing data. However, these models often function as black boxes, with
+                                         limited interpretability and less transparent training data, which hin-      2. On the MyST corpus, we demonstrate that concatenation con-
+                                         der analysis and raise concerns around reproducibility, data leakage,           sistently outperforms weighted sum and cross attention fu-
+                                         and bias. In contrast, SSL models remain highly valuable: their em-             sion strategies, particularly in few-shot scenarios. This ap-
+                                         beddings are more interpretable, more transferable to downstream                proach achieves a new state-of-the-art WER of 9.64 among
+                                         tasks, and are typically trained on open datasets. These advantages             SSL models on the MyST corpus.
+                                         motivate continued research on SSL models as a reliable foundation
+                                                                                                                      3. We show that delta embedding fusion yields strong gains in
+                                         for advancing child speech technologies [8–15], and underscore the
+                                                                                                                         the extremely low-resource 1 h setting, achieving a 10% rel-
+                                         importance of developing methods to further improve their perfor-
+                                                                                                                         ative WER reduction for HuBERT and a 4.4% reduction for
+                                         mance.
+                                                                                                                         W2V2, compared to fine-tuned embedding fusion.
+                                              A diverse set of SSL encoders has emerged, including Wav2vec
+                                         2.0 [16], HuBERT [17], WavLM [18], and Data2vec [19]. These                  4. We employ Canonical Correlation Analysis (CCA) to investi-
+                                         models differ in pre-training objectives and architectures, and thus            gate how delta embeddings enhance complementarity during
+                                                             1
+       fusion, offering insights into their effectiveness.                2.3. Canonical Correlation Analysis
+                                                                          Following prior work [29–32], we use CCA [33] to quantify similar-
+                            2. METHODS                                    ity between SSL representations. CCA measures relationships be-
+                                                                          tween two random vectors by identifying the linear projections that
+2.1. Feature Extraction                                                   maximize their correlation.
+                                                                               Formally, given n paired samples {(x1 , y1 ), . . . , (xn , yn )} from
+We propose fusing fine-tuned embeddings from a reference SSL
+                                                                          X ∈ Rd1 and Y ∈ Rd2 , CCA solves
+model with delta (∆) embeddings derived from other SSL models.
+We consider three representative SSL encoders that differ in their                       v1 , w1 = arg max corr(v ⊤ X, w⊤ Y ).                   (6)
+pre-training objectives and modeling strategies:                                                            v,w
+
+    • Wav2Vec 2.0 [16]: Learns contextualized speech representa-          Subsequent projection pairs (vi , wi ) are chosen to maximize cor-
+      tions by masking audio frames and predicting their quantized        relation while remaining uncorrelated with earlier pairs, up to k =
+      latent codes using a contrastive loss, which distinguishes true     min(d1 , d2 ). The overall CCA similarity is the average of the canon-
+      codes from distractors.                                             ical correlations ρi = corr(vi⊤ X, wi⊤ Y ).
+    • HuBERT [17]: Replaces Wav2Vec 2.0’s contrastive predic-                  Projection-Weighted CCA (PWCCA) [34] extends it by comput-
+      tion with an offline clustering step to generate pseudo-labels.     ing a weighted sum of ρi , yielding a single scalar similarity score.
+      The model is trained to predict labels for masked frames, em-       This measure provides a more robust characterization of representa-
+      phasizing phonetic structure.                                       tional alignment between multivariate data series. In this work, we
+    • WavLM [18]: Extends HuBERT with gated relative position             employ PWCCA to quantify CCA similarity.
+      bias and multitask objectives, combining masked prediction
+      for noise robustness and multi-speaker conditions.                  2.4. Mixture of Experts
+                                                  (i)         (i)
+     Let fi denote the i-th SSL model, with      Eft
+                                                   and       Ept
+                                                            denot-        To further interpret complementarity, we adopt a mixture-of-experts
+ing embeddings from the fine-tuned and pre-trained models, respec-        (MoE) gating framework [35], following prior work in speech repre-
+tively. We define the delta embedding of model fi as                      sentation fusion [36]. In this setup, the model produces a weighted
+                               (i)      (i)     (i)                       combination of fine-tuned and delta embeddings at each frame,
+                    ∆fi :    E∆ = Eft − Ept ,                       (1)   where the weights represent the relative contribution of each expert.
+Intuitively, the delta embeddings emphasize the changes required for      This approach provides interpretability by explicitly revealing the
+the model to adapt to the downstream task. In this paper, we focus on     contribution of fine-tuned and delta embeddings at each frame.
+fine-tuning the pre-trained SSL models for ASR, which necessitates            We treat fft and f∆ as the two experts, with the fine-tuned em-
+the addition of a CTC layer on top of the pre-trained transformer         beddings fft (x) serving as input to the gating network. The gating
+encoder, and the task-induced shift of model parameters.                  weights are computed frame-wise as
+
+                                                                                   w(x)t = Softmax(fft (x)t WMoE ) ,        t = 1, . . . , T,    (7)
+2.2. Feature Fusion Techniques
+                                                                          where w(x) ∈ RT ×2 is the gating matrix and WMoE ∈ Rd×2 is
+We evaluate three strategies for fusing fine-tuned embeddings from
+                                                              (i)         a learnable parameter, with d denoting the embedding dimension.
+one SSL model with delta embeddings from another. Let Eft ∈               We denote the two columns of w(x) as wft (x) and w∆ (x), which
+  T ×d                                                       (j)
+R       denote fine-tuned embeddings from model i, and E∆ ∈               provide the gating weights for the fine-tuned and delta embeddings,
+RT ×d denote delta embeddings from model j, where T is the num-           respectively, each in RT .
+ber of frames and d is the shared feature dimension.                          The final fused representation at each frame is given by
+    • Concatenation (Concat): Features are concatenated along                                    X
+                                                                                  fFUSE (x)t =         wi (x)t fi (x)t , t = 1, . . . , T. (8)
+      the feature dimension at each time step:
+                                                                                                 i∈{ft,∆}
+                                 (i)     (j) 
+                          Z = Eft ; E∆ ,                   (2)
+      where [ · ; · ] denotes concatenation.                                                 3. EXPERIMENTAL SETUP
+    • Weighted Combination (Weighted): A convex combination               3.1. Datasets
+      parameterized by a learnable scalar λ ∈ [0, 1]:
+                                                                          The My Science Tutor (MyST) corpus [37] contains roughly 240 h of
+                                  (i)                 (j)
+                        Z = λ Eft + (1 − λ) E∆ .                    (3)   transcribed conversational speech from children in grades 3–5, col-
+                                                                          lected during virtual tutoring sessions across science topics. Follow-
+    • Cross-Attention (X-Attn): To capture complementary infor-
+                                               (i)                        ing the protocol of [38], we filter utterances using Whisper-large-v2
+      mation, cross-attention is applied with Eft as the query and        transcripts: removing samples with WER > 50%, fewer than three
+       (j)
+      E∆ as both key and value:                                           words, or duration > 30 s. This yields 133 h train, 21 h dev, and 25 h
+                                  
+                                      (i)  (j)    (j)
+                                                                         test data. To investigate extremely low-resource scenarios, we also
+                  A = Attention Eft , E∆ , E∆ ,                 (4)       construct 1 h, 5 h, and 10 h training subsets.
+       where Attention denotes a standard multi-head attention
+       mechanism. The fused representation is obtained as:                3.2. Models
+                                    
+                                        (i)
+                                                                         We evaluate three SSL models available on Hugging Face [39]:
+                    Z = LayerNorm Eft + A .                (5)
+                                                                          Wav2Vec2-Large-lv60 [16], HuBERT-Large-ll60k [17], and WavLM-
+   1 https://github.com/Zilai-WANG/Delta-Embedding-Fusion                 Large [18]. All models take 16 kHz waveforms as input and use a
+convolutional feature encoder that outputs latent representations         Table 1. WERs for fusing fine-tuned WavLM with ∆HuBERT or
+with an effective stride of 20 ms and a receptive field of about 25 ms.   ∆W2V2. Bold indicates the best result for each training size.
+These are then processed by a 24-layer Transformer stack with 1024         FT Embed Delta Embed Fusion Method WER Training Size
+hidden dimensions. Each model is fine-tuned with a character-level
+CTC loss on MyST (full, 10 h, 5 h, and 1 h) following the pro-                                          Weighted           9.79
+                                                                                        ∆HuBERT         X-Attn            10.28
+tocol of [2]. We refer to them as W2V2, HuBERT, and WavLM,
+                                                                                                        Concat             9.71
+respectively.                                                              WavLM                                                       Full
+                                                                                                        Weighted           9.75
+                                                                                        ∆W2V2           X-Attn             9.80
+3.3. Feature Fusion                                                                                     Concat             9.64
+The upper CTC layer is removed from the fine-tuned model in our                                         Weighted          11.70
+framework. Since WavLM achieves the strongest single-model re-                          ∆HuBERT         X-Attn            12.64
+sults on MyST [2], we use it as the reference. We fuse its fine-                                        Concat            11.57
+                                                                           WavLM                                                       10h
+tuned last-layer embeddings with delta embeddings from HuBERT                                           Weighted          11.73
+or W2V2. We select the last layer as prior analyses show that fine-                     ∆W2V2           X-Attn            12.96
+tuning induces the largest representation shifts in upper transformer                                   Concat            11.61
+blocks [31], and the CTC objective primarily optimizes the final
+                                                                                                        Weighted          13.65
+layer for ASR. During fusion, both WavLM and delta features are
+                                                                                        ∆HuBERT         X-Attn            14.32
+frozen, and a new linear CTC head is trained.                                                           Concat            12.96
+     We focus on feature-level fusion to evaluate the efficacy of delta    WavLM                                                       5h
+embeddings. We benchmark our method against alternative fusion                                          Weighted          14.77
+strategies (Table 1) and standard fine-tuned SSL baselines (Table 2).                   ∆W2V2           X-Attn            14.53
+                                                                                                        Concat            12.88
+Furthermore, we provide a direct comparison between full and delta
+feature fusion across varying training data regimes (Table 3).                                          Weighted          23.86
+                                                                                        ∆HuBERT         X-Attn            23.11
+                                                                                                        Concat            22.74
+                           4. RESULTS                                      WavLM                                                       1h
+                                                                                                        Weighted          23.42
+4.1. Do delta embeddings improve fusion performance?                                    ∆W2V2           X-Attn            25.97
+                                                                                                        Concat            21.81
+4.1.1. Comparison of Fusion Methods
+We first compare weighted sum, concatenation, and cross attention         Table 2. WERs (%) for fine-tuned SSL models and delta embedding
+across the 1 h, 5 h, 10 h, and full MyST training subsets. Two sce-       fusion (Concat). Bold indicates the best result per data condition. *
+narios are considered: (i) fusion of models with similar pretraining      denotes statistical significance (p < 0.05) compared with the refer-
+procedures (WavLM and HuBERT), and (ii) fusion of models with             ence model WavLM.
+more diverse pretraining objectives (WavLM and W2V2).
+                                                                            Model                        Full     10h         5h        1h
+     As shown in Table 1, concatenation consistently outperforms the
+other methods. We hypothesize that weighted sum is too simple               WavLM                      10.16      11.95     13.27       22.47
+to fully exploit complementary information, while cross-attention           HuBERT                     11.04      12.95     14.67       25.30
+tends to overfit in low-resource cases. Concatenation strikes a bal-        W2V2                       10.96      13.47     15.65       25.97
+ance between simplicity and effectiveness, yielding the most consis-        WavLM + ∆HuBERT            9.71*     11.57*     12.96*     22.74
+tent improvements.                                                          WavLM + ∆W2V2              9.64*     11.61*     12.88*     21.81*
+     In addition, concatenating WavLM with ∆W2V2 generally per-
+forms on par with ∆HuBERT in the full, 10 h, and 5 h settings, and
+achieves a clear advantage in the 1 h case. This suggests that WavLM
+and HuBERT, which share similar pre-training objectives, produce          parameters. As shown in Table 3, WavLM+∆W2V2 performs on
+more redundant representations, whereas W2V2 introduces stronger          par with WavLM+W2V2 in most cases, while achieving a 4.4% rel-
+complementary cues, in extremely low-resource scenarios.                  ative WER reduction in the challenging 1 h scenario. In contrast,
+                                                                          WavLM+∆HuBERT consistently outperforms WavLM+HuBERT
+                                                                          across all training conditions, underscoring the effectiveness of delta
+4.1.2. Comparison with Individual Fine-Tuned Models                       embedding fusion in low-resource settings.
+Table 2 compares the best delta fusion method (Concat) with single             Notably, fusing the reference model WavLM with ∆HuBERT
+fine-tuned models. All fusions with ∆W2V2 yield statistically sig-        yields statistically significant improvements (p < 0.05) over fusion
+nificant improvements (p < 0.05) over the reference model WavLM,          with fine-tuned HuBERT under every data condition. In the 1 h set-
+demonstrating the robustness of delta fusion, particularly in few-shot    ting, ∆HuBERT achieves a 10% relative WER reduction compared
+settings. Fusion with ∆HuBERT also provides statistically signifi-        to fine-tuned HuBERT.
+cant gains in most settings. We further analyze both delta embed-
+dings in Section 4.2 to investigate the performance gain.
+                                                                          4.2. How do delta embeddings improve fusion performance?
+
+4.1.3. Fusion of Fine-Tuned vs. Delta Embeddings                          4.2.1. Canonical Correlation Analysis
+
+We compare fusion using fine-tuned embeddings with fusion using           To understand why delta embeddings improve fusion, we perform
+delta embeddings, where both approaches use the same number of            a layer-wise CCA on the MyST development set. We compute the
+Table 3. WERs (%) when fusing WavLM with HuBERT/W2V2 ver-                 4.2.2. Cross-Domain Analysis
+sus their ∆ counterparts (Concat).
+                                                                          We further evaluate cross-domain delta embeddings by fusing fine-
+   Data      HuBERT         ∆HuBERT          W2V2        ∆W2V2            tuned WavLM (MyST) with ∆HuBERT and ∆W2V2 from models
+   Full        10.35            9.71*          9.67         9.64          fine-tuned on 100h LibriSpeech [40], and compare them against
+   10h         11.84           11.57*         11.66        11.61          in-domain deltas fine-tuned on MyST. As shown in Table 4, in-
+   5h          13.21           12.96*         12.89        12.88          domain deltas consistently achieve lower WERs, indicating that
+   1h          25.27           22.74*         22.80       21.81*          delta embeddings capture task-specific information. And cross-
+                                                                          domain deltas still outperform the WavLM baseline, aligning with
+                                                                          prior evidence that adult speech knowledge benefits child ASR [26].
+similarity between fine-tuned models and (i) their pre-trained coun-
+terparts and (ii) their delta embeddings.                                 Table 4. WERs (%) for fusion of fine-tuned WavLM (MyST) with
+     Figure 1 presents the CCA similarity between pre-trained and         ∆ embeddings from models fine-tuned on MyST vs. LibriSpeech.
+fine-tuned representations. For both HuBERT and W2V2, similarity                     Fusion (WavLM + ∆)           MyST       Libri
+decreases with depth, confirming that fine-tuning primarily affects
+                                                                                     HuBERT                        9.71      10.06
+the upper transformer layers. HuBERT retains a higher similarity in
+                                                                                     W2V2                          9.64      9.99
+deeper layers compared to W2V2, suggesting a more gradual adap-
+tation to the task [32]. This observation helps explain why fusing
+fine-tuned WavLM and HuBERT embeddings contains greater re-
+dundancy, as the two models share more similar pretraining method-        4.2.3. Mixture of Experts Analysis
+ologies. In contrast, W2V2 undergoes sharper task-specific shifts
+during fine-tuning, making its fine-tuned embeddings nearly as ef-        We analyze the normalized MoE gating weights (wft + w∆ = 1)
+fective as ∆W2V2 embeddings in fusion except under extremely              defined in Section 2.4. Table 5 reports the mean weight wft per utter-
+low-resource conditions, as shown in Table 2.                             ance. We observe that the model assigns significant weight to both
+     Figure 2 reports the CCA similarity between fine-tuned models        embeddings, confirming their joint utility. Notably, W2V2 fusion
+and their delta embeddings. For both HuBERT and W2V2, similar-            results in a lower wft than HuBERT, which correlates with improved
+ity remains relatively stable across the middle layers before dropping    WER. This suggests that W2V2 offers greater complementarity to
+at the final layer, suggesting that delta embeddings primarily cap-       WavLM due to distinct pre-training strategies, whereas HuBERT’s
+ture task-specific shifts concentrated in the upper layers. In particu-   similar objective leads to higher redundancy.
+lar, ∆HuBERT exhibits a smoother and more gradual decline, while
+∆W2V2 shows a sharper drop at the output layer. This contrast sug-        Table 5. WERs (%) for MoE results. wft (x) is the mean MoE weight
+gests that ∆W2V2 captures stronger task-specific deviations, con-         assigned to the WavLM embedding.
+sistent with its observed complementarity in fusion experiments.                       Fusion Model               wft (S)   WER
+                                                                                       WavLM + ∆ HuBERT            0.72      9.83
+                                                                                       WavLM + ∆ W2V2              0.65      9.70
+
+
+
+                                                                                                  5. CONCLUSION
+
+                                                                          This paper proposes the use of delta embeddings for fusing SSL rep-
+                                                                          resentations in child ASR. On the MyST corpus, concatenating fine-
+                                                                          tuned WavLM with ∆W2V2 consistently reduced WER compared
+                                                                          to single-model baselines and alternative fusion strategies. Notably,
+                                                                          fusing WavLM with ∆W2V2 achieved a WER of 9.64, establishing
+Fig. 1. CCA similarity between pre-trained and fine-tuned models.         a new state-of-the-art result among SSL models on the MyST corpus.
+                                                                          Compared to fusion with fine-tuned embeddings, delta embeddings
+                                                                          yielded particularly strong gains in the extremely low-resource 1 h
+                                                                          setting, achieving a 10% relative WER reduction for HuBERT and a
+                                                                          4.4% reduction for W2V2.
+                                                                               CCA and cross-domain analyses demonstrated that delta em-
+                                                                          beddings isolate task-specific shifts, explaining their effectiveness
+                                                                          in fusion. Overall, delta embeddings provide a simple yet effective
+                                                                          mechanism for multi-model fusion in child ASR. Future work will
+                                                                          evaluate delta embedding fusion in other low-resource domains.
+
+                                                                                             6. ACKNOWLEDGMENTS
+
+                                                                          This research is supported in part by the IES, U.S. Department of
+                                                                          Education (DoE) through Grant R305C240046 to the U. at Buffalo,
+  Fig. 2. CCA similarity between fine-tuned and ∆ embeddings.             and the NSF. The opinions expressed are those of the authors and do
+                                                                          not represent views of the IES, DoE, or the NSF.
+                       7. REFERENCES                                         supervised learning in speech, vision and language,” in Proc.
+                                                                             ICML, 2022.
+ [1] A. Mohamed et al., “Self-supervised speech representation          [20] C. Tang et al., “Exploring effective fusion algorithms for
+     learning: A review,” IEEE Journal of Selected Topics in Signal          speech based self-supervised learning models,” in Proc.
+     Processing, vol. 16, no. 6, pp. 1179–1210, 2022.                        NCMMSC, 2022.
+ [2] R. Fan et al., “Benchmarking children’s asr with supervised        [21] S.-J. Chen et al., “Fearless: Feature refinement loss for en-
+     and self-supervised speech foundation models,” in Proc. Inter-          sembling self-supervised learning features in robust end-to-end
+     speech, 2024.                                                           speech recognition,” in Proc. Interspeech, 2022.
+ [3] M. Gerosa et al., “Analyzing children’s speech: An acoustic        [22] T. Srivastava et al., “EFFUSE: Efficient Self-Supervised Fea-
+     study of consonants and consonant-vowel transition,” in 2006            ture Fusion for E2E ASR in Low Resource and Multilingual
+     IEEE International Conference on Acoustics Speech and Sig-              Scenarios,” in Proc. Interspeech, 2024.
+     nal Processing Proceedings, 2006, vol. 1.                          [23] S.-C. Chiu et al., “Learnable layer selection and model fusion
+ [4] S. Lee et al., “Acoustics of children’s speech: Developmental           for speech self-supervised learning models,” in Proc. Inter-
+     changes of temporal and spectral parameters,” The Journal of            speech, 2024.
+     the Acoustical Society of America, vol. 105, no. 3, pp. 1455–      [24] A. Arunkumar, V. N. Sukhadia, and S. Umesh, “Investigation
+     1468, 1999.                                                             of ensemble features of self-supervised pretrained models for
+ [5] G. Yeung and A. Alwan, “On the difficulties of automatic                automatic speech recognition,” in Proc. Interspeech, 2022.
+     speech recognition for kindergarten-aged children,” in Proc.       [25] G. Ramesh, K. Audhkhasi, and B. Ramabhadran, “Task vector
+     Interspeech, 2018.                                                      algebra for asr models,” in Proc. ICASSP, 2024.
+ [6] S. Dutta et al., “Challenges remain in building ASR for spon-      [26] N. Shankar, Z. Wang, E. Eren, and A. Alwan, “Selective atten-
+     taneous preschool children speech in naturalistic educational           tion merging for low resource tasks: A case study of child asr,”
+     environments,” in Proc. Interspeech, 2022.                              in Proc. ICASSP, 2025.
+ [7] A. Radford et al., “Robust speech recognition via large-scale      [27] Alexandre Ducorroy and Rachid Riad, “Robust fine-tuning of
+     weak supervision,” in Proc. ICML, 2023.                                 speech recognition models via model merging: application to
+                                                                             disordered speech,” in Proc. Interspeech, 2025.
+ [8] A. Ying et al., “Benchmarking training paradigms, dataset
+                                                                        [28] X. Zhang, J. Wu, and D. Dou, “Delta embedding learning,” in
+     composition, and model scaling for child asr in espnet,” arXiv
+                                                                             Proc. ACL, 2019.
+     preprint arXiv:2508.16576, 2025.
+                                                                        [29] A. Pasad et al., “What do self-supervised speech models know
+ [9] A. A. Attia et al., “Cpt-boosted wav2vec2. 0: Towards noise ro-
+                                                                             about words?,” Transactions of the Association for Computa-
+     bust speech recognition for classroom environments,” in Proc.
+                                                                             tional Linguistics, vol. 12, pp. 372–391, 2024.
+     ICASSP, 2025.
+                                                                        [30] A. Pasad et al., “Comparative layer-wise analysis of self-
+[10] C. Carvalho and A. Abad, “Ac-mix: Self-supervised adaptation
+                                                                             supervised speech models,” in Proc. ICASSP, 2023.
+     for low-resource automatic speech recognition using agnostic
+                                                                        [31] A. Pasad, J.-C. Chou, and K. Livescu, “Layer-wise analysis
+     contrastive mixup,” in Proc. ICASSP, 2025.
+                                                                             of a self-supervised speech representation model,” in Proc.
+[11] A. Sinha et al., “Beyond traditional speech modifications: Uti-         ASRU, 2021.
+     lizing self supervised features for enhanced zero-shot children    [32] R. Huo and E. Dunbar, “Iterative refinement, not training ob-
+     asr,” in Proc. Interspeech, 2025.                                       jective, makes hubert behave differently from wav2vec 2.0,” in
+[12] K. Horii et al., “Why is children’s asr so difficult? analyzing         Proc. Interspeech, 2025.
+     children’s phonological error patterns using ssl-based phoneme     [33] H. Hotelling, “Relations between two sets of variates,” in
+     recognizers,” in Proc. Interspeech, 2025.                               Breakthroughs in Statistics: Methodology and Distribution, pp.
+[13] L. Medin et al., “Self-supervised models for phoneme recog-             162–190. Springer, 1992.
+     nition: Applications in children’s speech for reading learning,”   [34] A. Morcos et al., “Insights on representational similarity in
+     in Proc. Interspeech, 2024.                                             neural networks with canonical correlation,” Advances in Neu-
+[14] J. Li et al., “Towards robust family-infant audio analysis based        ral Information Processing Systems, vol. 31, 2018.
+     on unsupervised pretraining of wav2vec 2.0 on large-scale un-      [35] R. Jacobs, M. Jordan, S. Nowlan, and G. Hinton, “Adaptive
+     labeled family audio,” in Proc. Interspeech, 2023.                      mixtures of local experts,” Neural Computation, vol. 3, no. 1,
+[15] A. Sinha et al., “Can layer-wise ssl features improve zero-shot         pp. 79–87, 1991.
+     asr performance for children’s speech?,” IEEE Signal Process-      [36] D. Berrebbi et al., “Combining spectral and self-supervised
+     ing Letters, 2025.                                                      features for low resource speech recognition and translation,”
+[16] A. Baevski et al., “Wav2vec 2.0: A framework for self-                  in Proc. Interspeech, 2022.
+     supervised learning of speech representations,” Advances in        [37] W. Ward et al., “My science tutor: A conversational multime-
+     Neural Information Processing Systems, vol. 33, pp. 12449–              dia virtual tutor for elementary school science,” ACM Transac-
+     12460, 2020.                                                            tions on Speech and Language Processing (TSLP), vol. 7, no.
+[17] W.-N. Hsu et al., “Hubert: Self-supervised speech rep-                  4, pp. 1–29, 2011.
+     resentation learning by masked prediction of hidden units,”        [38] A. Attia et al., “Kid-whisper: Towards bridging the perfor-
+     IEEE/ACM Transactions on Audio, Speech, and Language                    mance gap in automatic speech recognition for children vs.
+     Processing, vol. 29, pp. 3451–3460, 2021.                               adults,” in Proc. AAAI/ACM Conference on AI, Ethics, and
+[18] S. Chen et al., “Wavlm: Large-scale self-supervised pre-                Society, 2024.
+     training for full stack speech processing,” IEEE Journal of        [39] T. Wolf et al., “Transformers: State-of-the-art natural language
+     Selected Topics in Signal Processing, vol. 16, no. 6, pp. 1505–         processing,” in Proc. EMNLP: System Demonstrations, 2020.
+     1518, 2022.                                                        [40] V. Panayotov et al., “Librispeech: An asr corpus based on
+[19] A. Baevski et al., “data2vec: A general framework for self-             public domain audio books,” in Proc. ICASSP, 2015.
+

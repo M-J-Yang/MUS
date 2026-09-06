@@ -1,0 +1,112 @@
+{
+  "date": "2026-09-06",
+  "checks": {
+    "five_pages": true,
+    "letter_page_size": true,
+    "technical_text_ends_on_page_4": true,
+    "references_start_on_page_5": true,
+    "no_section_after_references": true,
+    "all_citations_resolved": true,
+    "no_unused_bib_entries": true,
+    "no_overfull_boxes": true,
+    "no_bibtex_warnings": true,
+    "abstract_100_to_150_words": true,
+    "text_and_figure_fonts_at_least_9pt": true,
+    "all_fonts_embedded": true
+  },
+  "page_count": 5,
+  "abstract_word_count_regex": 135,
+  "citation_count": 12,
+  "unresolved_citation_keys": [],
+  "font_specs": [
+    {
+      "family": "BMGPNX+NimbusRomNo9L-ReguItal",
+      "size_pt": 11.0
+    },
+    {
+      "family": "BMGPNX+NimbusRomNo9L-ReguItal",
+      "size_pt": 9.0
+    },
+    {
+      "family": "BXGEVL+DejaVuSerif",
+      "size_pt": 9.0
+    },
+    {
+      "family": "LDBHLR+CMBX10",
+      "size_pt": 9.0
+    },
+    {
+      "family": "LSWZHY+NimbusRomNo9L-Regu",
+      "size_pt": 11.0
+    },
+    {
+      "family": "LSWZHY+NimbusRomNo9L-Regu",
+      "size_pt": 9.0
+    },
+    {
+      "family": "NUHBJW+CMEX10",
+      "size_pt": 9.0
+    },
+    {
+      "family": "QDTWCG+MSBM10",
+      "size_pt": 9.0
+    },
+    {
+      "family": "QXGWEP+CMMI10",
+      "size_pt": 9.0
+    },
+    {
+      "family": "SABWNE+CMR10",
+      "size_pt": 9.0
+    },
+    {
+      "family": "SDNRQD+CMSY10",
+      "size_pt": 9.0
+    },
+    {
+      "family": "SJISBO+NimbusRomNo9L-MediItal",
+      "size_pt": 9.0
+    },
+    {
+      "family": "TEVPOY+CMMI7",
+      "size_pt": 6.0
+    },
+    {
+      "family": "UABOIZ+NimbusRomNo9L-Medi",
+      "size_pt": 11.0
+    },
+    {
+      "family": "UABOIZ+NimbusRomNo9L-Medi",
+      "size_pt": 9.0
+    },
+    {
+      "family": "UHBMYO+CMMI5",
+      "size_pt": 4.0
+    },
+    {
+      "family": "WJKJIZ+CMR7",
+      "size_pt": 6.0
+    },
+    {
+      "family": "WLPWCB+CMSY7",
+      "size_pt": 6.0
+    }
+  ],
+  "font_note": "Poppler XML reports integer approximations of font sizes. LaTeX body/reference text is nominally 10 pt; figure labels are 10 pt before the approximately 0.99 figure scale. Math subscripts/superscripts use template math sizes and are checked separately from ordinary text.",
+  "compile_problems": [],
+  "bibtex_problems": [],
+  "underfull_messages": [
+    "Underfull \\vbox (badness 10000) has occurred while \\output is active []",
+    "Underfull \\hbox (badness 1616) in paragraph at lines 145--146",
+    "Underfull \\hbox (badness 1184) in paragraph at lines 26--31",
+    "Underfull \\hbox (badness 2302) in paragraph at lines 26--31",
+    "Underfull \\hbox (badness 1137) in paragraph at lines 59--63"
+  ],
+  "underfull_note": "Non-fatal spacing messages are retained for transparency; page images are also reviewed.",
+  "visible_todos": [
+    "Author names",
+    "Affiliations and contact information",
+    "paired uncertainty",
+    "W1/W2 random and rescaling controls"
+  ]
+}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  5 SEP 2026 20:13
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  5 SEP 2026 22:04
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -293,12 +293,18 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 20.
  (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 40.
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd
-File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-)
-Overfull \hbox (3.3835pt too wide) in paragraph at lines 42--43
-[]\OT1/ptm/m/n/10 We show across of-fi-cial L2-ARCTIC folds that decision-
+Overfull \hbox (1.32315pt too wide) in paragraph at lines 30--31
+\OT1/ptm/m/n/10 Self-supervised learn-ing (SSL) has be-come a cen-tral paradigm
+ []
+
+
+Underfull \hbox (badness 1264) in paragraph at lines 32--33
+\OT1/ptm/m/n/10 lex-i-cal, and higher-level lin-guis-tic in-for-ma-tion has been
+ []
+
+
+Underfull \hbox (badness 1043) in paragraph at lines 32--33
+\OT1/ptm/m/n/10 space through self-supervised rewiring or representation-
  []
 
 [1{/data/zb/ymj/MUS/.texlive/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/data/zb/ymj/MUS/.texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}
@@ -306,27 +312,44 @@ Overfull \hbox (3.3835pt too wide) in paragraph at lines 42--43
 
 
 ]
-<figures/formal_shift_pruning.pdf, id=75, 436.89223pt x 224.25932pt>
+Overfull \hbox (16.46416pt too wide) in paragraph at lines 40--41
+[]\OT1/ptm/m/n/10 Our con-tri-bu-tions are three-fold: (1) we study how recognition-
+ []
+
+<figures/formal_shift_pruning.pdf, id=118, 436.89223pt x 224.25932pt>
 File: figures/formal_shift_pruning.pdf Graphic file (type pdf)
 <use figures/formal_shift_pruning.pdf>
-Package pdftex.def Info: figures/formal_shift_pruning.pdf  used on input line 53.
+Package pdftex.def Info: figures/formal_shift_pruning.pdf  used on input line 50.
 (pdftex.def)             Requested size: 244.6937pt x 125.60146pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
  [2 <./figures/formal_shift_pruning.pdf>] [3] (./Template.bbl
-Underfull \hbox (badness 2173) in paragraph at lines 34--39
+Underfull \hbox (badness 2635) in paragraph at lines 19--22
+[]\OT1/ptm/m/n/10 Sanyuan Chen, Chengyi Wang, Zhengyang Chen,
+ []
+
+
+Underfull \hbox (badness 3019) in paragraph at lines 29--32
+[]\OT1/ptm/m/n/10 Shu-wen Yang, Po-Han Chi, Yung-Sung Chuang,
+ []
+
+
+Underfull \hbox (badness 1412) in paragraph at lines 29--32
+\OT1/ptm/m/n/10 Liu, Ji-a-tong Shi, Xu-ankai Chang, Guan-Ting Lin,
+ []
+
+
+Underfull \hbox (badness 1184) in paragraph at lines 53--56
 []\OT1/ptm/m/n/10 Ankita Pasad, Ju-Chieh Chou, and Karen Livescu,
  []
 
 
-Underfull \hbox (badness 1533) in paragraph at lines 41--45
-[]\OT1/ptm/m/n/10 Gowtham Ramesh, Kar-tik Au-dhkhasi, and Bhu-vana
+Underfull \hbox (badness 2302) in paragraph at lines 53--56
+\OT1/ptm/m/it/10 Recog-ni-tion and Un-der-stand-ing Work-shop (ASRU)\OT1/ptm/m/n/10 ,
  []
 
-
-Underfull \hbox (badness 1622) in paragraph at lines 41--45
-\OT1/ptm/m/n/10 Ram-ab-had-ran,  ``Task vec-tor al-ge-bra for asr mod-
- []
-
-) [4] (./Template.aux)
+[4]) [5] (./Template.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-08-10>
@@ -335,18 +358,18 @@ Package rerunfilecheck Info: File `Template.out' has not changed.
 (rerunfilecheck)             Checksum: FDFE74E9ADC9C6393F5D3B8C10A5674D;2305.
  ) 
 Here is how much of TeX's memory you used:
- 9961 strings out of 468580
- 152105 string characters out of 5444722
- 580572 words of memory out of 5000000
+ 9980 strings out of 468580
+ 152561 string characters out of 5444722
+ 582446 words of memory out of 5000000
  38909 multiletter control sequences out of 15000+600000
- 649479 words of font info for 85 fonts, out of 8000000 for 9000
+ 649165 words of font info for 84 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
- 74i,12n,79p,1073b,518s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 74i,12n,79p,1285b,589s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Template.pdf (4 pages, 218632 bytes).
+Output written on Template.pdf (5 pages, 227401 bytes).
 PDF statistics:
- 282 PDF objects out of 1000 (max. 8388607)
- 172 compressed objects within 2 object streams
- 40 named destinations out of 1000 (max. 500000)
+ 334 PDF objects out of 1000 (max. 8388607)
+ 222 compressed objects within 3 object streams
+ 63 named destinations out of 1000 (max. 500000)
  94 words of extra memory for PDF output out of 10000 (max. 10000000)
 

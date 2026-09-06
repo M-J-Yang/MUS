@@ -1,0 +1,399 @@
+         Speech Recognition Rescoring with Large Speech-Text
+                         Foundation Models
+   Prashanth Gurunath Shivakumar, Jari Kolehmainen, Aditya Gourav, Yi Gu, Ankur Gandhe, Ariya Rastrow, Ivan Bulyko
+                                    Amazon Science, Seattle, Washington, U.S.A
+           pgurunat@usc.edu, {jkolehm,gouravag,yilegu,aggandhe,arastrow,ibbulyko}@amazon.com
+
+
+
+   Abstract—Large language models (LLM) have demonstrated the ability          Furthermore, several works have explored novel techniques to
+to understand human language by leveraging large amount of text             leverage pre-training knowledge with a discriminative fine-tuning
+data. Automatic speech recognition (ASR) systems are often limited
+                                                                            stage to optimize LLMs for ASR rescoring [10]–[14]. [14] proposed
+by available transcribed speech data and benefit from a second pass
+rescoring using LLM. Recently multi-modal large language models,            a low latency framework to discriminatively finetune the BERT CLS
+particularly speech and text foundational models have demonstrated          embeddings with minimum word error rate (MWER) criteria. [12]
+strong spoken language understanding. Speech-Text foundational models       proposed various methodologies for incorporating MWER criteria for
+leverage large amounts of unlabelled and labelled data both in speech       fine-tuning of GPT and BERT based models.
+and text modalities to model human language. In this work, we propose
+novel techniques to use multi-modal LLM for ASR rescoring. We also
+explore discriminative training to further improve the foundational model
+                                                                               On the other hand, generative LM technology is applied to speech
+rescoring performance. We demonstrate cross-modal knowledge transfer        using discrete audio token representations derived from audio en-
+in speech-text LLM can benefit rescoring. Our experiments demonstrate       coders such as HuBERT [15]–[17]. The semantic knowledge from
+up-to 20% relative improvements over Whisper large ASR and up-to            quantized codes provide effective way to model speech as a lan-
+15% relative improvements over text-only LLM.                               guage using LLMs. They have also enabled textless speech-to-speech
+   Index Terms—speech recognition, rescoring, speech text foundational
+models, large language model                                                translation [18], speech emotion conversion [19] which have shown
+                                                                            promising results, maintaining naturalistic spoken conversation and
+                          I. I NTRODUCTION                                  dialogs [17].
+   End-to-end speech recognition systems have made significant leaps
+                                                                               Utilizing LLMs in second pass has distinctive advantages including
+in recognition accuracies leading to new and practical applications
+                                                                            (i) enabling exploitation of a much longer context extending over
+towards human-computer interactions. A big chunk of the advances in
+                                                                            multiple turns in conversational settings, (ii) contextual biasing to-
+end-to-end ASRs can be attributed to increase in available transcribed
+                                                                            wards personalization, domain adaptation, (iii) exploiting zero-shot
+speech data. This is substantiated by studies such as [1] from OpenAI
+                                                                            and instruction tuning to serve various end-point APIs.
+that have leveraged large amount of transcribed, labelled, speech
+datasets (680k hours) to advance the state-of-the-art and general-             More recent research have focused on modeling both speech and
+izability in multi-lingual ASR. However, availability of transcribed        text tokens jointly towards cross-modal learning. Some studies have
+speech data is always limited, due to the costs associated with             focused on autoregressive, joint modeling on text and several speech
+acquisition and human transcription of speech. These limitations            related tasks including ASR, text-to-speech (TTS), speech-to-text
+have contributed to success of second pass rescoring with LMs.              translation as well as speech-to-speech translation [20]–[22]. Others
+Furthermore, with advancements in LLMs, its ability to leverage large       have focused on zero shot multi-modal capabilities [23]–[25].
+amounts of freely available text data to demonstrate human level
+performance in natural language understanding benchmarks, makes                In this paper, we propose to use multi-modal LLMs for second
+second pass rescoring even more attractive.                                 pass ASR rescoring. The multi-modal LLMs are trained on a combi-
+   Several recent works [2]–[6] have developed and shown effective          nation of unsupervised speech, text and transcribed, parallel speech-
+application of second pass rescoring and associated benefits in             text datasets. We propose different configurations of rescoring with
+improving recognition accuracies leveraging knowledge from LLM              speech-text foundation models and establish the advantages over text-
+pre-training. [2] conducted empirical studies using pre-trained GPT         only LLMs. Further, we discriminatively finetune the speech-text
+models for re-scoring resulting in up-to 7% relative word error rate        LLMs with MWER criteria to optimize performance on rescoring.
+(WER) reduction. [3] proposed using BERT models for deriving                To the best of our knowledge this is the first attempt at using multi-
+utterance level scores for ASR re-scoring to leverage advantages            modal LLMs for ASR second pass rescoring. Finally, we demonstrate
+from bi-directional encoding. [4] conducted comparisons between             cross-modal knowledge transfer can benefit rescoring in two ways: (i)
+GPT and BERT pre-trained models and proposed mechanisms to                  the proposed framework can leverage large amounts of un-transcribed
+reduce computations with BERT models. [5] proposed to re-purpose            speech data and via cross-modal knowledge transfer improve rescor-
+pre-trained ELECTRA models for error detection and rescoring.               ing, and (ii) speech-text LLMs can associate speech information with
+The authors also propose better pre-training and data augmentation          corresponding text representations, thereby improving rescoring even
+techniques for rescoring using ELECTRA. Authors in [6], conducted           when using single modality, i.e., only text tokens, during re-ranking.
+a comprehensive study on application and relevance of LLMs in               Note that this work differs from [7]–[9] where rescoring models
+rescoring on state-of-the-art ASR baselines. Their study concluded          attend to audio representations, since they are limited to and require
+that second pass rescoring achieves consistent improvement over             parallel transcribed data for training. On the other hand, this work
+competitive ASR baseline models. [7], [8] and [9] have explored             focuses on large scale pre-training of speech-text foundational models
+introducing audio into second pass rescoring using LSTMs and                including unlabelled speech data and leveraging the knowledge from
+attention.                                                                  pre-training for rescoring.
+ ⟨text-bos⟩ y1 , . . . yT ⟨eos⟩                                              In this work, we explore two ways to construct the multi-modal
+ ⟨speech-bos⟩ x1 , . . . xL ⟨eos⟩                                          sequence for rescoring: (i) speech-first, i.e., speech precedes the text
+ ⟨text-bos⟩ y1 , . . . yT ⟨speech-bos⟩ x1 , . . . xL ⟨eos⟩
+                                                                           token sequence (see row 4 in Table I):
+ ⟨speech-bos⟩ x1 , . . . xL ⟨text-bos⟩ y1 , . . . yT ⟨eos⟩
+                                                                                                     Ti
+                               TABLE I                                                               Y
+            S PEECH -T EXT LLM PRE - TRAINING DATA FORMAT                          PM M LM (zi ) =         P (yi,t |yi,t−1 . . . yi,1 , xL , . . . x1 )
+                                                                                                     t=1                YL                                (4)
+                                                                                                                            P (xj |xj−1 . . . x1 )
+                                                                                                                          j=1
+
+                        II. P ROPOSED A PPROACH                            and (ii) text-first, i.e., text precedes the audio token sequence (see
+                                                                           row 3 in Table I):
+A. Speech-Text Foundation LLM                                                                        L
+                                                                                                     Y
+                                                                                   PM M LM (zi ) =         P (xj |xj−1 . . . x1 , yi,T , . . . yi,1 )
+  A typical text-based language model, models the probability of
+                                                                                                     j=1            Ti                                    (5)
+next token given a set of tokens. A speech-text LLM extends this                                                    Y
+paradigm to acoustic units, i.e., models the probability of the next                                                      P (yi,t |yi,t−1 . . . yi,1 )
+                                                                                                                    t=1
+acoustic unit given a sequence of acoustic units. In this work, we
+adopt a pre-trained HuBERT encoder to derive audio representations         where Ti is the length of ASR hypothesis yi , and L is the length of
+which are quantized using k-means clustering into discrete audio           audio token sequence X, corresponding to the input audio.
+tokens. Text tokens are derived using a sentence piece models. A           C. Discriminative Rescoring
+decoder-only transformer architecture is used for causal language
+                                                                              LLMs are sub-optimal for re-ranking since they are fundamentally
+modeling on both text and audio tokens. Given a sequence of tokens
+                                                                           trained to optimize for the next token prediction task. Several works
+Z = z1 , z2 , . . . zT , the next token prediction tasks model:
+                                                                           [10]–[14] have shown benefits in optimizing the LLM to minimize the
+                                   T
+                                   Y                                       expected word edit distance for second pass rescoring. We propose
+                    PLM (Z) =            P (zi |zi−1 , . . . z1 )    (1)   to use discriminative fine-tuning for Speech-Text LLM to further
+                                   i=1                                     optimize towards better rescoring. The MWER criterion for multi-
+                                                                           modal LLM can be expressed as:
+where zi ∈ Vtxt ∪ Vspeech is the multi-modal token sequence, Vtxt
+                                                                                                                N
+is the vocabulary corresponding to text tokens, yi ∈ Vtxt , Vspeech                                             X
+                                                                                           Lmwer (a, y ∗ ) =           P (xi |a)ϵ(yi , y ∗ )              (6)
+is the vocabulary corresponding to speech tokens, xi ∈ Vspeech (see
+                                                                                                                 i=1
+Table I) and PLM (zT +1 ) is the likelihood.
+                                                                           where N is the top-N hypothesis from ASR first-pass, y ∗ is the
+   Similar to [21], we use unsupervised training on audio-only and
+                                                                           ground-truth transcription, ϵ is the edit distance function and P (xi |a)
+text-only tokens as speech continuation and text continuation tasks
+                                                                           is the n-best posterior probability given by:
+respectively. Additionally, we also utilize parallel, transcribed speech
+data for joint modeling of text and speech by creating two versions                                             esi
+                                                                                                   P (xi |a) = PN                                         (7)
+of concatenated multi-modal token sequence, i.e., text followed by                                                      j=1   esj
+speech and vice-versa. The data format used for pre-training is listed
+                                                                           where si is derived from Eq. (3) in case of multi-modal LLM.
+in Table I.
+                                                                                          III. DATA AND E XPERIMENTAL S ETUP
+B. ASR Rescoring                                                           A. Experimental Setup
+                                                                              Our setup uses a HuBERT audio encoder that is trained on multi-
+   1) Likelihood-based Rescoring: Typical text LM rescoring com-           lingual datasets as in [18] to derive the audio tokens. The HuBERT
+prises computing likelihood scores from the model for each of the n-       operates at the rate of 50Hz. A k-means clustering model is trained on
+best hypothesis from ASR and interpolating with the first pass scores      the same data as the HuBERT using 2000 centroids. The HuBERT
+to re-rank the hypothesis:                                                 audio encoder is frozen throughout the training of the speech-text
+                                                                           LLM for all our experiments.
+                  si = logPLM (yi ) + λlogPAM (a|yi )                (2)      We employ two different sized LLMs for our experiments differing
+                                                                           in the model size (i) 330M parameters, and (ii) 7B parameters. The
+where PAM (a|yi ) is the sequence probability of the 1st pass given        smaller, 330M model, is similar to OPT architecture [34] with 24
+an audio sequence, a, for ith ASR hypothesis, yi , PLM (yi ) is the        hidden layers with a size of 1024, 16 attention heads, intermediate
+likelihood from the 2nd pass rescoring LM and λ is the interpolation       dimension of 4096, embedding dimension of 512 and vocabulary
+weight.                                                                    of 50466 (inclusive of 2000 audio tokens). The bigger, 7B model,
+   2) Speech-Text LLM Rescoring: Multi-modal LM allows us to               is similar to Llama architecture [35] with 32 hidden layers with
+condition the likelihood of the n-best hypothesis from ASR on the          a size of 4096, 32 attention heads, embedding dimension of 4096
+sequence of audio tokens.                                                  and vocabulary of 52001 (inclusive of 2000 audio tokens). Both
+                                                                           the models are pre-trained on text-only data, and the vocabulary is
+               si = logPM M LM (zi ) + λlogPAM (a|yi )               (3)   extended to include the speech-tokens for subsequent training with
+                                                                           mixed modalities, following findings from [36]. Both the models
+where PM M LM (zi ) is the likelihood from the multi-modal LM, zi          use sentence-piece tokenizers with a vocabulary of approximately
+is the multi-modal sequence containing both audio and text tokens          50k text-tokens and 2000 audio tokens. The models are trained with
+corresponding to the ith ASR hypothesis.                                   Adam optimizer using exponential decay learning rate scheduler with
+ Model                                                         Whisper large v2 [1]                                 Conformer RNN-T
+ Dataset                                      LS test-clean     LS test-other       Tedlium             LS test-clean   LS test-other Tedlium
+ First pass                                   2.26%              5.32%              4.87%               Baseline        Baseline        Baseline
+ 330M text LM [4]                             2.26% (0%)         5.3% (0.75%)       4.64% (4.72%)       (4.12%)         (2.46%)         (2.81%)
+          + MWER [12]                         1.94% (14.12%)     4.89% (8.43%)      4.48% (8.01%)       (9.28%)         (8.79%)         (8.2%)
+ 330M speech-text LM (TF)                     2.08% (7.96%)      4.95% (7.3%)       4.43% (9.03%)       (5.15%)         (3.51%)         (7.34%)
+ 330M speech-text LM (SF)                     1.92% (15.04%)     4.68% (12.36%)     4.48% (8.01%)       (11.34%)        (7.73%)         (4.97%)
+          + MWER                              1.86% (17.7%)      4.65% (12.92%)     4.49% (7.8%)        (13.4%)         (9.67%)         (7.78%)
+ 7B text LM [4]                               2.25% (0.44%)      5.27% (1.31%)      4.58% (5.95%)       (6.87%)         (1.41%)         (2.59%)
+          + MWER [12]                         2.15% (4.87%)      5.12% (4.12%)      4.66% (4.31%)       (10.31%)        (11.78%)        (7.78%)
+ 7B speech-text LM (SF)                       1.94% (14.16%)     4.62% (13.48%)     4.34% (10.88%)      (19.93%)        (13.36%)        (12.1%)
+          + MWER                              1.85% (18.14%)     4.55% (14.79%)     3.16% (35.11%)      (15.94%)        (15.99%)        (14.47%)
+ Yu et. al. (2024) [26]                       2.1% (7.08%)       5.0% (6.02%)       -                   -               -               -
+ SALMONN [27]                                 2.1% (7.08%)       4.9% (7.89%)       -                   -               -               -
+ Oracle WER                                   1.57% (30.53%)     3.86% (27.72%)     2.53% (48.05%)      (42.96%)        (37.73%)        (38.88%)
+
+                                                               TABLE II
+E XPERIMENTAL R ESULTS : W ORD ERROR RATE . N UMBERS WITHIN PARENTHESIS IS RELATIVE IMPROVEMENTS WITH RESPECT TO THE FIRST PASS . SF:
+                                 SPEECH - FIRST FOLLOWED BY TEXT; TF: TEXT- FIRST FOLLOWED BY SPEECH .
+
+
+
+
+learning rate of 1e-5 and 1000 warmup steps. Our 330M speech-text         [37]. Table III lists the datasets that were employed during multi-
+model achieves a sWUGGY score of 63.7% and sBLIMP of 55.5%.               modal training for the 7B model. Approximately 145k hours of
+The 7B speech-text LLM achieves a sWUGGY score of 67.7% and               publicly available speech corpora is used and 800 hours of de-
+sBLIMP of 55.5%. Note, the speech-text LLM can be used as a first-        identified internal data. This accounts for approximately 26.1B speech
+pass by itself and achieves 3.89% WER on test-clean and 8% WER            tokens. Additionally, for evaluations on out-of-domain datasets, we
+on test-other subset of librispeech with 330M model. The 7B model         use Wall Street Journal (WSJ) [38], Common-Voice (English) [39]
+achieves 3.8% WER on test-clean and 7% WER on test-other.                 and AMI meeting corpus [40].
+                                                                             For all the MWER training experiments, 50k hours of multi-
+B. ASR rescoring                                                          lingual Librispeech is adopted for both training and validation.
+                                                                          The interpolation weights (λ in Eq. (3)) for all the experiments
+   We employ two first pass systems: (i) open-sourced whisper (large
+                                                                          is estimated on the validation partition of multi-lingual Librispeech
+v2) from OpenAI [1], (ii) conformer based RNN-T model, and
+                                                                          comprising of approximately 1.2k utterances.
+present the results on multiple open-source datasets to demonstrate
+the generalization capability of the proposed technique. The con-                                      IV. R ESULTS
+former RNN-T model is trained on a combination of internal and               Table II lists the experimental results. We provide the absolute
+public speech datasets. The WER and Oracle WER of the first pass          WER numbers in case of Whisper (large v2) and relative improve-
+models are listed in Table II. For the internal model, we present         ments for Conformer RNN-T. Note, in the case of Whisper, any small
+relative improvements with respect to the first pass. Note the absolute   discrepancies in the WER with respect to [1] can be attributed to
+WER of the internal first pass model is better than Whisper. For all      differences in transcript normalization. Firstly, we observe that typical
+our experiments, we use Top-10 hypothesis for rescoring purposes          log-likelihood based text LM rescoring with 330M model improves
+similar to [10], [12]. The re-scoring setup is identical between the      over the first pass by less than 5% relative. The proposed multi-modal
+two first pass systems. In case of MWER fine-tuning, the optimal          rescoring with 330M speech-text LLM provides substantial improve-
+checkpoints are picked on validation sets and the results are presented   ments over text-only LLM on both the first pass Whisper (up-to 15%
+on unseen held-out test-sets.                                             relative) and Conformer RNN-T models (up-to 6% relative). This
+                                                                          suggests that the proposed method can exploit, through autoregressive
+C. Data                                                                   language modeling of audio tokens, important information relevant
+  The speech-text LLM was initially pre-trained with large text           for ASR rescoring.
+corpus. The 330M model is based on the pre-training setup as                 In our experiments, we find that constructing sequences with audio-
+described in [34] followed by multi-modal training on multi-lingual       tokens first, followed by text is superior (see results comparing SF
+Libri-Speech [30]. The 7B model was pre-trained using RedPajama           versus TF in Table II). However, note that regardless of the order,
+                                                                          the audio-tokens are helpful in rescoring compared to text-only LLMs
+                                                                          which further confirms effectiveness of the proposed technique.
+ Dataset                          Hours   Modality                           Furthermore, we observe that the discriminative training with
+ Librispeech [28]                 960     Speech,   Text                  MWER criteria always improves the WER in all cases, both on
+ Librilight [29]                  60k     Speech                          text-only LLM and speech-text LLM especially on Librispeech. Note
+ Multi-lingual librispeech [30]   50k     Speech,   Text                  that the Tedlium is out-of-domain as far as the MWER fine-tuning
+ People Speech [31]               30k     Speech,   Text
+                                                                          is concerned. Interestingly, the speech-text LLM without MWER
+ CoVOST2 [32]                     3500    Speech,   Text
+ TEDLIUM-3 [33]                   452     Speech,   Text                  training can achieve lower WER in comparison to MWER-trained
+ De-identified Internal data      791     Speech,   Text                  text LLMs, in most cases. Adding discriminative training to speech-
+                                 TABLE III                                text LLM helps further extend the advantage over text LLMs.
+              S PEECH -T EXT F OUNDATION M ODEL DATA S ETUP                  Experiments with 7B model paints similar picture to that of the
+                                                                          330M model, thereby demonstrating the effectiveness of the proposed
+                                       CV         AMI        AMI                                                  Librispeech
+     Model                   WSJ                                                   Model                                               Tedlium
+                                       (en)       (IHM)      (SDM)                                          test-clean    test-other
+     7B text LLM             0.56%     -4.88%     4.82%      5.19%                 330M speech-text
+                                                                                                            7.53%         5.41%        2.22%
+               + MWER        7.04%     0.45%      -15.74%    -7.45%                (no-Tedlium)
+     7B speech-text LLM      8.52%     -7.7%      11.12%     9.7%
+                                                                                   330M speech-text
+               + MWER        7.04%     3.98%      11.12%     9.77%                                          8.96%         4.14%        4.22%
+                                                                                   + Tedlium audio-only
+                           TABLE IV
+                                                                                                          TABLE VI
+  R ESULTS WITH C ONFORMER RNN-T ON OUT- OF - DOMAIN DATASETS .
+                                                                               C ROSS - MODAL EXPERIMENTAL RESULTS ON C ONFORMER RNN-T
+R ELATIVE WER- REDUCTION OVER THE FIRST- PASS . N EGATIVE NUMBERS
+                                                                                 COMPARING WITH AND WITHOUT TARGET DOMAIN (T EDLIUM )
+             INDICATE DEGRADATIONS OVER FIRST- PASS .
+                                                                                AUDIO - ONLY DATA DURING SPEECH - TEXT FOUNDATION MODEL
+                                                                              TRAINING . R ELATIVE IMPROVEMENTS WITH RESPECT TO TEXT LLM
+                                                                                                     ( ROW 2 IN TABLE II)
+
+technique over text-only LLMs extending to different scales. We
+observe that log-likelihood based rescoring with text-only LLMs
+scales poorly with the model size. However, we find speech-text             B. Cross Modal Experiments
+LLMs to scale better especially in the case of Conformer RNN-T.
+                                                                               One of the advantages of multi-modal LLM, speech-text foun-
+Next, with discriminative tuning, the 7B model provides significant
+                                                                            dational models, is that the knowledge from one modality can be
+improvements suggesting that discriminative fine-tuning scales well
+                                                                            transferred to the other. For example, the model can associate a like-
+with the model size. Overall, we obtain the best results with the
+                                                                            lihood of a sequence in one modality by inherently modeling it with
+discriminatively trained 7B speech-text model.
+                                                                            corresponding sequence in another modality, when modeled jointly.
+   We also provide comparisons with other approaches that combine
+                                                                            To investigate this cross-modal knowledge transfer, we perform two
+Whisper large and 7B LLMs for ASR (see bottom 3 rows in Table II).
+                                                                            set of experiments:
+We find that our proposed rescoring framework provides significant
+                                                                            Experiment 1: Text-only rescoring on (i) text-LLM, and compare it
+advantages and a viable alternative.
+                                                                            with text-only rescoring on (ii) speech-text LLM. The experimental
+   Finally, the results generally depicts similar trends with both first
+                                                                            results are listed in Table V with 7B models and Conformer RNN-
+pass models and different datasets. This shows the generalizability
+                                                                            T first pass. We observe that even when using only text modality
+of the proposed technique over different first pass systems and over
+                                                                            for rescoring, the speech-text LLM gives lower WER (up-to 0.8%
+variety of data sets.
+                                                                            relative word-error reduction). This cross-modal knowledge infusion
+                                                                            is better exploited when further fine-tuning the LLM with MWER
+A. Out-of-Domain Experiments
+                                                                            loss with text modality giving improvements of up-to 3.4% relative
+   Next, we design experiments to assess the impact of proposed             to its text-LLM counterpart. This suggests that during pre-training,
+rescoring models on out-of-domain datasets. Table IV lists the              there is some knowledge transfer from audio sequence into the text-
+results using Conformer RNN-T as first pass on WSJ, common-                 sequence.
+voice (English), AMI-IHM and AMI-SDM datasets. Note that none               Experiment 2: We target a scenario of domain adaptation where
+of these datasets are used either in training or as validation/tuning. We   transcripts are not available and hypothesize that by modeling speech-
+observe that the text-only LLMs do not help on WSJ and common-              only data with speech-text LLM, can benefit multi-modal re-scoring.
+voice datasets, while giving approximately 5% improvements on               We consider two 330M models trained (i) without Tedlium, and (ii)
+AMI corpuses. However, the speech-text LLM provides substantial             with Tedlium speech-only data. The rescoring results is presented in
+improvements (almost double than that of text-only LLMs) on all             Table VI. We observe improvements double on target Tedlium dataset
+datasets except common-voice. We note that the MWER finetun-                with the speech-text model after speech-only adaptation on Tedlium.
+ing with text-only LLMs can have detrimental effect on out-of-              This confirms that the proposed technique can leverage knowledge
+domain data that have largely different acoustic characteristics (AMI),     between the two modalities efficiently and overall enhance rescoring
+especially when they are not included during MWER fine-tuning.              performance.
+However, multi-modal LLMs can counteract such effects with the
+ability to attend to audio. Again on out-of-domain datasets, we                                        V. C ONCLUSION
+observe best results with the proposed speech-text LLMs with up-               In this work, we propose a second pass rescoring system for speech
+to 7% WER reduction and find that multi-modal LLMs generalize               recognition based on multi-modal LLM. The speech-text LLM is
+and perform better compared to their text-only counterparts.                trained on unlabelled text and speech data in addition to parallel
+                                                                            transcribed speech data. We demonstrate the benefits of rescoring the
+                                     Librispeech
+                                                                            ASR hypothesis with combination of speech and text sequences. We
+        Model                                             Tedlium           also explore different ordering of the two modalities and their effects
+                               test-clean    test-other
+                                                                            on rescoring performance. Additionally, discriminative training using
+        7B text LLM            Baseline       Baseline    Baseline
+                  + MWER       6.45%          10.68%      5.11%             MWER for speech-text model is applied to further improve rescoring.
+                                                                            Experiments are setup to demonstrate effectiveness on wide-variety
+        7B speech-text LLM     0.12%          0.89%       0.67%
+                  + MWER       9.68%          11.39%      7.33%             of in-domain and out-of-domain datasets. We also show cross-modal
+                                                                            knowledge transfer with speech-text LLM in application to rescoring.
+                             TABLE V
+    C ROSS - MODAL EXPERIMENTAL RESULTS ON C ONFORMER RNN-T                                               R EFERENCES
+  COMPARING TEXT- ONLY RESCORING WITH TEXT- ONLY LLM VERSUS
+S PEECH - TEXT LLM. R ELATIVE IMPROVEMENTS WITH RESPECT TO TEXT              [1] A. Radford, J. W. Kim, T. Xu, G. Brockman, C. McLeavey, and
+                          LLM RESCORING .                                        I. Sutskever, “Robust speech recognition via large-scale weak super-
+                                                                                 vision,” arXiv preprint arXiv:2212.04356, 2022.
+ [2] H. Huang and F. Peng, “An empirical study of efficient ASR rescoring        [22] J.-C. Chou, C.-M. Chien, W.-N. Hsu, K. Livescu, A. Babu, A. Conneau,
+     with transformers,” arXiv preprint arXiv:1910.11450, 2019.                       A. Baevski, and M. Auli, “Toward joint language modeling for speech
+ [3] J. Shin, Y. Lee, and K. Jung, “Effective sentence scoring method                 units and text,” in Findings of the Association for Computational
+     using BERT for speech recognition,” in Asian Conference on Machine               Linguistics: EMNLP, 2023, pp. 6582–6593.
+     Learning. PMLR, 2019, pp. 1081–1093.                                        [23] T. A. Nguyen, B. Muller, B. Yu, M. R. Costa-Jussa, M. Elbayad,
+ [4] J. Salazar, D. Liang, T. Q. Nguyen, and K. Kirchhoff, “Masked language           S. Popuri, P.-A. Duquenne, R. Algayres, R. Mavlyutov, I. Gat et al.,
+     model scoring,” in Proceedings of the 58th Annual Meeting of the                 “SpiRit-LM: Interleaved spoken and written language model,” arXiv
+     Association for Computational Linguistics, 2020, pp. 2699–2712.                  preprint arXiv:2402.05755, 2024.
+ [5] H. Futami, H. Inaguma, M. Mimura, S. Sakai, and T. Kawahara, “ASR           [24] D. Zhang, S. Li, X. Zhang, J. Zhan, P. Wang, Y. Zhou, and X. Qiu,
+     rescoring and confidence estimation with ELECTRA,” in 2021 IEEE                  “SpeechGPT: Empowering large language models with intrinsic cross-
+     Automatic Speech Recognition and Understanding Workshop (ASRU).                  modal conversational abilities,” arXiv preprint arXiv:2305.11000, 2023.
+     IEEE, 2021, pp. 380–387.                                                    [25] E. Nachmani, A. Levkovitch, J. Salazar, C. Asawaroengchai, S. Mari-
+ [6] T. Udagawa, M. Suzuki, G. Kurata, N. Itoh, and G. Saon, “Effect and              ooryad, R. Skerry-Ryan, and M. T. Ramanovich, “LMs with a voice:
+     analysis of large-scale language model rescoring on competitive ASR              Spoken language modeling beyond speech tokens,” arXiv preprint
+     systems,” arXiv preprint arXiv:2204.00212, 2022.                                 arXiv:2305.15255, 2023.
+ [7] A. Gandhe and A. Rastrow, “Audio-attention discriminative language          [26] W. Yu, C. Tang, G. Sun, X. Chen, T. Tan, W. Li, L. Lu, Z. Ma,
+     model for ASR rescoring,” in ICASSP 2020-2020 IEEE International                 and C. Zhang, “Connecting speech encoder and large language model
+     Conference on Acoustics, Speech and Signal Processing (ICASSP).                  for ASR,” in ICASSP 2024-2024 IEEE International Conference on
+     IEEE, 2020, pp. 7944–7948.                                                       Acoustics, Speech and Signal Processing (ICASSP). IEEE, 2024, pp.
+ [8] K. Hu, T. N. Sainath, R. Pang, and R. Prabhavalkar, “Deliberation                12 637–12 641.
+     model based two-pass end-to-end speech recognition,” in ICASSP 2020-        [27] C. Tang, W. Yu, G. Sun, X. Chen, T. Tan, W. Li, L. Lu, Z. Ma,
+     2020 IEEE International Conference on Acoustics, Speech and Signal               and C. Zhang, “Salmonn: Towards generic hearing abilities for large
+     Processing (ICASSP). IEEE, 2020, pp. 7799–7803.                                  language models,” arXiv preprint arXiv:2310.13289, 2023.
+ [9] T. N. Sainath, R. Pang, D. Rybach, Y. He, R. Prabhavalkar, W. Li,           [28] V. Panayotov, G. Chen, D. Povey, and S. Khudanpur, “Librispeech:
+     M. Visontai, Q. Liang, T. Strohman, Y. Wu et al., “Two-pass end-to-end           an ASR corpus based on public domain audio books,” in 2015 IEEE
+     speech recognition,” preprint arXiv:1908.10992, 2019.                            international conference on acoustics, speech and signal processing
+[10] P. G. Shivakumar, J. Kolehmainen, Y. Gu, A. Gandhe, A. Rastrow, and              (ICASSP). IEEE, 2015, pp. 5206–5210.
+     I. Bulyko, “Distillation Strategies for Discriminative Speech Recognition   [29] J. Kahn, M. Rivière, W. Zheng, E. Kharitonov, Q. Xu, P.-E. Mazaré,
+     Rescoring,” in Proc. Interspeech 2023, 2023, pp. 4084–4088.                      J. Karadayi, V. Liptchinsky, R. Collobert, C. Fuegen et al., “Libri-light:
+[11] J. Kolehmainen, Y. Gu, A. Gourav, P. G. Shivakumar, A. Gandhe, A. Ras-           A benchmark for ASR with limited or no supervision,” in ICASSP 2020-
+     trow, and I. Bulyko, “Personalization for BERT-based discriminative              2020 IEEE International Conference on Acoustics, Speech and Signal
+     speech recognition rescoring,” arXiv preprint arXiv:2307.06832, 2023.            Processing (ICASSP). IEEE, 2020, pp. 7669–7673.
+[12] P. G. Shivakumar, J. Kolehmainen, Y. Gu, A. Gandhe, A. Rastrow, and         [30] V. Pratap, Q. Xu, A. Sriram, G. Synnaeve, and R. Collobert, “MLS:
+     I. Bulyko, “Discriminative speech recognition rescoring with pre-trained         A large-scale multilingual dataset for speech research,” arXiv preprint
+     language models,” in 2023 IEEE Automatic Speech Recognition and                  arXiv:2012.03411, 2020.
+     Understanding Workshop (ASRU). IEEE, pp. 1–7.                               [31] D. Galvez, G. Diamos, J. Ciro, J. F. Cerón, K. Achorn, A. Gopi,
+[13] Y. Gu, P. G. Shivakumar, J. Kolehmainen, A. Gandhe, A. Rastrow, and              D. Kanter, M. Lam, M. Mazumder, and V. J. Reddi, “The people’s
+     I. Bulyko, “Scaling laws for discriminative speech recognition rescoring         speech: A large-scale diverse english speech recognition dataset for
+     models,” arXiv preprint arXiv:2306.15815, 2023.                                  commercial usage,” arXiv preprint arXiv:2111.09344, 2021.
+[14] L. Xu, Y. Gu, J. Kolehmainen, H. Khan, A. Gandhe, A. Rastrow, A. Stol-      [32] C. Wang, A. Wu, and J. Pino, “Covost 2 and massively multilingual
+     cke, and I. Bulyko, “RescoreBERT: Discriminative speech recognition              speech-to-text translation,” arXiv preprint arXiv:2007.10310, 2020.
+     rescoring with BERT,” in ICASSP 2022 - 2022 IEEE International              [33] F. Hernandez, V. Nguyen, S. Ghannay, N. Tomashenko, and Y. Es-
+     Conference on Acoustics, Speech and Signal Processing (ICASSP), 2022,            teve, “TED-LIUM 3: Twice as much data and corpus repartition for
+     pp. 6117–6121.                                                                   experiments on speaker adaptation,” in Speech and Computer: 20th
+                                                                                      International Conference, SPECOM 2018, Leipzig, Germany, September
+[15] K. Lakhotia, E. Kharitonov, W.-N. Hsu, Y. Adi, A. Polyak, B. Bolte,
+                                                                                      18–22, 2018, Proceedings 20. Springer, 2018, pp. 198–208.
+     T.-A. Nguyen, J. Copet, A. Baevski, A. Mohamed et al., “On gener-
+                                                                                 [34] S. Zhang, S. Roller, N. Goyal, M. Artetxe, M. Chen, S. Chen, C. Dewan,
+     ative spoken language modeling from raw audio,” Transactions of the
+                                                                                      M. Diab, X. Li, X. V. Lin et al., “OPT: Open pre-trained transformer
+     Association for Computational Linguistics, vol. 9, pp. 1336–1354, 2021.
+                                                                                      language models,” arXiv preprint arXiv:2205.01068, 2022.
+[16] E. Kharitonov, A. Lee, A. Polyak, Y. Adi, J. Copet, K. Lakhotia, T.-A.
+                                                                                 [35] H. Touvron, T. Lavril, G. Izacard, X. Martinet, M.-A. Lachaux,
+     Nguyen, M. Riviere, A. Mohamed, E. Dupoux et al., “Text-free prosody-
+                                                                                      T. Lacroix, B. Rozière, N. Goyal, E. Hambro, F. Azhar et al.,
+     aware generative spoken language modeling,” in Proceedings of the
+                                                                                      “Llama: Open and efficient foundation language models,” arXiv preprint
+     60th Annual Meeting of the Association for Computational Linguistics
+                                                                                      arXiv:2302.13971, 2023.
+     (Volume 1: Long Papers), 2022, pp. 8666–8681.
+                                                                                 [36] M. Hassid, T. Remez, T. A. Nguyen, I. Gat, A. Conneau, F. Kreuk,
+[17] T. A. Nguyen, E. Kharitonov, J. Copet, Y. Adi, W.-N. Hsu, A. Elkahky,
+                                                                                      J. Copet, A. Defossez, G. Synnaeve, E. Dupoux et al., “Textually
+     P. Tomasello, R. Algayres, B. Sagot, A. Mohamed et al., “Generative
+                                                                                      pretrained speech language models,” Advances in Neural Information
+     spoken dialogue language modeling,” Transactions of the Association
+                                                                                      Processing Systems, vol. 36, 2024.
+     for Computational Linguistics, vol. 11, pp. 250–266, 2023.
+                                                                                 [37] T. Computer, “RedPajama: an open dataset for train-
+[18] A. Lee, H. Gong, P.-A. Duquenne, H. Schwenk, P.-J. Chen, C. Wang,
+                                                                                      ing large language models,” 2023. [Online]. Available:
+     S. Popuri, Y. Adi, J. Pino, J. Gu et al., “Textless speech-to-speech
+                                                                                      https://github.com/togethercomputer/RedPajama-Data
+     translation on real data,” in Proceedings of the 2022 Conference of
+                                                                                 [38] D. B. Paul and J. Baker, “The design for the wall street journal-
+     the North American Chapter of the Association for Computational
+                                                                                      based CSR corpus,” in Speech and Natural Language: Proceedings of
+     Linguistics: Human Language Technologies, 2022, pp. 860–872.
+                                                                                      a Workshop Held at Harriman, New York, February 23-26, 1992, 1992.
+[19] F. Kreuk, A. Polyak, J. Copet, E. Kharitonov, T.-A. Nguyen, M. Rivière,    [39] R. Ardila, M. Branson, K. Davis, M. Kohler, J. Meyer, M. Henretty,
+     W.-N. Hsu, A. Mohamed, E. Dupoux, and Y. Adi, “Textless speech                   R. Morais, L. Saunders, F. Tyers, and G. Weber, “Common Voice: A
+     emotion conversion using discrete and decomposed representations,”               massively-multilingual speech corpus,” in Proceedings of the Twelfth
+     arXiv preprint arXiv:2111.07402, 2021.                                           Language Resources and Evaluation Conference, 2020, pp. 4218–4222.
+[20] P. K. Rubenstein, C. Asawaroengchai, D. D. Nguyen, A. Bapna, Z. Bor-        [40] J. Carletta, S. Ashby, S. Bourban, M. Flynn, M. Guillemot, T. Hain,
+     sos, F. d. C. Quitry, P. Chen, D. E. Badawy, W. Han, E. Kharitonov               J. Kadlec, V. Karaiskos, W. Kraaij, M. Kronenthal et al., “The AMI
+     et al., “AudioPaLM: A large language model that can speak and listen,”           meeting corpus: A pre-announcement,” in International workshop on
+     arXiv preprint arXiv:2306.12925, 2023.                                           machine learning for multimodal interaction. Springer, 2005, pp. 28–
+[21] S. Maiti, Y. Peng, S. Choi, J.-w. Jung, X. Chang, and S. Watan-                  39.
+     abe, “Voxtlm: unified decoder-only models for consolidating speech
+     recognition/synthesis and speech/text continuation tasks,” arXiv preprint
+     arXiv:2309.07937, 2023.
+

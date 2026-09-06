@@ -1,0 +1,83 @@
+\begin{thebibliography}{10}
+
+\bibitem{baevski2020wav2vec}
+Alexei Baevski, Yuhao Zhou, Abdelrahman Mohamed, and Michael Auli,
+\newblock ``wav2vec 2.0: A framework for self-supervised learning of speech
+  representations,''
+\newblock in {\em Advances in Neural Information Processing Systems}, 2020,
+  vol.~33, pp. 12449--12460.
+
+\bibitem{baevski2022data2vec}
+Alexei Baevski, Wei-Ning Hsu, Qiantong Xu, Arun Babu, Jiatao Gu, and Michael
+  Auli,
+\newblock ``data2vec: A general framework for self-supervised learning in
+  speech, vision and language,''
+\newblock in {\em Proceedings of the 39th International Conference on Machine
+  Learning}. 2022, vol. 162 of {\em Proceedings of Machine Learning Research},
+  pp. 1298--1312, PMLR.
+
+\bibitem{thai2026contrastive}
+Van-Phat Thai, Aradhya Dhruv, Duc-Thinh Pham, and Sameer Alam,
+\newblock ``Contrastive regularization for accent-robust {ASR},''
+  arXiv:2605.03297, 2026,
+\newblock Accepted at Interspeech 2026.
+
+\bibitem{pasad2021layerwise}
+Ankita Pasad, Ju-Chieh Chou, and Karen Livescu,
+\newblock ``Layer-wise analysis of a self-supervised speech representation
+  model,''
+\newblock in {\em 2021 IEEE Automatic Speech Recognition and Understanding
+  Workshop (ASRU)}, 2021, pp. 914--921.
+
+\bibitem{pasad2023comparative}
+Ankita Pasad, Bowen Shi, and Karen Livescu,
+\newblock ``Comparative layer-wise analysis of self-supervised speech models,''
+\newblock in {\em 2023 IEEE International Conference on Acoustics, Speech and
+  Signal Processing (ICASSP)}, 2023, pp. 1--5.
+
+\bibitem{niu2025factorization}
+Minxue Niu, Najmeh Sadoughi, Abhishek Yanamandra, Pichao Wang, Zhu Liu, Vimal
+  Bhat, and S.~Elizabeth Norred,
+\newblock ``Learning rich speech representations with acoustic-semantic
+  factorization,''
+\newblock in {\em Proc. IEEE ICASSP}, 2025.
+
+\bibitem{ilharco2023task}
+Gabriel Ilharco, Marco~Tulio Ribeiro, Mitchell Wortsman, Ludwig Schmidt,
+  Hannaneh Hajishirzi, and Ali Farhadi,
+\newblock ``Editing models with task arithmetic,''
+\newblock in {\em International Conference on Learning Representations}, 2023.
+
+\bibitem{wang2026mind}
+Zilai Wang, Natarajan~Balaji Shankar, Kaiyuan Zhang, Zihan Wang, and Abeer
+  Alwan,
+\newblock ``Mind the shift: Using delta {SSL} embeddings to enhance child
+  {ASR},'' arXiv:2601.20142, 2026,
+\newblock Accepted at ICASSP 2026.
+
+\bibitem{chiu2024selection}
+Sheng-Chieh Chiu, Chia-Hua Wu, Jih-Kang Hsieh, Yu~Tsao, and Hsin-Min Wang,
+\newblock ``Learnable layer selection and model fusion for speech
+  self-supervised learning models,''
+\newblock in {\em Proc. Interspeech}, 2024, pp. 3914--3918.
+
+\bibitem{molchanov2017pruning}
+Pavlo Molchanov, Stephen Tyree, Tero Karras, Timo Aila, and Jan Kautz,
+\newblock ``Pruning convolutional neural networks for resource efficient
+  inference,''
+\newblock in {\em International Conference on Learning Representations}, 2017.
+
+\bibitem{graves2006ctc}
+Alex Graves, Santiago Fern{\'a}ndez, Faustino Gomez, and J{\"u}rgen
+  Schmidhuber,
+\newblock ``Connectionist temporal classification: Labelling unsegmented
+  sequence data with recurrent neural networks,''
+\newblock in {\em Proc. ICML}, 2006, pp. 369--376.
+
+\bibitem{zhao2018l2arctic}
+Guanlong Zhao, Sinem Sonsaat, Alif Silpachai, Ivana Lucic, Evgeny
+  Chukharev-Hudilainen, John Levis, and Ricardo Gutierrez-Osuna,
+\newblock ``{L2-ARCTIC}: A non-native english speech corpus,''
+\newblock in {\em Proc. Interspeech}, 2018, pp. 2783--2787.
+
+\end{thebibliography}

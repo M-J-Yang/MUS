@@ -1,0 +1,95 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+(./main.tex
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-08-10>
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/base/size10.clo)) (./spconf.sty
+) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amstext.sty
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amsgen.sty))
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amsopn.sty))
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty))
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics/keyval.sty)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics/graphics.sty
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics/trig.sty)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics-def/pdftex.def)))
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/booktabs/booktabs.sty)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/iftex/iftex.sty)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
+) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty)))
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hycolor/hycolor.sty)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/refcount/refcount.sty)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring
+.sty (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))
+ (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/etoolbox/etoolbox.sty)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/stringenc/stringenc.sty)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/intcalc/intcalc.sty)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/puenc.def)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/url/url.sty)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/bitset/bitset.sty
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty)))
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.s
+ty
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/uniquecounter/uniquecounter.s
+ty))) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/l3kernel/l3backend-pdftex.def)
+(build/main.aux)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+(build/main.out) (build/main.out)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/umsa.fd)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/umsb.fd)
+Underfull \vbox (badness 10000) has occurred while \output is active [1{/data/z
+b/ymj/MUS/.texlive/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/data/zb/ymj/M
+US/.texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}] [2]
+(./tables/retention.tex)
+Underfull \hbox (badness 1616) in paragraph at lines 145--146
+[]\OT1/ptm/m/n/10 For D0, 75% re-ten-tion yields 10.96% WER ver-sus
+[3] (./tables/data2vec_controls.tex) [4 <./figures/deletion_effect.pdf>]
+(build/main.bbl
+Underfull \hbox (badness 1184) in paragraph at lines 26--31
+[]\OT1/ptm/m/n/10 Ankita Pasad, Ju-Chieh Chou, and Karen Livescu,
+
+Underfull \hbox (badness 2302) in paragraph at lines 26--31
+\OT1/ptm/m/it/10 Recog-ni-tion and Un-der-stand-ing Work-shop (ASRU)\OT1/ptm/m/
+n/10 ,
+
+Underfull \hbox (badness 1137) in paragraph at lines 59--63
+[]\OT1/ptm/m/n/10 Sheng-Chieh Chiu, Chia-Hua Wu, Jih-Kang Hsieh,
+) [5] (build/main.aux) )
+(see the transcript file for additional information)</data/zb/ymj/MUS/.texlive/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></data/zb/ymj/MUS/.texlive
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></data/zb/ymj/MUS/.texliv
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></data/zb/ymj/MUS/.texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></data/zb/ymj/MUS/.texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></data/zb/ymj/MUS/.texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></data/zb/ymj/MUS/.texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></data/zb/ymj/MUS/.texliv
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></data/zb/ymj/MUS/.texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></data/zb/ymj/MUS/.texli
+ve/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></data/zb/ymj/MUS/
+.texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></data/zb/ymj/MUS/.texlive
+/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></data/zb/ymj/MUS/.texlive/texmf-
+dist/fonts/type1/urw/times/utmr8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fon
+ts/type1/urw/times/utmri8a.pfb>
+Output written on build/main.pdf (5 pages, 191162 bytes).
+Transcript written on build/main.log.
