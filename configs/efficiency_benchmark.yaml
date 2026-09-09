@@ -1,0 +1,37 @@
+# Fixed efficiency benchmark for the four model pairs reported in the paper.
+# Paths are relative to the project root.  The benchmark uses each fold's
+# held-out test manifest and does not change or recompute WER.
+protocol: selective_reuse_efficiency_benchmark_v1
+experiments:
+  - name: R0
+    adapted: artifacts/oracles/wav2vec2-large-l2-arctic-supcon-repeated-8fold-0
+    reference: checkpoints/wav2vec2_large_960h_pretrained
+    manifest: manifests/l2_arctic_official_ut8/fold0/test.jsonl
+    rankings:
+      dads: artifacts/results/l2_arctic_official_ut8/fold0/w2v2_large_960h_oracle_shift_empirical_package/rankings/utility_ranking.pt
+      magnitude: artifacts/results/l2_arctic_official_ut8/fold0/w2v2_large_960h_oracle_shift_empirical_package/rankings/magnitude_ranking.pt
+      random: artifacts/results/l2_arctic_official_ut8/fold0/w2v2_large_960h_oracle_shift_empirical_package/rankings/random_seed_1337_permutation.pt
+  - name: W1
+    adapted: artifacts/runs/l2_arctic_official_ut8/fold1/w2v2_large_960h_supcon_local_replica_full_gc
+    reference: checkpoints/wav2vec2_large_960h_pretrained
+    manifest: manifests/l2_arctic_official_ut8/fold1/test.jsonl
+    rankings:
+      dads: artifacts/results/l2_arctic_official_ut8/fold1/w2v2_large_960h_oracle_shift_local_replica_controls/rankings/utility_ranking.pt
+      magnitude: artifacts/results/l2_arctic_official_ut8/fold1/w2v2_large_960h_oracle_shift_local_replica_controls/rankings/magnitude_ranking.pt
+      random: artifacts/results/l2_arctic_official_ut8/fold1/w2v2_large_960h_oracle_shift_local_replica_controls/rankings/random_seed_1337_permutation.pt
+  - name: W2
+    adapted: artifacts/runs/l2_arctic_official_ut8/fold2/w2v2_large_960h_supcon_local_replica_full_gc
+    reference: checkpoints/wav2vec2_large_960h_pretrained
+    manifest: manifests/l2_arctic_official_ut8/fold2/test.jsonl
+    rankings:
+      dads: artifacts/results/l2_arctic_official_ut8/fold2/w2v2_large_960h_oracle_shift_local_replica_controls/rankings/utility_ranking.pt
+      magnitude: artifacts/results/l2_arctic_official_ut8/fold2/w2v2_large_960h_oracle_shift_local_replica_controls/rankings/magnitude_ranking.pt
+      random: artifacts/results/l2_arctic_official_ut8/fold2/w2v2_large_960h_oracle_shift_local_replica_controls/rankings/random_seed_1337_permutation.pt
+  - name: D0
+    adapted: artifacts/runs/l2_arctic_official_ut8/fold0/data2vec_audio_large_960h_ctc_formal_b4
+    reference: checkpoints/data2vec_audio_large_960h
+    manifest: manifests/l2_arctic_official_ut8/fold0/test.jsonl
+    rankings:
+      dads: artifacts/results/l2_arctic_official_ut8/fold0/data2vec_large_960h_shift_empirical_package/rankings/utility_ranking.pt
+      magnitude: artifacts/results/l2_arctic_official_ut8/fold0/data2vec_large_960h_shift_empirical_package/rankings/magnitude_ranking.pt
+      random: artifacts/results/l2_arctic_official_ut8/fold0/data2vec_large_960h_shift_empirical_package/rankings/random_seed_1337_permutation.pt

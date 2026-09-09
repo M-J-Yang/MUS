@@ -1,0 +1,127 @@
+\begin{thebibliography}{10}
+
+\bibitem{mohamed2022review}
+A.~Mohamed et~al.,
+\newblock ``Self-supervised speech representation learning: A review,''
+\newblock {\em IEEE J. Sel. Topics Signal Process.}, vol. 16, no. 6, pp.
+  1179--1210, 2022.
+
+\bibitem{baevski2020wav2vec}
+A.~Baevski, Y.~Zhou, A.~Mohamed, and M.~Auli,
+\newblock ``wav2vec 2.0: A framework for self-supervised learning of speech
+  representations,''
+\newblock in {\em Proc. NeurIPS}, 2020, vol.~33, pp. 12449--12460.
+
+\bibitem{hsu2021hubert}
+W.-N. Hsu, B.~Bolte, Y.-H.~H. Tsai, K.~Lakhotia, R.~Salakhutdinov, and
+  A.~Mohamed,
+\newblock ``{HuBERT}: Self-supervised speech representation learning by masked
+  prediction of hidden units,''
+\newblock {\em IEEE/ACM Trans. Audio, Speech, Lang. Process.}, vol. 29, pp.
+  3451--3460, 2021.
+
+\bibitem{chen2022wavlm}
+S.~Chen et~al.,
+\newblock ``{WavLM}: Large-scale self-supervised pre-training for full stack
+  speech processing,''
+\newblock {\em IEEE J. Sel. Topics Signal Process.}, vol. 16, no. 6, pp.
+  1505--1518, 2022.
+
+\bibitem{baevski2022data2vec}
+A.~Baevski, W.-N. Hsu, Q.~Xu, A.~Babu, J.~Gu, and M.~Auli,
+\newblock ``data2vec: A general framework for self-supervised learning in
+  speech, vision and language,''
+\newblock in {\em Proc. ICML}. 2022, vol. 162 of {\em Proceedings of Machine
+  Learning Research}, pp. 1298--1312, PMLR.
+
+\bibitem{yang2021superb}
+S.-w. Yang et~al.,
+\newblock ``{SUPERB}: Speech processing universal performance benchmark,''
+\newblock in {\em Proc. Interspeech}, 2021, pp. 1194--1198.
+
+\bibitem{thai2026contrastive}
+V.-P. Thai, A.~Dhruv, D.-T. Pham, and S.~Alam,
+\newblock ``Contrastive regularization for accent-robust {ASR},''
+  arXiv:2605.03297, 2026,
+\newblock Accepted at Interspeech 2026.
+
+\bibitem{hu2022lora}
+E.~J. Hu et~al.,
+\newblock ``{LoRA}: Low-rank adaptation of large language models,''
+\newblock in {\em Proc. ICLR}, 2022.
+
+\bibitem{bagat2025maslora}
+R.~Bagat, I.~Illina, and E.~Vincent,
+\newblock ``Mixture of {LoRA} experts for low-resourced multi-accent automatic
+  speech recognition,''
+\newblock in {\em Proc. Interspeech}, 2025, pp. 1143--1147.
+
+\bibitem{ilharco2023task}
+G.~Ilharco, M.~T. Ribeiro, M.~Wortsman, L.~Schmidt, H.~Hajishirzi, and
+  A.~Farhadi,
+\newblock ``Editing models with task arithmetic,''
+\newblock in {\em Proc. ICLR}, 2023.
+
+\bibitem{yadav2023ties}
+P.~Yadav, D.~Tam, L.~Choshen, C.~A. Raffel, and M.~Bansal,
+\newblock ``{TIES}-merging: Resolving interference when merging models,''
+\newblock in {\em Proc. NeurIPS}, 2023, vol.~36.
+
+\bibitem{yu2024dare}
+L.~Yu, B.~Yu, H.~Yu, F.~Huang, and Y.~Li,
+\newblock ``Language models are {Super Mario}: Absorbing abilities from
+  homologous models as a free lunch,''
+\newblock in {\em Proc. ICML}. 2024, vol. 235 of {\em Proceedings of Machine
+  Learning Research}, pp. 57755--57775, PMLR.
+
+\bibitem{ramesh2024taskvector}
+G.~Ramesh, K.~Audhkhasi, and B.~Ramabhadran,
+\newblock ``Task vector algebra for {ASR} models,''
+\newblock in {\em Proc. IEEE ICASSP}, 2024, pp. 12256--12260.
+
+\bibitem{shankar2025selective}
+N.~B. Shankar, Z.~Wang, E.~Eren, and A.~Alwan,
+\newblock ``Selective attention merging for low resource tasks: A case study of
+  child {ASR},''
+\newblock in {\em Proc. IEEE ICASSP}, 2025, pp. 1--5.
+
+\bibitem{wang2026mind}
+Z.~Wang, N.~B. Shankar, K.~Zhang, Z.~Wang, and A.~Alwan,
+\newblock ``Mind the shift: Using delta {SSL} embeddings to enhance child
+  {ASR},'' arXiv:2601.20142, 2026,
+\newblock Accepted at ICASSP 2026.
+
+\bibitem{sun2026activation}
+J.~Sun et~al.,
+\newblock ``Activation steering for accent adaptation in large audio language
+  models,'' arXiv:2603.05813v2, 2026.
+
+\bibitem{zhao2018l2arctic}
+G.~Zhao et~al.,
+\newblock ``{L2-ARCTIC}: A non-native {English} speech corpus,''
+\newblock in {\em Proc. Interspeech}, 2018, pp. 2783--2787.
+
+\bibitem{graves2006ctc}
+A.~Graves, S.~Fern{\'a}ndez, F.~Gomez, and J.~Schmidhuber,
+\newblock ``Connectionist temporal classification: Labelling unsegmented
+  sequence data with recurrent neural networks,''
+\newblock in {\em Proc. ICML}, 2006, pp. 369--376.
+
+\bibitem{molchanov2017pruning}
+P.~Molchanov, S.~Tyree, T.~Karras, T.~Aila, and J.~Kautz,
+\newblock ``Pruning convolutional neural networks for resource efficient
+  inference,''
+\newblock in {\em Proc. ICLR}, 2017.
+
+\bibitem{khosla2020supcon}
+P.~Khosla et~al.,
+\newblock ``Supervised contrastive learning,''
+\newblock in {\em Proc. NeurIPS}, 2020, vol.~33.
+
+\bibitem{panayotov2015librispeech}
+V.~Panayotov, G.~Chen, D.~Povey, and S.~Khudanpur,
+\newblock ``{LibriSpeech}: An {ASR} corpus based on public domain audio
+  books,''
+\newblock in {\em Proc. IEEE ICASSP}, 2015.
+
+\end{thebibliography}

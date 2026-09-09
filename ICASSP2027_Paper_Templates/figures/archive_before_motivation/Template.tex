@@ -23,43 +23,36 @@ speech recognition, self-supervised learning, model adaptation, representation a
 
 \section{Introduction}
 \label{sec:intro}
-Modern speech recognition systems increasingly rely on large-scale self-supervised speech representations, which provide strong initialization for adapting models to new speakers, accents, and domains~\cite{mohamed2022review,baevski2020wav2vec,hsu2021hubert,chen2022wavlm,baevski2022data2vec,yang2021superb}. Through supervised fine-tuning, these models acquire task-specific capabilities from limited labeled speech and achieve substantial improvements under distribution shifts~\cite{thai2026contrastive,hu2022lora,bagat2025maslora}. Adaptation reshapes the learned representation space by introducing substantial differences between pretrained and adapted representations, yet how such information is organized within the representation space remains poorly understood.
+Modern speech recognition systems increasingly rely on large-scale self-supervised speech representations, which provide strong initialization for adapting models to new speakers, accents, and domains~\cite{mohamed2022review,baevski2020wav2vec,hsu2021hubert,chen2022wavlm,baevski2022data2vec,yang2021superb}. Through supervised fine-tuning, these models acquire task-specific capabilities from limited labeled speech and improve under distribution shifts~\cite{thai2026contrastive,hu2022lora,bagat2025maslora}. Adaptation reshapes the learned representation space by introducing differences between pretrained and adapted representations, yet how such information is organized within that space remains poorly understood~\cite{pasad2021layerwise,pasad2023comparative,pasad2024words,ashihara2024what,chang2023spin,chiu2024selection,niu2025factorization}.
 
-Recent studies have demonstrated that differences between pretrained and adapted models contain transferable information. Task arithmetic transfers model behaviors through parameter differences, while TIES-Merging and DARE selectively manipulate such differences for model combination~\cite{ilharco2023task,yadav2023ties,yu2024dare}. Similar ideas have also been explored in automatic speech recognition through task vector algebra and selective model merging~\cite{ramesh2024taskvector,shankar2025selective}. In representation space, \emph{Mind the Shift} exploits delta embeddings, defined as the difference between pretrained and fine-tuned speech representations, to enhance child ASR; accent steering further utilizes representation differences between speech groups to control adaptation behavior~\cite{wang2026mind,sun2026activation}.
+Recent studies have demonstrated that differences between pretrained and adapted models contain transferable information. Task arithmetic transfers model behaviors through parameter differences, while TIES-Merging and DARE selectively manipulate such differences for model combination~\cite{ilharco2023task,yadav2023ties,yu2024dare}. Similar ideas have also been explored in automatic speech recognition through task-vector algebra and selective model merging~\cite{ramesh2024taskvector,shankar2025selective}. In representation space, \emph{Mind the Shift} exploits delta embeddings, defined as the difference between pretrained and fine-tuned speech representations, to improve recognition under speaker and accent mismatch; accent steering further utilizes representation differences between speech groups to control adaptation behavior~\cite{wang2026mind,sun2026activation}. Although existing methods vary in how representation differences are constructed and utilized, they generally treat representation shifts as a unified adaptation signal without considering how individual changes affect the adapted recognizer. Magnitude-, activation-, reconstruction-, and sensitivity-based pruning provide related selection principles~\cite{sun2024wanda,frantar2023sparsegpt,genova2025keep,molchanov2017pruning,sanh2020movement}, but do not directly measure the functional support of a fine-tuning shift.
 
-% Queue the wide method figure for the next page.
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{figures/dads_overview.pdf}
-\caption{DADS connects representation shifts to recognizer sensitivity. The frozen adapted CTC head supplies $G=\partial\ell/\partial E_a$. Schematic bars illustrate elementwise absolute shift--gradient products; averaging over valid calibration frames and retaining the top $K$ dimensions gives one global mask. The counterfactual intervention keeps adapted values in selected dimensions and restores reference values elsewhere. The same frozen head decodes the result without retraining; labels and gradients are needed only for calibration.}
-\label{fig:overview}
-\end{figure*}
+Our key insight is that shift relevance changes across the representation-to-decision boundary: from feature movement in representation space to decision sensitivity in the adapted recognizer. A large shift may have limited impact if the recognizer is insensitive to that direction, while a smaller shift can be critical when aligned with a decision-sensitive direction. Two observations support this decision-aligned view. First, fine-tuning-induced shifts exhibit non-uniform utility across dimensions: under a fixed retention budget, preserving selected shifts can maintain adaptation performance, while removing different groups of the same size can lead to substantially different outcomes. Second, shift magnitude alone cannot explain adaptation utility; useful shifts emerge from the interaction between representation movement and the recognizer's decision sensitivity.
 
-Although existing methods vary in how representation differences are constructed and utilized, they generally treat representation shifts as a unified adaptation signal without considering how individual changes affect the adapted recognizer. Our key insight is that shift relevance changes across the representation-to-decision boundary: from feature movement in the representation space to decision sensitivity in the adapted recognizer. A large shift may have limited impact if the recognizer is insensitive to that direction, while a smaller shift can be critical when aligned with a decision-sensitive direction.
-
-Two observations support this decision-aligned view. First, fine-tuning-induced shifts exhibit highly non-uniform utility across dimensions. Under a fixed retention budget, preserving selected shifts can maintain adaptation performance, while removing different groups of the same size leads to substantially different recognition outcomes. Second, shift magnitude alone cannot explain adaptation utility. Useful shifts emerge from the interaction between representation movement and the recognizer's decision sensitivity, rather than from either factor independently.
-
-Based on these observations, we propose \textbf{Decision-Aligned Delta Selection (DADS)}, a decision-aligned pruning framework for fine-tuning-induced representation shifts. DADS first decomposes adaptation into individual shift dimensions and evaluates each dimension by measuring how its change affects the adapted CTC decision. Specifically, DADS combines shift magnitude with CTC objective sensitivity to identify decision-supporting shifts, then selectively retains informative changes while removing redundant adaptation signals. The intervention keeps the adapted CTC head and decoding fixed, so retention and reversion directly test which changes are sufficient and necessary for the existing recognizer (Fig.~\ref{fig:overview}).
+Based on these observations, we propose \textbf{Decision-Aligned Delta Selection (DADS)}, a decision-aligned pruning framework for fine-tuning-induced representation shifts. DADS decomposes adaptation into individual shift dimensions and evaluates each dimension using the adapted CTC objective. Specifically, it combines shift magnitude with CTC loss sensitivity to identify decision-supporting shifts, then selectively retains informative changes while removing redundant adaptation signals. The intervention keeps the adapted CTC head and decoding fixed, so retention and reversion directly test which changes are sufficient and necessary for the existing recognizer.
 
 We evaluate DADS on L2-ARCTIC across adapted ASR models~\cite{zhao2018l2arctic} and reveal substantial redundancy in fine-tuning-induced shifts. DADS retains 98.8\% of the full adaptation gain using only 50\% of shift dimensions, achieving 11.71\% WER compared with 16.64\% for magnitude-based selection. Counterfactual reversion further shows that high-utility shifts are functionally critical, causing substantially larger degradation when removed than low-utility shifts.
 
-Our main contributions are summarized as follows:
+Our contributions can be summarized as follows:
 \begin{enumerate}
 \setlength{\itemsep}{2pt}
 \setlength{\parsep}{0pt}
-\item We identify that adaptation utility is concentrated in a decision-dependent subset of fine-tuning-induced shifts, showing why shift magnitude alone is insufficient.
-\item We align representation displacement with adapted CTC sensitivity to select decision-supporting shifts and remove redundant changes without retraining.
-\item We use frozen-head retention and reversion to establish which shifts the adapted recognizer functionally relies on and to verify the value of decision-aligned selection.
+\item \textbf{Decision-critical shift structure.} Fine-tuning shifts contain sparse but essential information; not all shifts contribute equally to recognition.
+\item \textbf{Decision-aligned pruning.} DADS combines representation movement with adapted CTC sensitivity to select useful changes.
+\item \textbf{Counterfactual dependence analysis.} Frozen-head retention and reversion quantify functionally necessary changes.
 \end{enumerate}
 
-
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/dads_overview.pdf}
+\caption{DADS architecture. (a) Reference and adapted features are combined using a global mask and decoded with the frozen adapted head. (b) Training labels provide CTC gradients at the full adapted features. Absolute change--gradient products are averaged over valid frames to obtain one Top-$K$ mask. (c) Unselected columns return to their reference values; selected columns use adapted values.}
+\label{fig:overview}
+\end{figure*}
 
 \section{Decision-Aligned Delta Selection}
 \label{sec:method}
-
-
 \subsection{Keeping some changes and undoing others}
-As shown in Fig.~\ref{fig:overview}, the reference and adapted encoders map utterance $x$ to final-layer features $E_r(x),E_a(x)\in\mathbb{R}^{T_x\times d}$, where $T_x$ is the number of output frames and $d$ is the feature dimension. Their difference is
+As shown in Fig.~\ref{fig:overview}(a), the reference and adapted encoders map utterance $x$ to final-layer features $E_r(x),E_a(x)\in\mathbb{R}^{T_x\times d}$, where $T_x$ is the number of output frames and $d$ is the feature dimension. Their difference is
 \begin{equation}
  \Delta(x)=E_a(x)-E_r(x).
  \label{eq:shift}

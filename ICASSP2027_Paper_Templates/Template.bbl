@@ -1,141 +1,162 @@
 \begin{thebibliography}{10}
 
 \bibitem{mohamed2022review}
-Abdelrahman Mohamed, Hung-yi Lee, Lasse Borgholt, Jakob~D. Havtorn, Joakim Edin, Christian Igel, Katrin Kirchhoff, Shang-Wen Li, Karen Livescu, Lars Maal{\o}e, Tara~N. Sainath, and Shinji Watanabe,
+A.~Mohamed et~al.,
 \newblock ``Self-supervised speech representation learning: A review,''
-\newblock {\em IEEE Journal of Selected Topics in Signal Processing}, vol. 16, no. 6, pp. 1179--1210, 2022.
+\newblock {\em IEEE J. Sel. Topics Signal Process.}, vol. 16, no. 6, pp. 1179--1210, 2022.
 
 \bibitem{baevski2020wav2vec}
-Alexei Baevski, Yuhao Zhou, Abdelrahman Mohamed, and Michael Auli,
+A.~Baevski, Y.~Zhou, A.~Mohamed, and M.~Auli,
 \newblock ``wav2vec 2.0: A framework for self-supervised learning of speech representations,''
-\newblock in {\em Advances in Neural Information Processing Systems}, 2020, vol.~33, pp. 12449--12460.
+\newblock in {\em Proc. NeurIPS}, 2020, vol.~33, pp. 12449--12460.
 
 \bibitem{hsu2021hubert}
-Wei-Ning Hsu, Benjamin Bolte, Yao-Hung~Hubert Tsai, Kushal Lakhotia, Ruslan Salakhutdinov, and Abdelrahman Mohamed,
-\newblock ``Hubert: Self-supervised speech representation learning by masked prediction of hidden units,''
-\newblock {\em IEEE/ACM Transactions on Audio, Speech, and Language Processing}, vol. 29, pp. 3451--3460, 2021.
+W.-N. Hsu, B.~Bolte, Y.-H.~H. Tsai, K.~Lakhotia, R.~Salakhutdinov, and A.~Mohamed,
+\newblock ``{HuBERT}: Self-supervised speech representation learning by masked prediction of hidden units,''
+\newblock {\em IEEE/ACM Trans. Audio, Speech, Lang. Process.}, vol. 29, pp. 3451--3460, 2021.
 
 \bibitem{chen2022wavlm}
-Sanyuan Chen, Chengyi Wang, Zhengyang Chen, Yu~Wu, Shujie Liu, Zhuo Chen, Jinyu Li, Naoyuki Kanda, Takuya Yoshioka, Xiong Xiao, Jian Wu, Long Zhou, Shuo Ren, Yanmin Qian, Yao Qian, Michael Zeng, Xiangzhan Yu, and Furu Wei,
-\newblock ``Wavlm: Large-scale self-supervised pre-training for full stack speech processing,''
-\newblock {\em IEEE Journal of Selected Topics in Signal Processing}, vol. 16, no. 6, pp. 1505--1518, 2022.
+S.~Chen et~al.,
+\newblock ``{WavLM}: Large-scale self-supervised pre-training for full stack speech processing,''
+\newblock {\em IEEE J. Sel. Topics Signal Process.}, vol. 16, no. 6, pp. 1505--1518, 2022.
 
 \bibitem{baevski2022data2vec}
-Alexei Baevski, Wei-Ning Hsu, Qiantong Xu, Arun Babu, Jiatao Gu, and Michael Auli,
+A.~Baevski, W.-N. Hsu, Q.~Xu, A.~Babu, J.~Gu, and M.~Auli,
 \newblock ``data2vec: A general framework for self-supervised learning in speech, vision and language,''
-\newblock in {\em Proceedings of the 39th International Conference on Machine Learning}. 2022, vol. 162 of {\em Proceedings of Machine Learning Research}, pp. 1298--1312, PMLR.
+\newblock in {\em Proc. ICML}. 2022, vol. 162 of {\em Proceedings of Machine Learning Research}, pp. 1298--1312, PMLR.
 
 \bibitem{yang2021superb}
-Shu-wen Yang, Po-Han Chi, Yung-Sung Chuang, Cheng-I~Jeff Lai, Kushal Lakhotia, Yist~Y. Lin, Andy~T. Liu, Jiatong Shi, Xuankai Chang, Guan-Ting Lin, Tzu-Hsien Huang, Wei-Cheng Tseng, Ko-tik Lee, Da-Rong Liu, Zili Huang, Shuyan Dong, Shang-Wen Li, Shinji Watanabe, Abdelrahman Mohamed, and Hung-yi Lee,
-\newblock ``Superb: Speech processing universal performance benchmark,''
-\newblock in {\em Interspeech 2021}, 2021, pp. 1194--1198.
+S.-w. Yang et~al.,
+\newblock ``{SUPERB}: Speech processing universal performance benchmark,''
+\newblock in {\em Proc. Interspeech}, 2021, pp. 1194--1198.
 
-\bibitem{lu2022children}
-Renee Lu, Mostafa Shahin, and Beena Ahmed,
-\newblock ``Improving children's speech recognition by fine-tuning self-supervised adult speech representations,'' 2022.
+\bibitem{thai2026contrastive}
+V.-P. Thai, A.~Dhruv, D.-T. Pham, and S.~Alam,
+\newblock ``Contrastive regularization for accent-robust {ASR},'' arXiv:2605.03297, 2026,
+\newblock Accepted at Interspeech 2026.
 
-\bibitem{hu2024star}
-Yuchen Hu, Chen Chen, Chao-Han~Huck Yang, Chengwei Qin, Pin-Yu Chen, Eng~Siong Chng, and Chao Zhang,
-\newblock ``Self-taught recognizer: Toward unsupervised adaptation for speech foundation models,''
-\newblock in {\em Advances in Neural Information Processing Systems}, 2024, vol.~37, pp. 29566--29594.
-
-\bibitem{do2024accented}
-Cong-Thanh Do, Shuhei Imai, Rama Doddipatla, and Thomas Hain,
-\newblock ``Improving accented speech recognition using data augmentation based on unsupervised text-to-speech synthesis,''
-\newblock in {\em 2024 32nd European Signal Processing Conference (EUSIPCO)}, 2024, pp. 136--140.
+\bibitem{hu2022lora}
+E.~J. Hu et~al.,
+\newblock ``{LoRA}: Low-rank adaptation of large language models,''
+\newblock in {\em Proc. ICLR}, 2022.
 
 \bibitem{bagat2025maslora}
-Rapha{\"e}l Bagat, Irina Illina, and Emmanuel Vincent,
-\newblock ``Mixture of lora experts for low-resourced multi-accent automatic speech recognition,''
-\newblock in {\em Interspeech 2025}, 2025, pp. 1143--1147.
+R.~Bagat, I.~Illina, and E.~Vincent,
+\newblock ``Mixture of {LoRA} experts for low-resourced multi-accent automatic speech recognition,''
+\newblock in {\em Proc. Interspeech}, 2025, pp. 1143--1147.
 
 \bibitem{pasad2021layerwise}
-Ankita Pasad, Ju-Chieh Chou, and Karen Livescu,
+A.~Pasad, J.-C. Chou, and K.~Livescu,
 \newblock ``Layer-wise analysis of a self-supervised speech representation model,''
-\newblock in {\em 2021 IEEE Automatic Speech Recognition and Understanding Workshop (ASRU)}, 2021, pp. 914--921.
+\newblock in {\em Proc. IEEE ASRU}, 2021, pp. 914--921.
 
 \bibitem{pasad2023comparative}
-Ankita Pasad, Bowen Shi, and Karen Livescu,
+A.~Pasad, B.~Shi, and K.~Livescu,
 \newblock ``Comparative layer-wise analysis of self-supervised speech models,''
-\newblock in {\em 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)}, 2023, pp. 1--5.
+\newblock in {\em Proc. IEEE ICASSP}, 2023, pp. 1--5.
 
 \bibitem{pasad2024words}
-Ankita Pasad, Chung-Ming Chien, Shane Settle, and Karen Livescu,
+A.~Pasad, C.-M. Chien, S.~Settle, and K.~Livescu,
 \newblock ``What do self-supervised speech models know about words?,''
-\newblock {\em Transactions of the Association for Computational Linguistics}, vol. 12, pp. 372--391, 2024.
+\newblock {\em Trans. Assoc. Comput. Linguistics}, vol. 12, pp. 372--391, 2024.
 
-\bibitem{delafuente2024suprasegmentals}
-Ant{\'o}n de~la Fuente and Dan Jurafsky,
-\newblock ``A layer-wise analysis of mandarin and english suprasegmentals in ssl speech models,''
-\newblock in {\em Interspeech 2024}, 2024, pp. 1290--1294.
-
-\bibitem{huo2025iterative}
-Robin Huo and Ewan Dunbar,
-\newblock ``Iterative refinement, not training objective, makes hubert behave differently from wav2vec 2.0,''
-\newblock in {\em Interspeech 2025}, 2025, pp. 261--265.
-
-\bibitem{yang2022rewiring}
-Hao Yang, Jinming Zhao, Gholamreza Haffari, and Ehsan Shareghi,
-\newblock ``Self-supervised rewiring of pre-trained speech encoders: Towards faster fine-tuning with less labels in speech processing,''
-\newblock in {\em Findings of the Association for Computational Linguistics: EMNLP 2022}. 2022, pp. 1952--1959, Association for Computational Linguistics.
+\bibitem{ashihara2024what}
+T.~Ashihara, M.~Delcroix, T.~Moriya, K.~Matsuura, T.~Asami, and Y.~Ijima,
+\newblock ``What do self-supervised speech and speaker models learn? {New} findings from a cross model layer-wise analysis,''
+\newblock in {\em Proc. IEEE ICASSP}, 2024.
 
 \bibitem{chang2023spin}
-Heng-Jui Chang, Alexander~H. Liu, and James Glass,
+H.-J. Chang, A.~H. Liu, and J.~Glass,
 \newblock ``Self-supervised fine-tuning for improved content representations by speaker-invariant clustering,''
-\newblock in {\em Interspeech 2023}, 2023, pp. 2983--2987.
+\newblock in {\em Proc. Interspeech}, 2023, pp. 2983--2987.
 
-\bibitem{wortsman2022soups}
-Mitchell Wortsman, Gabriel Ilharco, Samir~Ya Gadre, Rebecca Roelofs, Raphael Gontijo-Lopes, Ari~S. Morcos, Hongseok Namkoong, Ali Farhadi, Yair Carmon, Simon Kornblith, and Ludwig Schmidt,
-\newblock ``Model soups: Averaging weights of multiple fine-tuned models improves accuracy without increasing inference time,''
-\newblock in {\em Proceedings of the 39th International Conference on Machine Learning}. 2022, vol. 162 of {\em Proceedings of Machine Learning Research}, pp. 23965--23998, PMLR.
+\bibitem{chiu2024selection}
+S.-C. Chiu, C.-H. Wu, J.-K. Hsieh, Y.~Tsao, and H.-M. Wang,
+\newblock ``Learnable layer selection and model fusion for speech self-supervised learning models,''
+\newblock in {\em Proc. Interspeech}, 2024, pp. 3914--3918.
+
+\bibitem{niu2025factorization}
+M.~Niu et~al.,
+\newblock ``Learning rich speech representations with acoustic-semantic factorization,''
+\newblock in {\em Proc. IEEE ICASSP}, 2025.
 
 \bibitem{ilharco2023task}
-Gabriel Ilharco, Marco~Tulio Ribeiro, Mitchell Wortsman, Ludwig Schmidt, Hannaneh Hajishirzi, and Ali Farhadi,
+G.~Ilharco, M.~T. Ribeiro, M.~Wortsman, L.~Schmidt, H.~Hajishirzi, and A.~Farhadi,
 \newblock ``Editing models with task arithmetic,''
-\newblock in {\em International Conference on Learning Representations}, 2023.
+\newblock in {\em Proc. ICLR}, 2023.
+
+\bibitem{yadav2023ties}
+P.~Yadav, D.~Tam, L.~Choshen, C.~A. Raffel, and M.~Bansal,
+\newblock ``{TIES}-merging: Resolving interference when merging models,''
+\newblock in {\em Proc. NeurIPS}, 2023, vol.~36.
+
+\bibitem{yu2024dare}
+L.~Yu, B.~Yu, H.~Yu, F.~Huang, and Y.~Li,
+\newblock ``Language models are {Super Mario}: Absorbing abilities from homologous models as a free lunch,''
+\newblock in {\em Proc. ICML}. 2024, vol. 235 of {\em Proceedings of Machine Learning Research}, pp. 57755--57775, PMLR.
 
 \bibitem{ramesh2024taskvector}
-Gowtham Ramesh, Kartik Audhkhasi, and Bhuvana Ramabhadran,
-\newblock ``Task vector algebra for asr models,''
-\newblock in {\em 2024 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)}, 2024, pp. 12256--12260.
+G.~Ramesh, K.~Audhkhasi, and B.~Ramabhadran,
+\newblock ``Task vector algebra for {ASR} models,''
+\newblock in {\em Proc. IEEE ICASSP}, 2024, pp. 12256--12260.
 
 \bibitem{shankar2025selective}
-Natarajan~Balaji Shankar, Zilai Wang, Eray Eren, and Abeer Alwan,
-\newblock ``Selective attention merging for low resource tasks: A case study of child asr,''
-\newblock in {\em 2025 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)}, 2025, pp. 1--5.
-
-\bibitem{ducorroy2025robust}
-Alexandre Ducorroy and Rachid Riad,
-\newblock ``Robust fine-tuning of speech recognition models via model merging: Application to disordered speech,''
-\newblock in {\em Interspeech 2025}, 2025, pp. 3279--3283.
+N.~B. Shankar, Z.~Wang, E.~Eren, and A.~Alwan,
+\newblock ``Selective attention merging for low resource tasks: A case study of child {ASR},''
+\newblock in {\em Proc. IEEE ICASSP}, 2025, pp. 1--5.
 
 \bibitem{wang2026mind}
-Zilai Wang, Natarajan~Balaji Shankar, Kaiyuan Zhang, Zihan Wang, and Abeer Alwan,
-\newblock ``Mind the shift: Using delta ssl embeddings to enhance child asr,'' 2026,
+Z.~Wang, N.~B. Shankar, K.~Zhang, Z.~Wang, and A.~Alwan,
+\newblock ``Mind the shift: Using delta {SSL} embeddings to enhance child {ASR},'' arXiv:2601.20142, 2026,
 \newblock Accepted at ICASSP 2026.
 
 \bibitem{sun2026activation}
-Jinuo Sun, Yang Xiao, Sung~Kyun Chung, Qiuchi Hu, Gongping Huang, Eun-Jung Holden, and Ting Dang,
-\newblock ``Activation steering for accent adaptation in speech foundation models,'' 2026.
+J.~Sun et~al.,
+\newblock ``Activation steering for accent adaptation in large audio language models,'' arXiv:2603.05813v2, 2026.
+
+\bibitem{sun2024wanda}
+M.~Sun, Z.~Liu, A.~Bair, and J.~Z. Kolter,
+\newblock ``A simple and effective pruning approach for large language models,''
+\newblock in {\em Proc. ICLR}, 2024.
+
+\bibitem{frantar2023sparsegpt}
+E.~Frantar and D.~Alistarh,
+\newblock ``{SparseGPT}: Massive language models can be accurately pruned in one-shot,''
+\newblock in {\em Proc. ICML}, 2023, vol. 202, pp. 10323--10337.
+
+\bibitem{genova2025keep}
+D.~Genova, P.~Esling, and T.~Hurlin,
+\newblock ``Keep what you need: Extracting efficient subnetworks from large audio representation models,''
+\newblock in {\em Proc. IEEE ICASSP}, 2025.
 
 \bibitem{molchanov2017pruning}
-Pavlo Molchanov, Stephen Tyree, Tero Karras, Timo Aila, and Jan Kautz,
+P.~Molchanov, S.~Tyree, T.~Karras, T.~Aila, and J.~Kautz,
 \newblock ``Pruning convolutional neural networks for resource efficient inference,''
-\newblock in {\em International Conference on Learning Representations}, 2017.
+\newblock in {\em Proc. ICLR}, 2017.
 
-\bibitem{molchanov2019importance}
-Pavlo Molchanov, Arun Mallya, Stephen Tyree, Iuri Frosio, and Jan Kautz,
-\newblock ``Importance estimation for neural network pruning,''
-\newblock in {\em Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, 2019, pp. 11264--11272.
+\bibitem{sanh2020movement}
+V.~Sanh, T.~Wolf, and A.~M. Rush,
+\newblock ``Movement pruning: Adaptive sparsity by fine-tuning,''
+\newblock in {\em Proc. NeurIPS}, 2020, vol.~33.
 
-\bibitem{lee2019snip}
-Namhoon Lee, Thalaiyasingam Ajanthan, and Philip H.~S. Torr,
-\newblock ``Snip: Single-shot network pruning based on connection sensitivity,''
-\newblock in {\em International Conference on Learning Representations}, 2019.
+\bibitem{zhao2018l2arctic}
+G.~Zhao et~al.,
+\newblock ``{L2-ARCTIC}: A non-native {English} speech corpus,''
+\newblock in {\em Proc. Interspeech}, 2018, pp. 2783--2787.
 
-\bibitem{paissan2024lmac}
-Francesco Paissan, Mirco Ravanelli, and Cem Subakan,
-\newblock ``Listenable maps for audio classifiers,''
-\newblock in {\em Proceedings of the 41st International Conference on Machine Learning}. 2024, vol. 235 of {\em Proceedings of Machine Learning Research}, pp. 39009--39021, PMLR.
+\bibitem{graves2006ctc}
+A.~Graves, S.~Fern{\'a}ndez, F.~Gomez, and J.~Schmidhuber,
+\newblock ``Connectionist temporal classification: Labelling unsegmented sequence data with recurrent neural networks,''
+\newblock in {\em Proc. ICML}, 2006, pp. 369--376.
+
+\bibitem{khosla2020supcon}
+P.~Khosla et~al.,
+\newblock ``Supervised contrastive learning,''
+\newblock in {\em Proc. NeurIPS}, 2020, vol.~33.
+
+\bibitem{panayotov2015librispeech}
+V.~Panayotov, G.~Chen, D.~Povey, and S.~Khudanpur,
+\newblock ``{LibriSpeech}: An {ASR} corpus based on public domain audio books,''
+\newblock in {\em Proc. IEEE ICASSP}, 2015.
 
 \end{thebibliography}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate the official Fold0 frozen-head shift-pruning empirical package.
+"""Evaluate a frozen-head shift-pruning empirical package.
 
 The evaluator reuses cached E0/Eft/Delta features and the original oracle CTC
 head. It reports matched retention baselines and direct deletion interventions;
@@ -33,7 +33,7 @@ from usde.shift import (  # noqa: E402
 )
 
 
-PROTOCOL = "official_fold0_frozen_head_shift_pruning_empirical_package_v1"
+PROTOCOL = "frozen_head_shift_pruning_empirical_package_v2"
 RETENTIONS = (25, 50, 75)
 DELETIONS = (10, 25, 50)
 METHODS = ("Random", "Random+Rescale", "Magnitude", "Gradient", "Utility")
@@ -212,9 +212,10 @@ def retention_conditions(
     dimension: int,
     rankings: dict[str, torch.Tensor],
     random_orders: dict[int, torch.Tensor],
+    retentions: tuple[int, ...],
 ) -> list[Condition]:
     conditions: list[Condition] = []
-    for retention in RETENTIONS:
+    for retention in retentions:
         count = max(1, round(dimension * retention / 100))
         for method, name in (("Magnitude", "magnitude"), ("Gradient", "gradient"), ("Utility", "utility")):
             conditions.append(Condition(f"{name}_{retention}", method, rankings[name][:count]))
@@ -232,9 +233,10 @@ def deletion_conditions(
     dimension: int,
     utility: torch.Tensor,
     random_orders: dict[int, torch.Tensor],
+    deletions: tuple[int, ...],
 ) -> list[Condition]:
     conditions: list[Condition] = []
-    for deleted in DELETIONS:
+    for deleted in deletions:
         count = max(1, round(dimension * deleted / 100))
         conditions.extend([
             Condition(f"drop_best_{deleted}", "DropBest", utility[count:]),
@@ -323,7 +325,9 @@ def aggregate(values: list[tuple[int, float]], full: float) -> dict[str, Any]:
     }
 
 
-def retention_summary(measured: dict[str, dict[str, Any]]) -> dict[str, Any]:
+def retention_summary(
+    measured: dict[str, dict[str, Any]], retentions: tuple[int, ...]
+) -> dict[str, Any]:
     full = float(measured["full"]["wer"])
     no_shift = float(measured["no_shift"]["wer"])
     result: dict[str, Any] = {
@@ -333,7 +337,7 @@ def retention_summary(measured: dict[str, dict[str, Any]]) -> dict[str, Any]:
     }
     for method in METHODS:
         rows: dict[str, Any] = {"0": metric(no_shift, full), "100": metric(full, full)}
-        for retention in RETENTIONS:
+        for retention in retentions:
             if method == "Random":
                 values = [(seed, float(measured[f"random_{retention}_{seed}"]["wer"])) for seed in SEEDS]
                 rows[str(retention)] = aggregate(values, full)
@@ -347,12 +351,14 @@ def retention_summary(measured: dict[str, dict[str, Any]]) -> dict[str, Any]:
     return result
 
 
-def deletion_summary(measured: dict[str, dict[str, Any]]) -> dict[str, Any]:
+def deletion_summary(
+    measured: dict[str, dict[str, Any]], deletions: tuple[int, ...]
+) -> dict[str, Any]:
     full = float(measured["full"]["wer"])
     result: dict[str, Any] = {"full": metric(full, full), "methods": {}}
     for method in ("DropWorst", "Random", "DropBest"):
         rows: dict[str, Any] = {}
-        for deleted in DELETIONS:
+        for deleted in deletions:
             if method == "Random":
                 values = [(seed, float(measured[f"random_delete_{deleted}_{seed}"]["wer"])) for seed in SEEDS]
                 rows[str(deleted)] = aggregate(values, full)
@@ -373,10 +379,12 @@ def write_summary(result: dict[str, Any], path: Path) -> None:
     test = result["splits"]["test"]
     retention = test["retention"]
     deletion = test["deletion"]
+    retentions = tuple(result["retentions_percent"])
+    deletions = tuple(result["deletions_percent"])
     lines = [
-        "# Official Fold0 frozen-head shift-pruning empirical package",
+        "# Frozen-head shift-pruning empirical package",
         "",
-        "All conditions use the same cached E0/Eft/Delta streams and original frozen oracle CTC head.",
+        "All conditions use the same cached E0/Eft/Delta streams and original frozen adapted CTC head.",
         "No head retraining or healing is performed.",
         "",
         "## Retained shift coordinates",
@@ -384,7 +392,7 @@ def write_summary(result: dict[str, Any], path: Path) -> None:
         "| Retained | Random | Random+Rescale | Magnitude | Gradient | Utility |",
         "|---:|---:|---:|---:|---:|---:|",
     ]
-    for retained in (0, 25, 50, 75, 100):
+    for retained in retentions:
         lines.append(
             f"| {retained}% | "
             + " | ".join(format_metric(retention["methods"][method][str(retained)]) for method in METHODS)
@@ -394,19 +402,22 @@ def write_summary(result: dict[str, Any], path: Path) -> None:
         "",
         "Random and Random+Rescale are mean ± sample standard deviation over seeds "
         + ", ".join(str(seed) for seed in SEEDS) + ".",
-        "",
-        "## Deleted utility coordinates",
-        "",
-        "| Deleted | DropWorst | Random | DropBest |",
-        "|---:|---:|---:|---:|",
     ]
-    for deleted in DELETIONS:
-        lines.append(
-            f"| {deleted}% | "
-            f"{format_metric(deletion['methods']['DropWorst'][str(deleted)])} | "
-            f"{format_metric(deletion['methods']['Random'][str(deleted)])} | "
-            f"{format_metric(deletion['methods']['DropBest'][str(deleted)])} |"
-        )
+    if deletions:
+        lines += [
+            "",
+            "## Deleted utility coordinates",
+            "",
+            "| Deleted | DropWorst | Random | DropBest |",
+            "|---:|---:|---:|---:|",
+        ]
+        for deleted in deletions:
+            lines.append(
+                f"| {deleted}% | "
+                f"{format_metric(deletion['methods']['DropWorst'][str(deleted)])} | "
+                f"{format_metric(deletion['methods']['Random'][str(deleted)])} | "
+                f"{format_metric(deletion['methods']['DropBest'][str(deleted)])} |"
+            )
     lines += [
         "",
         f"Full-shift test WER: {format_metric(retention['full'])}. "
@@ -485,8 +496,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     for seed, order in random_orders.items():
         save_tensor(order, ranking_dir / f"random_seed_{seed}_permutation.pt")
 
-    conditions = retention_conditions(hidden_dim, rankings, random_orders)
-    conditions += deletion_conditions(hidden_dim, rankings["utility"], random_orders)
+    retentions = tuple(args.retentions)
+    deletions = tuple(args.deletions)
+    conditions = retention_conditions(hidden_dim, rankings, random_orders, retentions)
+    conditions += deletion_conditions(hidden_dim, rankings["utility"], random_orders, deletions)
     splits: dict[str, Any] = {}
     for split in ("dev", "test"):
         measured = evaluate_split(
@@ -496,8 +509,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         )
         splits[split] = {
             "identity": measured["identity"],
-            "retention": retention_summary(measured["measured"]),
-            "deletion": deletion_summary(measured["measured"]),
+            "retention": retention_summary(measured["measured"], retentions),
+            "deletion": deletion_summary(measured["measured"], deletions),
             "raw_measured": measured["measured"],
         }
         print({
@@ -518,8 +531,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "device": str(device),
         "hidden_dim": hidden_dim,
         "random_seeds": list(SEEDS),
-        "retentions_percent": [0, *RETENTIONS, 100],
-        "deletions_percent": list(DELETIONS),
+        "retentions_percent": [0, *retentions, 100],
+        "deletions_percent": list(deletions),
         "attribution": {
             "num_utterances": attribution["num_utterances"],
             "num_valid_frames": attribution["num_valid_frames"],
@@ -550,8 +563,22 @@ def main() -> None:
     parser.add_argument("--device", default=None)
     parser.add_argument("--log-every", type=int, default=100)
     parser.add_argument("--reuse-rankings", action="store_true")
+    parser.add_argument(
+        "--retentions", type=int, nargs="+", default=list(RETENTIONS),
+        help="retained shift percentages to evaluate (default: 25 50 75)",
+    )
+    parser.add_argument(
+        "--deletions", type=int, nargs="*", default=list(DELETIONS),
+        help="deleted utility percentages to evaluate; omit values for none",
+    )
     parser.add_argument("--overwrite", action="store_true")
-    run(parser.parse_args())
+    args = parser.parse_args()
+    for name, values in (("retentions", args.retentions), ("deletions", args.deletions)):
+        if len(set(values)) != len(values) or any(value < 1 or value > 99 for value in values):
+            parser.error(f"{name} must contain unique percentages between 1 and 99")
+    args.retentions = tuple(args.retentions)
+    args.deletions = tuple(args.deletions)
+    run(args)
 
 
 if __name__ == "__main__":

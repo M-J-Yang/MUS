@@ -1,10 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  9 SEP 2026 21:16
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  9 SEP 2026 22:58
 entering extended mode
  restricted \write18 enabled.
- file:line:error style messages enabled.
  %&-line parsing enabled.
-**/data/zb/ymj/MUS/ICASSP2027_Paper_Templates/Template.tex
-(/data/zb/ymj/MUS/ICASSP2027_Paper_Templates/Template.tex
+**Template.tex
+(./Template.tex
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-08-10>
 (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/base/article.cls
@@ -23,21 +22,25 @@ File: size10.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
 \abovecaptionskip=\skip49
 \belowcaptionskip=\skip50
 \bibindent=\dimen150
-) (./spconf.sty) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
+) (./spconf.sty) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amsmat
+h.sty
 Package: amsmath 2026/05/19 v2.18d AMS math features
 \@mathmargin=\skip51
 
 For additional information on amsmath, use the `?' option.
 (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amstext.sty
 Package: amstext 2024/11/17 v2.01 AMS text
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amsgen.sty
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
 \@emptytoks=\toks17
 \ex@=\dimen151
-)) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty
+))
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
 \pmbraise@=\dimen152
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amsopn.sty
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2022/04/08 v2.04 operator names
 )
 \inf@bad=\count284
@@ -87,34 +90,43 @@ LaTeX Info: Redefining \Relbar on input line 970.
 \mathdisplay@stack=\toks21
 LaTeX Info: Redefining \[ on input line 2965.
 LaTeX Info: Redefining \] on input line 2966.
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
 Package: amssymb 2013/01/14 v3.01 AMS font symbols
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 \symAMSa=\mathgroup4
 \symAMSb=\mathgroup5
 LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
-)) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+))
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2026-05-17 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics/keyval.sty
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics/keyval.sty
 Package: keyval 2026-05-17 v1.15 key=value parser (DPC)
 \KV@toks@=\toks22
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics/graphics.sty
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics/graphics.sty
 Package: graphics 2026-05-17 v1.4h Standard LaTeX Graphics (DPC,SPQR)
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics/trig.sty
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics/trig.sty
 Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 106.
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics-def/pdftex.def
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/graphics-def/pdftex.def
 File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
 ))
 \Gin@req@height=\dimen160
 \Gin@req@width=\dimen161
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/booktabs/booktabs.sty
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/booktabs/booktabs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \heavyrulewidth=\dimen162
 \lightrulewidth=\dimen163
@@ -133,33 +145,46 @@ Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \@thisruleclass=\count298
 \@lastruleclass=\count299
 \@thisrulewidth=\dimen174
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
 Package: hyperref 2026-06-17 v7.01r Hypertext links for LaTeX
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/iftex/iftex.sty
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/iftex/iftex.sty
 Package: iftex 2024/12/12 v1.0g TeX engine tests
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
 Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
 Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
 ) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/pdfescape/pdfescape.sty
 Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
 Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
-Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty
 Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
 )
 Package pdftexcmds Info: \pdf@primitive is available.
 Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode found.
-)) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hycolor/hycolor.sty
+))
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hycolor/hycolor.sty
 Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2026-01-29 v2.58 Cross-referencing by name of section
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/refcount/refcount.sty
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/refcount/refcount.sty
 Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring
+.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
  (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
@@ -168,21 +193,26 @@ Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 ) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/etoolbox/etoolbox.sty
 Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
 \etb@tempcnta=\count301
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/stringenc/stringenc.sty
-Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO)
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/stringenc/stringenc.sty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
+)
 )
 \@linkdim=\dimen175
 \Hy@linkcounter=\count302
 \Hy@pagecounter=\count303
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/pd1enc.def
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/pd1enc.def
 File: pd1enc.def 2026-06-17 v7.01r Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
 ... no UTF-8 mapping file for font encoding PD1
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/intcalc/intcalc.sty
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/intcalc/intcalc.sty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
 \Hy@SavedSpaceFactor=\count304
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/puenc.def
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/puenc.def
 File: puenc.def 2026-06-17 v7.01r Hyperref: PDF Unicode definition (HO)
 Now handling font encoding PU ...
 ... no UTF-8 mapping file for font encoding PU
@@ -195,16 +225,20 @@ Package hyperref Info: Backreferencing OFF on input line 4219.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4466.
 \c@Hy@tempcnt=\count305
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/url/url.sty
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip18
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 4805.
 \XeTeXLinkMargin=\dimen176
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/bitset/bitset.sty
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/bitset/bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
-Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
 ))
 \Fld@menulength=\count306
 \Field@Width=\dimen177
@@ -221,26 +255,35 @@ Package hyperref Info: PDF/A mode OFF on input line 6121.
 \c@Hfootnote=\count309
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/hpdftex.def
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/hyperref/hpdftex.def
 File: hpdftex.def 2026-06-17 v7.01r Hyperref driver for pdfTeX
 \Fld@listcount=\count310
 \c@bookmark@seq@number=\count311
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.s
+ty
 Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/generic/uniquecounter/uniquecounter.s
+ty
 Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 )
-Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 284.
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+84.
 )
 \Hy@SectionHShift=\skip54
 )
-LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 12.
+LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 1
+2.
  (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/l3kernel/l3backend-pdftex.def
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/l3kernel/l3backend-pdftex.def
 File: l3backend-pdftex.def 2026-08-10 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count312
-) (./Template.aux)
+)
+(build/Template.aux)
 \openout1 = `Template.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 12.
@@ -261,7 +304,8 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 12.
 LaTeX Font Info:    ... okay on input line 12.
 LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 12.
 LaTeX Font Info:    ... okay on input line 12.
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count313
 \scratchdimen=\dimen179
@@ -274,55 +318,78 @@ LaTeX Font Info:    ... okay on input line 12.
 \MPnumerator=\count317
 \makeMPintoPDFobject=\count318
 \everyMPtoPDFconversion=\toks24
-) (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+)
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
-Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
-File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
 ))
 Package hyperref Info: Link coloring OFF on input line 12.
- (./Template.out) (./Template.out)
+
+(build/Template.out) (build/Template.out)
 \@outlinefile=\write3
 \openout3 = `Template.out'.
 
-<figures/image.png, id=97, 1942.25626pt x 809.0225pt>
-File: figures/image.png Graphic file (type png)
-<use figures/image.png>
-Package pdftex.def Info: figures/image.png  used on input line 47.
-(pdftex.def)             Requested size: 506.45905pt x 210.95811pt.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 55.
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
+<figures/dads_overview.pdf, id=84, 505.89pt x 200.75pt>
+File: figures/dads_overview.pdf Graphic file (type pdf)
+<use figures/dads_overview.pdf>
+Package pdftex.def Info: figures/dads_overview.pdf  used on input line 33.
+(pdftex.def)             Requested size: 506.45905pt x 200.97923pt.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 34.
+
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 55.
- (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
+LaTeX Font Info:    Trying to load font information for U+msb on input line 34.
+
+
+(/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Underfull \vbox (badness 1173) has occurred while \output is active []
+Underfull \hbox (badness 1466) in paragraph at lines 50--51
+[]\OT1/ptm/m/n/9 We iden-tify that adap-ta-tion util-ity is con-cen-trated in a
 
- [1{/data/zb/ymj/MUS/.texlive/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/data/zb/ymj/MUS/.texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}
+ []
+
+
+Underfull \hbox (badness 3679) in paragraph at lines 50--51
+\OT1/ptm/m/n/9 decision-dependent sub-set of fine-tuning-induced shifts,
+ []
+
+
+Underfull \vbox (badness 4072) has occurred while \output is active []
+
+ [1{/data/zb/ymj/MUS/.texlive/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/da
+ta/zb/ymj/MUS/.texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
 
 
-] [2 <./figures/image.png (PNG copy)>] (./tables/retention.tex) [3]
-<figures/deletion_effect.pdf, id=182, 244.9953pt x 133.6995pt>
+] [2 <./figures/dads_overview.pdf>] (./tables/retention.tex) [3]
+<figures/deletion_effect.pdf, id=189, 244.9953pt x 133.6995pt>
 File: figures/deletion_effect.pdf Graphic file (type pdf)
 <use figures/deletion_effect.pdf>
-Package pdftex.def Info: figures/deletion_effect.pdf  used on input line 149.
+Package pdftex.def Info: figures/deletion_effect.pdf  used on input line 156.
 (pdftex.def)             Requested size: 244.6937pt x 133.54002pt.
- (./tables/source_matched_controls.tex) (./tables/data2vec_scale_controls.tex) (./tables/calibration_size.tex) [4 <./figures/deletion_effect.pdf>] (./Template.bbl
-Underfull \hbox (badness 2671) in paragraph at lines 34--37
+ (./tables/source_matched_controls.tex)
+(./tables/data2vec_scale_controls.tex) (./tables/calibration_size.tex) [4 <./fi
+gures/deletion_effect.pdf>] (build/Template.bbl
+Underfull \hbox (badness 2671) in paragraph at lines 43--47
 \OT1/ptm/m/n/9 reg-u-lar-iza-tion for accent-robust ASR,'' arXiv:2605.03297,
  []
 
 
-Underfull \hbox (badness 1721) in paragraph at lines 148--151
+Underfull \hbox (badness 1721) in paragraph at lines 105--109
 []\OT1/ptm/m/n/9 A. Graves, S. Fern[]andez, F. Gomez, and J. Schmid-hu-
  []
 
 ) [5
 
-] (./Template.aux)
+] (build/Template.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-08-10>
@@ -331,18 +398,31 @@ Package rerunfilecheck Info: File `Template.out' has not changed.
 (rerunfilecheck)             Checksum: 8B90278832E6D249BD06E9F4B8868129;3076.
  ) 
 Here is how much of TeX's memory you used:
- 10013 strings out of 468580
- 153497 string characters out of 5444722
- 587161 words of memory out of 5000000
- 38927 multiletter control sequences out of 15000+600000
+ 9991 strings out of 468580
+ 153078 string characters out of 5444722
+ 586863 words of memory out of 5000000
+ 38916 multiletter control sequences out of 15000+600000
  644871 words of font info for 74 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
- 74i,9n,79p,1481b,474s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Template.pdf (5 pages, 1061967 bytes).
+ 74i,9n,79p,1071b,474s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pf
+b></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cme
+x9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmm
+i5.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmm
+i6.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmm
+i9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
+6.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9
+.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6
+.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9
+.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/
+msbm10.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmb8a.p
+fb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></da
+ta/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></data/zb/ym
+j/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on build/Template.pdf (5 pages, 220112 bytes).
 PDF statistics:
- 284 PDF objects out of 1000 (max. 8388607)
- 240 compressed objects within 3 object streams
- 69 named destinations out of 1000 (max. 500000)
+ 289 PDF objects out of 1000 (max. 8388607)
+ 233 compressed objects within 3 object streams
+ 58 named destinations out of 1000 (max. 500000)
  139 words of extra memory for PDF output out of 10000 (max. 10000000)
 

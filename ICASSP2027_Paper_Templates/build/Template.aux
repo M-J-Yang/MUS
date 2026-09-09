@@ -11,13 +11,6 @@
 \citation{thai2026contrastive}
 \citation{hu2022lora}
 \citation{bagat2025maslora}
-\citation{pasad2021layerwise}
-\citation{pasad2023comparative}
-\citation{pasad2024words}
-\citation{ashihara2024what}
-\citation{chang2023spin}
-\citation{chiu2024selection}
-\citation{niu2025factorization}
 \citation{ilharco2023task}
 \citation{yadav2023ties}
 \citation{yu2024dare}
@@ -25,18 +18,13 @@
 \citation{shankar2025selective}
 \citation{wang2026mind}
 \citation{sun2026activation}
-\citation{sun2024wanda}
-\citation{frantar2023sparsegpt}
-\citation{genova2025keep}
-\citation{molchanov2017pruning}
-\citation{sanh2020movement}
 \citation{zhao2018l2arctic}
 \@writefile{toc}{\contentsline {section}{\numberline {1} Introduction}{1}{section.1}\protected@file@percent }
 \newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
 \citation{graves2006ctc}
 \citation{molchanov2017pruning}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Motivation and overview of DADS. (a) Conceptual examples: magnitude alone does not determine decision importance. (b) Absolute shift--gradient products are averaged over valid training frames to select a global mask. Purple columns retain adapted values; white columns revert to reference values. Encoders and head remain frozen; labels and gradients are used only for calibration.}}{2}{figure.1}\protected@file@percent }
-\newlabel{fig:overview}{{1}{2}{Motivation and overview of DADS. (a) Conceptual examples: magnitude alone does not determine decision importance. (b) Absolute shift--gradient products are averaged over valid training frames to select a global mask. Purple columns retain adapted values; white columns revert to reference values. Encoders and head remain frozen; labels and gradients are used only for calibration}{figure.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces DADS connects representation shifts to recognizer sensitivity. The frozen adapted CTC head supplies $G=\partial \ell /\partial E_a$. Schematic bars illustrate elementwise absolute shift--gradient products; averaging over valid calibration frames and retaining the top $K$ dimensions gives one global mask. The counterfactual intervention keeps adapted values in selected dimensions and restores reference values elsewhere. The same frozen head decodes the result without retraining; labels and gradients are needed only for calibration.}}{2}{figure.1}\protected@file@percent }
+\newlabel{fig:overview}{{1}{2}{DADS connects representation shifts to recognizer sensitivity. The frozen adapted CTC head supplies $G=\partial \ell /\partial E_a$. Schematic bars illustrate elementwise absolute shift--gradient products; averaging over valid calibration frames and retaining the top $K$ dimensions gives one global mask. The counterfactual intervention keeps adapted values in selected dimensions and restores reference values elsewhere. The same frozen head decodes the result without retraining; labels and gradients are needed only for calibration}{figure.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2} Decision-Aligned Delta Selection}{2}{section.2}\protected@file@percent }
 \newlabel{sec:method}{{2}{2}{Decision-Aligned Delta Selection}{section.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1} Keeping some changes and undoing others}{2}{subsection.2.1}\protected@file@percent }
@@ -88,28 +76,17 @@
 \bibcite{thai2026contrastive}{7}
 \bibcite{hu2022lora}{8}
 \bibcite{bagat2025maslora}{9}
-\bibcite{pasad2021layerwise}{10}
-\bibcite{pasad2023comparative}{11}
-\bibcite{pasad2024words}{12}
-\bibcite{ashihara2024what}{13}
-\bibcite{chang2023spin}{14}
-\bibcite{chiu2024selection}{15}
-\bibcite{niu2025factorization}{16}
-\bibcite{ilharco2023task}{17}
-\bibcite{yadav2023ties}{18}
-\bibcite{yu2024dare}{19}
-\bibcite{ramesh2024taskvector}{20}
-\bibcite{shankar2025selective}{21}
-\bibcite{wang2026mind}{22}
-\bibcite{sun2026activation}{23}
-\bibcite{sun2024wanda}{24}
-\bibcite{frantar2023sparsegpt}{25}
-\bibcite{genova2025keep}{26}
-\bibcite{molchanov2017pruning}{27}
-\bibcite{sanh2020movement}{28}
-\bibcite{zhao2018l2arctic}{29}
-\bibcite{graves2006ctc}{30}
-\bibcite{khosla2020supcon}{31}
-\bibcite{panayotov2015librispeech}{32}
+\bibcite{ilharco2023task}{10}
+\bibcite{yadav2023ties}{11}
+\bibcite{yu2024dare}{12}
+\bibcite{ramesh2024taskvector}{13}
+\bibcite{shankar2025selective}{14}
+\bibcite{wang2026mind}{15}
+\bibcite{sun2026activation}{16}
+\bibcite{zhao2018l2arctic}{17}
+\bibcite{graves2006ctc}{18}
+\bibcite{molchanov2017pruning}{19}
+\bibcite{khosla2020supcon}{20}
+\bibcite{panayotov2015librispeech}{21}
 \@writefile{toc}{\contentsline {section}{\numberline {6} References}{5}{section.6}\protected@file@percent }
 \gdef \@abspage@last{5}
