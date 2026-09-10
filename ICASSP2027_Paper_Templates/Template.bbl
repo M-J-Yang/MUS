@@ -45,41 +45,6 @@ R.~Bagat, I.~Illina, and E.~Vincent,
 \newblock ``Mixture of {LoRA} experts for low-resourced multi-accent automatic speech recognition,''
 \newblock in {\em Proc. Interspeech}, 2025, pp. 1143--1147.
 
-\bibitem{pasad2021layerwise}
-A.~Pasad, J.-C. Chou, and K.~Livescu,
-\newblock ``Layer-wise analysis of a self-supervised speech representation model,''
-\newblock in {\em Proc. IEEE ASRU}, 2021, pp. 914--921.
-
-\bibitem{pasad2023comparative}
-A.~Pasad, B.~Shi, and K.~Livescu,
-\newblock ``Comparative layer-wise analysis of self-supervised speech models,''
-\newblock in {\em Proc. IEEE ICASSP}, 2023, pp. 1--5.
-
-\bibitem{pasad2024words}
-A.~Pasad, C.-M. Chien, S.~Settle, and K.~Livescu,
-\newblock ``What do self-supervised speech models know about words?,''
-\newblock {\em Trans. Assoc. Comput. Linguistics}, vol. 12, pp. 372--391, 2024.
-
-\bibitem{ashihara2024what}
-T.~Ashihara, M.~Delcroix, T.~Moriya, K.~Matsuura, T.~Asami, and Y.~Ijima,
-\newblock ``What do self-supervised speech and speaker models learn? {New} findings from a cross model layer-wise analysis,''
-\newblock in {\em Proc. IEEE ICASSP}, 2024.
-
-\bibitem{chang2023spin}
-H.-J. Chang, A.~H. Liu, and J.~Glass,
-\newblock ``Self-supervised fine-tuning for improved content representations by speaker-invariant clustering,''
-\newblock in {\em Proc. Interspeech}, 2023, pp. 2983--2987.
-
-\bibitem{chiu2024selection}
-S.-C. Chiu, C.-H. Wu, J.-K. Hsieh, Y.~Tsao, and H.-M. Wang,
-\newblock ``Learnable layer selection and model fusion for speech self-supervised learning models,''
-\newblock in {\em Proc. Interspeech}, 2024, pp. 3914--3918.
-
-\bibitem{niu2025factorization}
-M.~Niu et~al.,
-\newblock ``Learning rich speech representations with acoustic-semantic factorization,''
-\newblock in {\em Proc. IEEE ICASSP}, 2025.
-
 \bibitem{ilharco2023task}
 G.~Ilharco, M.~T. Ribeiro, M.~Wortsman, L.~Schmidt, H.~Hajishirzi, and A.~Farhadi,
 \newblock ``Editing models with task arithmetic,''
@@ -114,31 +79,6 @@ Z.~Wang, N.~B. Shankar, K.~Zhang, Z.~Wang, and A.~Alwan,
 J.~Sun et~al.,
 \newblock ``Activation steering for accent adaptation in large audio language models,'' arXiv:2603.05813v2, 2026.
 
-\bibitem{sun2024wanda}
-M.~Sun, Z.~Liu, A.~Bair, and J.~Z. Kolter,
-\newblock ``A simple and effective pruning approach for large language models,''
-\newblock in {\em Proc. ICLR}, 2024.
-
-\bibitem{frantar2023sparsegpt}
-E.~Frantar and D.~Alistarh,
-\newblock ``{SparseGPT}: Massive language models can be accurately pruned in one-shot,''
-\newblock in {\em Proc. ICML}, 2023, vol. 202, pp. 10323--10337.
-
-\bibitem{genova2025keep}
-D.~Genova, P.~Esling, and T.~Hurlin,
-\newblock ``Keep what you need: Extracting efficient subnetworks from large audio representation models,''
-\newblock in {\em Proc. IEEE ICASSP}, 2025.
-
-\bibitem{molchanov2017pruning}
-P.~Molchanov, S.~Tyree, T.~Karras, T.~Aila, and J.~Kautz,
-\newblock ``Pruning convolutional neural networks for resource efficient inference,''
-\newblock in {\em Proc. ICLR}, 2017.
-
-\bibitem{sanh2020movement}
-V.~Sanh, T.~Wolf, and A.~M. Rush,
-\newblock ``Movement pruning: Adaptive sparsity by fine-tuning,''
-\newblock in {\em Proc. NeurIPS}, 2020, vol.~33.
-
 \bibitem{zhao2018l2arctic}
 G.~Zhao et~al.,
 \newblock ``{L2-ARCTIC}: A non-native {English} speech corpus,''
@@ -148,6 +88,11 @@ G.~Zhao et~al.,
 A.~Graves, S.~Fern{\'a}ndez, F.~Gomez, and J.~Schmidhuber,
 \newblock ``Connectionist temporal classification: Labelling unsegmented sequence data with recurrent neural networks,''
 \newblock in {\em Proc. ICML}, 2006, pp. 369--376.
+
+\bibitem{molchanov2017pruning}
+P.~Molchanov, S.~Tyree, T.~Karras, T.~Aila, and J.~Kautz,
+\newblock ``Pruning convolutional neural networks for resource efficient inference,''
+\newblock in {\em Proc. ICLR}, 2017.
 
 \bibitem{khosla2020supcon}
 P.~Khosla et~al.,

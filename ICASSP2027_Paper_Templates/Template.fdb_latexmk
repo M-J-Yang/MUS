@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex Template"] 1788959776.53927 "Template.aux" "Template.bbl" "Template" 1788959777.08626 0
+["bibtex Template"] 1789024470.40158 "Template.aux" "Template.bbl" "Template" 1789024474.36259 0
   "./IEEEbib_initials.bst" 1788940763.36835 18104 5bea305eba86287f72b3e8f85734ec7a ""
   "./references.bib" 1788940763.36835 12784 61754b64d123bf0ca4602c542b5d7713 ""
-  "Template.aux" 1788959776.95686 8468 ab5a512f0ae45057eadd557b77d6962c "pdflatex"
+  "Template.aux" 1789024474.22068 7933 fbb4da9202df20d93cf1a2d35fb9abca "pdflatex"
   (generated)
   "Template.bbl"
   "Template.blg"
   (rewritten before read)
-["pdflatex"] 1788959776.59491 "/data/zb/ymj/MUS/ICASSP2027_Paper_Templates/Template.tex" "Template.pdf" "Template" 1788959777.08664 0
+["pdflatex"] 1789024470.43926 "/data/zb/ymj/MUS/ICASSP2027_Paper_Templates/Template.tex" "Template.pdf" "Template" 1789024474.36305 0
   "/data/zb/ymj/MUS/.texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1136768653 2172 fd0c924230362ff848a33632ed45dc23 ""
   "/data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/adobe/times/ptmb8r.tfm" 1136768653 4524 6bce29db5bc272ba5f332261583fee9c ""
@@ -103,13 +103,13 @@
   "/data/zb/ymj/MUS/.texlive/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1788072886 195089 7cc26c75c13e51d0c59f9f66105e4366 ""
   "/data/zb/ymj/MUS/.texlive/texmf-var/web2c/pdftex/pdflatex.fmt" 1788072810 2986944 d1e92e0dca97a85dc03ce5a3e6fd7746 ""
   "/data/zb/ymj/MUS/.texlive/texmf.cnf" 1788072745.93319 496 01ab80fa0036a81d2df86fb0ac70c709 ""
-  "/data/zb/ymj/MUS/ICASSP2027_Paper_Templates/Template.tex" 1788959775.23686 22880 fb256792ca3a4057676a51636c64a28c ""
-  "Template.aux" 1788959776.95686 8468 ab5a512f0ae45057eadd557b77d6962c "pdflatex"
-  "Template.bbl" 1788959776.58086 6966 41b675fa9ce2c71f54d45fe6bd411d14 "bibtex Template"
-  "Template.out" 1788959776.95686 3076 8b90278832e6d249bd06e9f4b8868129 "pdflatex"
-  "Template.tex" 1788959775.23686 22880 fb256792ca3a4057676a51636c64a28c ""
+  "/data/zb/ymj/MUS/ICASSP2027_Paper_Templates/Template.tex" 1789024461.58055 22843 ea3bb6aad9c88ca288562a3e2fb81d9b ""
+  "Template.aux" 1789024474.22068 7933 fbb4da9202df20d93cf1a2d35fb9abca "pdflatex"
+  "Template.bbl" 1789024470.42864 4604 56034b0d45bb3a5f648c8eb0060d0535 "bibtex Template"
+  "Template.out" 1789024474.22468 3076 8b90278832e6d249bd06e9f4b8868129 "pdflatex"
+  "Template.tex" 1789024461.58055 22843 ea3bb6aad9c88ca288562a3e2fb81d9b ""
+  "figures/dads_overview1_01(1).png" 1789024420.90815 1608819 727595b83c8411d6f112b48a2d94b4dd ""
   "figures/deletion_effect.pdf" 1788940763.36035 12943 03460af54fb14a6bb2973d7f9dd16ba6 ""
-  "figures/image.png" 1788959689.51655 870884 6f2dedffbb0a97370a08b143c71e853c ""
   "spconf.sty" 1788767038.97256 8798 121ab5e33850ab4cf48fc2795d92b250 ""
   "tables/calibration_size.tex" 1788940763.36435 349 1c770415f6925c42c8a72e836e7c5882 ""
   "tables/data2vec_scale_controls.tex" 1788940763.36435 353 6d939c1fa15e3c2661e778be7de88794 ""

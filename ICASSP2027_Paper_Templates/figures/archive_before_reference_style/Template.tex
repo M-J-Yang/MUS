@@ -30,8 +30,8 @@ Recent studies have demonstrated that differences between pretrained and adapted
 % Queue the wide method figure for the next page.
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/dads_overview1_01(1).png}
-\caption{Overview of DADS. (a) Shift $\Delta$ is combined with CTC sensitivity $G=\partial\ell/\partial E_a$ from the frozen adapted head. Averaging absolute elementwise products over valid training frames gives a global top-$K$ mask. (b) Selected dimensions keep adapted values; others restore reference values. The same frozen head decodes without retraining. Labels and gradients are calibration-only; feature strips schematically show corresponding dimensions.}
+\includegraphics[width=\textwidth]{figures/dads_overview.pdf}
+\caption{DADS connects representation shifts to recognizer sensitivity. The frozen adapted CTC head supplies $G=\partial\ell/\partial E_a$. Schematic bars illustrate elementwise absolute shift--gradient products; averaging over valid calibration frames and retaining the top $K$ dimensions gives one global mask. The counterfactual intervention keeps adapted values in selected dimensions and restores reference values elsewhere. The same frozen head decodes the result without retraining; labels and gradients are needed only for calibration.}
 \label{fig:overview}
 \end{figure*}
 

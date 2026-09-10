@@ -1,5 +1,43 @@
 # 2026-09-09 — DADS Fig. 1 redesign
 
+## 2026-09-10 — Editable PowerPoint delivery
+
+Exported the current Comic Sans / gray-arrow overview to
+`figures/dads_overview.pptx`, one slide at 14 × 5.556 inches with the same aspect
+ratio as the paper figure. The reproducible converter is
+`figures/export_dads_overview_pptx.py`. It reads the existing Matplotlib artists
+and creates native DrawingML freeform shapes, Bezier curves, lines, editable text
+boxes, and formula subscripts. No overview bitmap is embedded. Mathematical
+symbols unavailable in Comic Sans use DejaVu Sans. There are 275 editable
+objects, including 44 text boxes; diagonal reference markings are editable lines.
+
+The workspace dependency-loader tool was unavailable. Installed python-pptx and
+its dependencies into the isolated `/tmp/dads-pptx-runtime` directory, then ran:
+
+```bash
+PYTHONPATH=/tmp/dads-pptx-runtime MPLCONFIGDIR=/tmp/dads-mpl python3 ICASSP2027_Paper_Templates/figures/export_dads_overview_pptx.py
+```
+
+Opened the PPTX through LibreOffice's headless PDF converter and inspected its
+rendering. Explicit geometry fixes preserve unfilled arrow shafts, filled
+arrowheads, and reference hatching, and prevent theme shadows. All content and
+paper files retain their existing scientific meaning. The slide notes identify
+the editable components and source scripts.
+
+## 2026-09-10 — Comic lettering and gray arrows
+
+Applied the author's requested style-only revision to the single overview:
+Comic Sans MS regular/bold for lettering and available mathematical glyphs,
+uniform gray arrows (including the calibration legend and outlined keep/revert
+arrows), and a 30% increase in stroke widths. Existing feature colors and layout
+are preserved. The font is loaded explicitly from the installed Microsoft core
+fonts; unsupported mathematical symbols use STIX fallback. Regenerated PDF,
+SVG, PNG, and the manuscript with the reproduction commands below. Inspected
+the image for text collisions and arrow colors; Comic Sans fonts are embedded
+in the PDF. The manuscript remains five pages with no undefined-reference or
+overfull warnings. Previous renderer and figure PDF are retained in
+`figures/archive_before_comic/`. No method, result, or manuscript text changed.
+
 ## Purpose and design
 
 Follow the author's supplied editorial notes: one double-column figure with a
@@ -124,3 +162,54 @@ pass `qpdf --check`; the final LaTeX log has no undefined references or overfull
 boxes. Text from “Both encoders receive…” through the end of the manuscript is
 identical to the pre-edit snapshot. No experiment or evaluation was run, and
 this presentation update adds no empirical evidence.
+
+## 2026-09-09 follow-up — one overview in the supplied reference style
+
+The author superseded the split-figure request: deliver one overview, no
+motivation figure, using the supplied prototype-calibration diagram as a
+structural and aesthetic reference. At the start of this revision, the current
+manuscript already omitted the motivation figure and contained further author
+edits to the introduction. Those edits were preserved; only the overview caption
+changed in `Template.tex` during this revision.
+
+The new single `dads_overview` uses three soft rounded regions (pale blue,
+cream, and sage), serif headings, locked trapezoid encoders, small feature grids,
+colored feature ribbons, and an outlined keep/revert merge. These are original
+Matplotlib vector primitives inspired by the supplied figure; no scientific
+content, labels, or assets from that reference were imported.
+
+- Left: same speech through the given reference and adapted encoders, with the
+  explicit adapted-feature → frozen adapted CTC head → labeled CTC loss path.
+- Center (a): representation shifts and feature gradients meet at the absolute
+  elementwise product. All six schematic products remain visible before frame
+  averaging. The three selected dimensions are shown only in the global mask,
+  preventing any suggestion that selection happens before aggregation. The
+  short gradient definition specifies differentiation with respect to adapted
+  features, and the mean explicitly names calibration frames.
+- Right (b): retained dimensions use adapted values, and reverted dimensions use
+  reference values. The six coordinate positions stay fixed. Teal means keep;
+  gray hatching means restore. The same adapted head decodes without retraining.
+- The glyphs are schematic; the caption defines valid-frame aggregation, the
+  shared feature dimensions, and calibration-only labels/gradients. There is no
+  motivation panel, result chart, or claim of encoder acceleration.
+
+`render_dads_overview.py` now renders only the single overview, producing PDF,
+SVG with editable text, and PNG. Existing motivation assets are unused. The
+immediately preceding manuscript, PDF, renderer, and vector overview are retained
+in `figures/archive_before_reference_style/`.
+
+The full-width vector figure is 7 × 2.778 inches. Vertical spacing was tightened
+without shrinking text to preserve the paper's four technical pages. The final
+manuscript has five pages; Fig. 1 is at the top of page 2 with the method, and
+references start on page 5. The caption and feature-gradient/aggregation labels
+were reviewed for scientific clarity. Viewed the standalone figure and final
+page-2 rendering; PDF fonts are embedded and the LaTeX build has no undefined
+references or overfull boxes. Figure and manuscript PDF checks passed. No
+experiments were run and no empirical result was changed.
+
+Reproduction remains:
+
+```bash
+MPLCONFIGDIR=/tmp/dads-mpl python3 ICASSP2027_Paper_Templates/figures/render_dads_overview.py
+bash ICASSP2027_Paper_Templates/build.sh
+```

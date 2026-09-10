@@ -126,11 +126,11 @@ INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/adobe/times/ptmri7t.tfm
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/adobe/times/ptmbi7t.tfm
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/adobe/times/ptmri7t.tfm
-INPUT ./figures/image.png
-INPUT ./figures/image.png
-INPUT ./figures/image.png
-INPUT ./figures/image.png
-INPUT ./figures/image.png
+INPUT ./figures/dads_overview1_01(1).png
+INPUT ./figures/dads_overview1_01(1).png
+INPUT ./figures/dads_overview1_01(1).png
+INPUT ./figures/dads_overview1_01(1).png
+INPUT ./figures/dads_overview1_01(1).png
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/public/cm/cmr9.tfm
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/public/cm/cmr6.tfm
 INPUT /data/zb/ymj/MUS/.texlive/texmf-dist/fonts/tfm/public/cm/cmmi9.tfm

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  9 SEP 2026 21:16
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  10 SEP 2026 15:14
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -285,30 +285,40 @@ Package hyperref Info: Link coloring OFF on input line 12.
 \@outlinefile=\write3
 \openout3 = `Template.out'.
 
-<figures/image.png, id=97, 1942.25626pt x 809.0225pt>
-File: figures/image.png Graphic file (type png)
-<use figures/image.png>
-Package pdftex.def Info: figures/image.png  used on input line 47.
-(pdftex.def)             Requested size: 506.45905pt x 210.95811pt.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 55.
+<figures/dads_overview1_01(1).png, id=84, 1214.136pt x 481.8pt>
+File: figures/dads_overview1_01(1).png Graphic file (type png)
+<use figures/dads_overview1_01(1).png>
+Package pdftex.def Info: figures/dads_overview1_01(1).png  used on input line 33.
+(pdftex.def)             Requested size: 506.45905pt x 200.9725pt.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 34.
  (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 55.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 34.
  (/data/zb/ymj/MUS/.texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Underfull \vbox (badness 1173) has occurred while \output is active []
+Underfull \hbox (badness 1466) in paragraph at lines 50--51
+[]\OT1/ptm/m/n/9 We iden-tify that adap-ta-tion util-ity is con-cen-trated in a
+ []
+
+
+Underfull \hbox (badness 3679) in paragraph at lines 50--51
+\OT1/ptm/m/n/9 decision-dependent sub-set of fine-tuning-induced shifts,
+ []
+
+
+Underfull \vbox (badness 4072) has occurred while \output is active []
 
  [1{/data/zb/ymj/MUS/.texlive/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/data/zb/ymj/MUS/.texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
 
 
-] [2 <./figures/image.png (PNG copy)>] (./tables/retention.tex) [3]
-<figures/deletion_effect.pdf, id=182, 244.9953pt x 133.6995pt>
+] [2 <./figures/dads_overview1_01(1).png>] (./tables/retention.tex) [3]
+<figures/deletion_effect.pdf, id=161, 244.9953pt x 133.6995pt>
 File: figures/deletion_effect.pdf Graphic file (type pdf)
 <use figures/deletion_effect.pdf>
-Package pdftex.def Info: figures/deletion_effect.pdf  used on input line 149.
+Package pdftex.def Info: figures/deletion_effect.pdf  used on input line 156.
 (pdftex.def)             Requested size: 244.6937pt x 133.54002pt.
  (./tables/source_matched_controls.tex) (./tables/data2vec_scale_controls.tex) (./tables/calibration_size.tex) [4 <./figures/deletion_effect.pdf>] (./Template.bbl
 Underfull \hbox (badness 2671) in paragraph at lines 34--37
@@ -316,7 +326,7 @@ Underfull \hbox (badness 2671) in paragraph at lines 34--37
  []
 
 
-Underfull \hbox (badness 1721) in paragraph at lines 148--151
+Underfull \hbox (badness 1721) in paragraph at lines 88--91
 []\OT1/ptm/m/n/9 A. Graves, S. Fern[]andez, F. Gomez, and J. Schmid-hu-
  []
 
@@ -331,18 +341,18 @@ Package rerunfilecheck Info: File `Template.out' has not changed.
 (rerunfilecheck)             Checksum: 8B90278832E6D249BD06E9F4B8868129;3076.
  ) 
 Here is how much of TeX's memory you used:
- 10013 strings out of 468580
- 153497 string characters out of 5444722
- 587161 words of memory out of 5000000
- 38927 multiletter control sequences out of 15000+600000
+ 9991 strings out of 468580
+ 153165 string characters out of 5444722
+ 586779 words of memory out of 5000000
+ 38916 multiletter control sequences out of 15000+600000
  644871 words of font info for 74 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
- 74i,9n,79p,1481b,474s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 74i,9n,79p,1115b,474s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Template.pdf (5 pages, 1061967 bytes).
+Output written on Template.pdf (5 pages, 1444336 bytes).
 PDF statistics:
- 284 PDF objects out of 1000 (max. 8388607)
- 240 compressed objects within 3 object streams
- 69 named destinations out of 1000 (max. 500000)
+ 262 PDF objects out of 1000 (max. 8388607)
+ 217 compressed objects within 3 object streams
+ 58 named destinations out of 1000 (max. 500000)
  139 words of extra memory for PDF output out of 10000 (max. 10000000)
 

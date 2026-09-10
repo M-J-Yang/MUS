@@ -8,7 +8,6 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib import font_manager
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Circle, Rectangle, Arc, Polygon
 from matplotlib.path import Path as MplPath
 from matplotlib.colors import to_rgb
@@ -18,13 +17,7 @@ S = .7
 INK, GRAY, EDGE = '#24272B', '#80858A', '#BBC0C4'
 TEAL, PURPLE = '#4B928A', '#796396'
 COLORS = ['#629DB5', '#D9BA60', '#86A064', '#CD927A', '#6B9D98', '#9278AB']
-STROKE_SCALE = 1.3
-for font in ['Comic_Sans_MS.ttf', 'Comic_Sans_MS_Bold.ttf']:
-    font_manager.fontManager.addfont('/usr/share/fonts/truetype/msttcorefonts/' + font)
-plt.rcParams.update({'font.family': 'Comic Sans MS', 'mathtext.fontset': 'custom',
-                     'mathtext.rm': 'Comic Sans MS', 'mathtext.it': 'Comic Sans MS',
-                     'mathtext.bf': 'Comic Sans MS:bold', 'mathtext.cal': 'Comic Sans MS',
-                     'mathtext.fallback': 'stix',
+plt.rcParams.update({'font.family': 'DejaVu Serif', 'mathtext.fontset': 'dejavuserif',
                      'pdf.fonttype': 42, 'ps.fonttype': 42, 'svg.fonttype': 'none',
                      'hatch.linewidth': .5})
 fig = plt.figure(figsize=(720*S/72, 200/72), facecolor='white')
@@ -47,11 +40,11 @@ def line(points, color=INK, lw=1.1, dashed=False, zorder=2):
     ax.plot(xs, ys, color=color, lw=lw*S, ls=(0, (4,3)) if dashed else '-', zorder=zorder)
 
 
-def arrow(points, dashed=False, width=1.3, outline=False):
+def arrow(points, color=INK, dashed=False, width=1.3, outline=False):
     path = MplPath(points, [MplPath.MOVETO]+[MplPath.CURVE3 if outline else MplPath.LINETO]*(len(points)-1))
     p = FancyArrowPatch(path=path, arrowstyle='simple,head_length=6,head_width=9,tail_width=3' if outline else '-|>',
                         mutation_scale=S if outline else 8*S, lw=width*S,
-                        facecolor='white' if outline else GRAY, edgecolor=GRAY,
+                        facecolor='white' if outline else color, edgecolor=color,
                         linestyle=(0,(4,3)) if dashed else 'solid', zorder=4)
     ax.add_patch(p)
 
@@ -98,7 +91,7 @@ def ribbon(x, y, values, step=18, height=23, chosen=None):
                                   facecolor=c,edgecolor='none',zorder=6))
 
 
-# Soft regions retain the reference layout; lettering uses Comic Sans MS.
+# Soft regions and serif headings echo the supplied reference's visual grammar.
 box(4,34,184,269,fill='#F1F6F7',edge='none',radius=22)
 box(200,34,259,269,fill='#FAF8E7',edge='none',radius=27)
 box(472,34,244,269,fill='#F1F2E9',edge='none',radius=30)
@@ -111,8 +104,8 @@ box(26,49,111,38,fill='white',edge=EDGE,radius=9)
 text(81,59,r'Speech $x$',size=12,weight='bold',ha='center')
 for i,h in enumerate([3,5,10,17,9,4,8,15,7,12,5,3]):
     line([(51+5*i,75-h/2),(51+5*i,75+h/2)],'#5E91A0',1.2)
-arrow([(26,69),(17,69),(17,136),(31,136)])
-arrow([(17,136),(17,216),(31,216)])
+arrow([(26,69),(17,69),(17,136),(31,136)],GRAY)
+arrow([(17,136),(17,216),(31,216)],GRAY)
 network(32,109,78,53,['Reference','encoder'])
 network(32,189,78,53,['Adapted','encoder'])
 matrix(140,122,color='#9A9FA2',hatch=True);text(155,111,r'$E_r$',ha='center')
@@ -121,8 +114,8 @@ arrow([(110,136),(139,136)])
 arrow([(110,216),(139,216)])
 
 # Reference/adapted features jointly define the shift (the only subtraction).
-arrow([(171,136),(191,136),(191,89),(225,89)])
-arrow([(171,216),(195,216),(195,103),(225,103)])
+arrow([(171,136),(191,136),(191,89),(225,89)],GRAY)
+arrow([(171,216),(195,216),(195,103),(225,103)],GRAY)
 text(265,57,'Representation shift',size=11.5,weight='bold',ha='center')
 text(265,74,r'$\Delta=E_a-E_r$',size=12,ha='center')
 delta=np.array([.90,.28,.65,.20,.75,.32])
@@ -135,7 +128,7 @@ text(395,74,r'$G=\partial\ell/\partial E_a$',size=11.5,ha='center')
 ribbon(354,86,grad,step=14,height=23)
 
 # A visible adapted head precedes the calibration loss.
-arrow([(171,222),(182,222),(182,249),(70,249),(70,259)])
+arrow([(171,222),(182,222),(182,249),(70,249),(70,259)],GRAY)
 box(28,260,84,35,fill='#ECEBED',edge=INK,radius=3)
 lock(37,271)
 text(80,270,'CTC head',size=11.5,weight='bold',ha='center')
@@ -144,19 +137,19 @@ box(136,266,44,29,fill='#FFF1D0',edge='none',radius=2)
 text(158,273,'CTC',size=11.5,weight='bold',ha='center')
 text(158,286,'loss',size=11.5,weight='bold',ha='center')
 arrow([(112,280),(135,280)])
-text(156,249,r'$y$',size=12,ha='center');arrow([(156,255),(156,265)])
+text(156,249,r'$y$',size=12,ha='center');arrow([(156,255),(156,265)],GRAY)
 # The dashed feature gradient is available during calibration only.
-arrow([(181,281),(199,281),(199,300),(451,300),(451,118),(395,118),(395,110)],dashed=True)
+arrow([(181,281),(199,281),(199,300),(451,300),(451,118),(395,118),(395,110)],PURPLE,True)
 
 # Core idea: the same feature dimensions meet at an elementwise product hub.
-arrow([(265,110),(265,124),(318,144)])
-arrow([(395,110),(395,124),(342,144)])
+arrow([(265,110),(265,124),(318,144)],COLORS[0])
+arrow([(395,110),(395,124),(342,144)],PURPLE)
 ax.add_patch(Circle((330,146),14,facecolor='#FFFDF7',edgecolor=PURPLE,lw=1*S,zorder=5))
 text(330,146,'×',size=22,color=PURPLE,ha='center')
 text(330,174,r'$|\Delta\odot G|$',size=14,color=PURPLE,ha='center')
 ribbon(257,190,product/product.max(),step=25,height=25)
 text(330,231,'Mean over calibration frames',size=11.5,ha='center')
-arrow([(330,239),(330,250)])
+arrow([(330,239),(330,250)],PURPLE)
 for i in range(6):
     x=265+22*i
     ax.add_patch(Rectangle((x,254),17,17,facecolor=TEAL if i in selected else 'white',
@@ -170,8 +163,8 @@ text(536,58,r'Adapted $E_a$',size=12,weight='bold',ha='center')
 text(654,58,r'Reference $E_r$',size=12,weight='bold',ha='center')
 matrix(494,77,w=83,h=32,color=TEAL)
 matrix(613,77,w=83,h=32,color='#9A9FA2',hatch=True)
-arrow([(535,110),(535,132),(554,161)],outline=True)
-arrow([(654,110),(654,132),(635,161)],outline=True)
+arrow([(535,110),(535,132),(554,161)],TEAL,outline=True)
+arrow([(654,110),(654,132),(635,161)],GRAY,outline=True)
 text(510,134,'Keep',size=12,color=TEAL,weight='bold',ha='center')
 text(682,134,'Revert',size=12,color=GRAY,weight='bold',ha='center')
 box(505,158,189,46,fill='#FAFBF6',edge='#CCD2C0',radius=9)
@@ -181,7 +174,7 @@ for i in range(6):
     ax.add_patch(Rectangle((x,169),21,24,facecolor=blend(TEAL,.7) if keep else '#E1E3E3',
         edgecolor=TEAL if keep else GRAY,linewidth=.8*S,hatch=None if keep else '///',zorder=5))
     text(x+10.5,180,str(i+1),size=10,color='white' if keep else '#656B70',ha='center')
-arrow([(396,262),(464,262),(464,181),(504,181)],width=1.6)
+arrow([(396,262),(464,262),(464,181),(504,181)],TEAL,width=1.6)
 text(463,169,r'$m$',size=13,color=TEAL,ha='center')
 text(600,217,'Counterfactual features',size=12.5,weight='bold',ha='center')
 text(600,237,r'$\widetilde E_m=E_r+m\odot\Delta$',size=13,ha='center')
@@ -204,11 +197,8 @@ ax.add_patch(Rectangle((154,322),9,9,facecolor=TEAL,edgecolor=TEAL,lw=.6*S))
 text(169,327,'Keep adapted',size=11.2)
 ax.add_patch(Rectangle((279,322),9,9,facecolor='#E1E3E3',edgecolor=GRAY,hatch='///',lw=.6*S))
 text(294,327,'Restore reference',size=11.2)
-arrow([(427,327),(450,327)],dashed=True);text(456,327,'Calibration only',size=11.2)
+arrow([(427,327),(450,327)],PURPLE,True);text(456,327,'Calibration only',size=11.2)
 text(643,327,'No retraining',size=11.7,weight='bold',ha='center')
-
-for artist in [*ax.patches, *ax.lines]:
-    artist.set_linewidth(artist.get_linewidth() * STROKE_SCALE)
 
 for ext in ['pdf','svg','png']:
     kwargs={'dpi':300} if ext=='png' else {}

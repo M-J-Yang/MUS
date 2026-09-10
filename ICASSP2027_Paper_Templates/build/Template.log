@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  9 SEP 2026 22:58
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  10 SEP 2026 09:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -370,7 +370,7 @@ ta/zb/ymj/MUS/.texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
 
 ] [2 <./figures/dads_overview.pdf>] (./tables/retention.tex) [3]
-<figures/deletion_effect.pdf, id=189, 244.9953pt x 133.6995pt>
+<figures/deletion_effect.pdf, id=195, 244.9953pt x 133.6995pt>
 File: figures/deletion_effect.pdf Graphic file (type pdf)
 <use figures/deletion_effect.pdf>
 Package pdftex.def Info: figures/deletion_effect.pdf  used on input line 156.
@@ -400,7 +400,7 @@ Package rerunfilecheck Info: File `Template.out' has not changed.
 Here is how much of TeX's memory you used:
  9991 strings out of 468580
  153078 string characters out of 5444722
- 586863 words of memory out of 5000000
+ 586779 words of memory out of 5000000
  38916 multiletter control sequences out of 15000+600000
  644871 words of font info for 74 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
@@ -419,9 +419,9 @@ msbm10.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmb8a.p
 fb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></da
 ta/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></data/zb/ym
 j/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on build/Template.pdf (5 pages, 220112 bytes).
+Output written on build/Template.pdf (5 pages, 235584 bytes).
 PDF statistics:
- 289 PDF objects out of 1000 (max. 8388607)
+ 295 PDF objects out of 1000 (max. 8388607)
  233 compressed objects within 3 object streams
  58 named destinations out of 1000 (max. 500000)
  139 words of extra memory for PDF output out of 10000 (max. 10000000)
