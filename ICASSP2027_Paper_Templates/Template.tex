@@ -57,33 +57,38 @@ Our main contributions are summarized as follows:
 \section{Decision-Aligned Delta Selection}
 \label{sec:method}
 
+\subsection{Native-coordinate shift selection}
+\label{sec:native_frame}
+DADS treats fine-tuning as a shift at the final encoder--CTC interface. It has two steps: (1) score each native coordinate by its movement and adapted CTC sensitivity; and (2) retain the highest-scoring changes while restoring the remainder to the reference representation. The adapted head is fixed after fine-tuning.
 
-\subsection{Keeping some changes and undoing others}
-As shown in Fig.~\ref{fig:overview}, the reference and adapted encoders map utterance $x$ to final-layer features $E_r(x),E_a(x)\in\mathbb{R}^{T_x\times d}$, where $T_x$ is the number of output frames and $d$ is the number of native output coordinates. Their difference is
+\textbf{Learned native frame.} We call the channel basis of the final encoder representation the native frame, i.e., the learned computational interface exposed to the adapted recognition head. Let $h=E(x)$ and $z=Wh+b$. For any orthogonal matrix $Q$, the equivalent parameterization
+\begin{equation}
+ h'=Qh, \qquad W'=WQ^\top
+ \label{eq:orthogonal_interface}
+\end{equation}
+preserves the input--output computation because $W'h'+b=Wh+b$, while a change is expressed as $\Delta h'=Q\Delta h$. The basis control in Section~\ref{sec:reparam} tests whether DADS concentration follows the learned frame used by the trained recognizer. The frame is shaped jointly by the fine-tuned encoder and its readout; a learned input projection in a nonlinear decoder can absorb the same basis change before subsequent nonlinear operations.
+
+
+\subsection{Frozen-head intervention}
+As shown in Fig.~\ref{fig:overview}, the reference and adapted encoders map utterance $x$ to final-layer features $E_r(x),E_a(x)\in\mathbb{R}^{T_x\times d}$, where $T_x$ is the number of output frames and $d$ is the number of native coordinates. Their difference is
 \begin{equation}
  \Delta(x)=E_a(x)-E_r(x).
  \label{eq:shift}
 \end{equation}
 Both encoders receive the same waveform and have the same frame resolution. When the reference is the recorded initialization, $\Delta$ is the change induced by fine-tuning. We also apply the operation to a released recognizer and a separately obtained reference, as specified in Section~\ref{sec:setup}.
 
-A binary mask $m\in\{0,1\}^{d}$ retains $K$ native output coordinates of the change:
+A binary mask $m\in\{0,1\}^{d}$ retains $K$ native coordinates of the change:
 \begin{equation}
  \widetilde E_m(x)=E_r(x)+m\odot\Delta(x).
  \label{eq:mask}
 \end{equation}
-The mask is broadcast over frames. For example, retaining 50\% uses adapted values in 512 of the 1024 native coordinates and reference values in the other 512. The input to the recognition head still has 1024 coordinates. Keeping every change gives the complete adapted representation (\emph{Full}); keeping none gives the reference representation (\emph{NoShift}). A single mask is shared across all utterances.
+The mask is broadcast over frames and shared across utterances. Keeping every change gives the complete adapted representation (\emph{Full}); keeping none gives the reference representation (\emph{NoShift}).
 
-Every condition uses the adapted affine CTC head $g_a(h)=W_ah+b_a$ and greedy decoding. NoShift therefore sends reference features through this same head. This comparison asks what the \emph{adapted recognizer} needs from its feature changes. Because neither the encoder nor the head is retrained after masking, a WER difference directly records the effect of substituting the selected features. All masks are defined in the native final-layer coordinate system exposed to $W_a$, which is kept fixed across models, budgets, and interventions.
+Every condition uses the adapted affine CTC head $g_a(h)=W_ah+b_a$ and greedy decoding. NoShift therefore sends reference features through this same head. This comparison asks what the \emph{adapted recognizer} needs from its feature changes. Because neither the encoder nor the head is retrained after masking, a WER difference directly records the effect of substituting the selected features. All masks are defined in the learned native final-layer frame exposed to $W_a$, which is kept fixed across models, budgets, and interventions.
 
-At each frame, the mask changes the logits by
-\begin{equation}
- g_a(\widetilde E_{m,t})-g_a(E_{a,t})
- =W_a\bigl((m-\mathbf{1})\odot\Delta_t\bigr).
- \label{eq:logits}
-\end{equation}
-Thus, the effect of a feature change depends on how the recognition head uses its coordinate. Its magnitude alone does not account for that dependence. This motivates scoring changes with the recognition loss.
+The effect of a feature change therefore depends on how the recognition head uses its coordinate, motivating a score based on the recognition loss rather than shift magnitude alone.
 
-\subsection{Scoring changes with the CTC loss}
+\subsection{Decision-aligned scoring}
 On a labeled subset $\Du$ of the adaptation training data, we compute the loss at the complete adapted features:
 \begin{equation}
  \ell_{x,y}=\frac{1}{|y|}\mathcal{L}_{\CTC}\bigl(g_a(E_a(x)),y\bigr),
@@ -99,26 +104,24 @@ Undoing a change in native coordinate $i$ perturbs each frame by $-\Delta_{t,i}$
 \end{equation}
 where $N_u=\sum_{(x,y)\in\Du}T_x$. We take the absolute value at each frame before averaging, so positive and negative products do not cancel. Only valid frames contribute. The result is one score per native output coordinate, computed from a single pass through cached features and the fixed head.
 
-DADS keeps the $K$ native coordinates with the largest $U_i$. The score combines two requirements: a coordinate must have changed, and the recognition loss must be sensitive to that change. A small gradient reduces the score even when the change is large; a small change reduces it even when the loss is sensitive to that coordinate. The subsequent masking experiments measure the actual recognition effect of keeping or undoing groups selected by this local score.
+DADS keeps the $K$ native coordinates with the largest $U_i$. The score is high when a coordinate both moves during adaptation and affects the adapted recognition loss.
 
-For comparison, \emph{Magnitude} replaces the product in Eq.~\eqref{eq:utility} with $|\Delta_{t,i}|$, while \emph{Gradient} uses $|\partial\ell_{x,y}/\partial E_{a,t,i}|$. Both use the same valid-frame average and retain the same number of coordinates. \emph{Random} selects exactly $K$ coordinates uniformly. We also undo either the highest- or lowest-scoring quarter. Undoing the lowest quarter is the same mask as retaining the highest 75\%; undoing the highest quarter tests the opposite end of the ranking.
+For comparison, \emph{Magnitude} replaces the product in Eq.~\eqref{eq:utility} with $|\Delta_{t,i}|$, while \emph{Gradient} uses $|\partial\ell_{x,y}/\partial E_{a,t,i}|$. Both use the same valid-frame average and retain the same number of coordinates. \emph{Random} selects exactly $K$ coordinates uniformly. We also undo the highest- or lowest-scoring quarter to test the necessity of the ranking.
 
 \subsection{Rescaling retained changes}
-A mask determines where the representation changes, but also reduces the overall difference from the reference. Following the drop-and-rescale idea in DARE~\cite{yu2024dare}, we compare Random with
+A mask determines both the support and the amplitude of the representation change. Following the drop-and-rescale idea in DARE~\cite{yu2024dare}, we compare Random with
 \begin{equation}
  \widetilde E_m^{\mathrm{scaled}}=E_r+\frac{d}{K}m\odot\Delta.
  \label{eq:scale}
 \end{equation}
-The retained changes are doubled at 50\% retention and multiplied by $4/3$ at 75\%. For a uniformly sampled mask of exactly $K$ coordinates, each coordinate is retained with probability $K/d$, so the scaled difference equals $\Delta$ in expectation over masks. The same random masks are used with and without scaling.
-
-This control changes the amplitude while keeping the selected coordinates fixed. On D0, we also apply the two scales, $1$ and $d/K$, to the DADS and Magnitude rankings. Both are reported at every budget, with neither chosen from development or test results. This separates the effect of rescaling a given selection from the effect of changing its ranking.
+The retained changes are doubled at 50\% retention and multiplied by $4/3$ at 75\%. For a uniform mask, the scaled difference equals $\Delta$ in expectation, providing an amplitude control for the coordinate ranking.
 
 \section{Experimental Setup}
 \label{sec:setup}
 \subsection{Data and adapted models}
 We use L2-ARCTIC~\cite{zhao2018l2arctic} and the splits released by Thai et al.~\cite{thai2026contrastive}. Each split uses 18 speakers for training and development and six held-out speakers for testing, across the same six first-language groups. Folds~0--2 have 16,312, 16,070, and 15,953 training utterances, respectively. Development sets contain 1,867, 1,979, and 2,086 utterances; test sets contain 675, 686, and 691. The evaluation therefore measures transfer to held-out speakers within these accent groups.
 
-\emph{R0} is the released wav2vec~2.0 Large recognizer adapted to Fold~0 with CTC and supervised contrastive learning~\cite{khosla2020supcon,thai2026contrastive}. Its reference is the LibriSpeech-960h wav2vec~2.0 Large checkpoint~\cite{panayotov2015librispeech}. The released model and reference differ in feature-extractor normalization. R0 evaluates selection between these two checkpoints in their native final-layer coordinates.
+\emph{R0} is the released wav2vec~2.0 Large recognizer adapted to Fold~0 with CTC and supervised contrastive learning~\cite{khosla2020supcon,thai2026contrastive}. Its reference is the LibriSpeech-960h wav2vec~2.0 Large checkpoint~\cite{panayotov2015librispeech}. The released model and reference differ in feature-extractor normalization. R0 evaluates selection between these two checkpoints in the learned native final-layer frame.
 
 \emph{W1/W2} adapt wav2vec~2.0 Large on Folds~1/2 with CTC and supervised contrastive learning; \emph{D0} adapts data2vec Audio Large on Fold~0 with CTC. For these three models, the reference is the recorded initialization, so the differences measure fine-tuning changes. Both source models have 960~h of LibriSpeech ASR supervision. All features have $d=1024$, and every adapted head has 32 output symbols.
 
@@ -148,9 +151,9 @@ At 50\%, Gradient and Random give 50.43\% and $46.17\pm26.91\%$ WER; Random+Resc
 
 At 50\%, DADS improves over Magnitude by 0.62/0.91/0.80 points for W1/W2/D0. At 75\%, W1/W2 are within 0.22/0.08 points of Full and D0 reaches 10.96\%; Full beats NoShift throughout. Thus, much of the adaptation change can be restored with little loss.
 
-\subsection{Native-basis concentration control}
+\subsection{Native-coordinate concentration and basis control}
 \label{sec:reparam}
-DADS ranks changes at the final encoder--head interface. For orthogonal $Q$, we use the equivalent parameterization $E'=QE$, $W'_a=W_aQ^\top$, and unchanged $b_a$, so $W'_aE'+b_a=W_aE+b_a$. On R0, five random bases preserve decoded predictions and WER (8.590\% dev; 10.499\% test). Native utility mass exceeds the rotated null at every top-$K$ level (Table~\ref{tab:reparam}); top-1\% Jaccard overlap is zero and top-10\% overlap is $0.058\pm0.021$. The concentration therefore reflects alignment with the fixed native output interface used by DADS.
+DADS ranks changes at the final encoder--head interface. We use the equivalent parameterization $E'=QE$, $W'_a=W_aQ^\top$, and unchanged $b_a$ as a controlled change of coordinate frame, so $W'_aE'+b_a=W_aE+b_a$. On R0, five random bases preserve decoded predictions and WER (8.590\% dev; 10.499\% test). Native utility mass exceeds the rotated null at every top-$K$ level (Table~\ref{tab:reparam}); top-1\% Jaccard overlap is zero and top-10\% overlap is $0.058\pm0.021$. The same computation therefore exhibits a clear preference for the learned native frame: DADS concentration follows the coordinate organization established at the trained encoder--head interface.
 
 \begin{table}[t]
 \centering
@@ -208,7 +211,7 @@ With the model and head fixed, 128 calibration utterances keep DADS within 0.2 W
 
 \section{Conclusion}
 \label{sec:conclusion}
-DADS identifies decision-aligned native-coordinate shifts: CTC sensitivity selects changes that preserve recognition, while reversion confirms their unequal reliance. The equivalent-basis control ties this concentration to the fixed native output interface; scale effects depend on the retained coordinates.
+DADS identifies decision-aligned native-coordinate shifts: CTC sensitivity selects changes that preserve recognition, while reversion confirms their unequal reliance. The equivalent-basis control shows that these changes are organized in a preferred learned frame at the final encoder--CTC interface; scale effects depend on the retained coordinates.
 
 % The four technical pages end here; references begin on page five.
 \clearpage
