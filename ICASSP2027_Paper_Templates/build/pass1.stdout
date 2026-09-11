@@ -66,18 +66,14 @@ Underfull \vbox (badness 10000) has occurred while \output is active [1{/data/z
 b/ymj/MUS/.texlive/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/data/zb/ymj/M
 US/.texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}] [2 <./figures/dads_overvie
 w1_01(1).png>] (./tables/retention.tex) [3]
-(./tables/source_matched_controls.tex) (./tables/data2vec_scale_controls.tex)
-[4 <./figures/deletion_effect.pdf>] (build/Template.bbl
+(./tables/source_matched_controls.tex) [4 <./figures/deletion_effect.pdf>]
+(build/Template.bbl
 Underfull \hbox (badness 2671) in paragraph at lines 43--47
 \OT1/ptm/m/n/9 reg-u-lar-iza-tion for accent-robust ASR,'' arXiv:2605.03297,
 
 Underfull \hbox (badness 1721) in paragraph at lines 105--109
 []\OT1/ptm/m/n/9 A. Graves, S. Fern[]andez, F. Gomez, and J. Schmid-hu-
-) [5] (build/Template.aux)
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
- )
+) [5] (build/Template.aux) )
 (see the transcript file for additional information)</data/zb/ymj/MUS/.texlive/
 texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></data/zb/ymj/MUS/.texlive/
 texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex9.pfb></data/zb/ymj/MUS/.tex
@@ -93,5 +89,5 @@ ve/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></data/zb/ymj/MUS/
 /texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></data/zb/ymj/MUS/.texlive/texmf-
 dist/fonts/type1/urw/times/utmr8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fon
 ts/type1/urw/times/utmri8a.pfb>
-Output written on build/Template.pdf (5 pages, 1444130 bytes).
+Output written on build/Template.pdf (5 pages, 1445844 bytes).
 Transcript written on build/Template.log.
