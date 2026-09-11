@@ -1,0 +1,208 @@
+% ICASSP 2027 manuscript, using the supplied Template.tex and spconf.sty.
+% Canonical source; paper_draft_icassp/main.tex is a build-time delivery copy.
+\documentclass{article}
+\usepackage{spconf,amsmath,amssymb,graphicx,booktabs}
+\usepackage[hidelinks]{hyperref}
+\title{Not All Changes Matter:\\Decision-Aligned Delta Selection for Speech Recognition}
+\name{\fontsize{10}{10}\selectfont Mingjun Yang\quad Chaofan Yang\quad Jiahao Zhao\quad Bo Zhang}
+\address{School of Artificial Intelligence, Optics and Electronics (iOPEN)\\
+Northwestern Polytechnical University, Xi'an 710072, China}
+\newcommand{\CTC}{\mathrm{CTC}}
+\newcommand{\Du}{\mathcal{D}_{u}}
+\begin{document}
+\ninept
+\maketitle
+
+\begin{abstract}
+Recent studies improve speech recognition adaptation by incorporating pretrained-to-fine-tuned representation shifts with other features, but treat these changes as a whole. Whether adapted recognizers rely on all shift dimensions remains underexplored. We propose \textbf{Decision-Aligned Delta Selection (DADS)}, a task-aware framework that identifies essential representation shifts by aligning feature changes with the adapted recognizer's decision sensitivity. We find that adaptation gains are concentrated in a subset of fine-tuning-induced representation shifts rather than uniformly distributed across dimensions. A released L2-ARCTIC recognizer maintains nearly full accuracy after discarding 25\% of shifts (10.58\% vs. 10.50\% WER), and DADS preserves substantially more performance than magnitude selection when retaining only half of the shifts (11.71\% vs. 16.64\%). Further removal and rescaling analyses demonstrate that the contribution of a shift depends on both its decision relevance and retained magnitude.
+\end{abstract}
+
+\begin{keywords}
+speech recognition, self-supervised learning, model adaptation, representation analysis, feature selection
+\end{keywords}
+
+\section{Introduction}
+\label{sec:intro}
+Modern speech recognition systems increasingly rely on large-scale self-supervised speech representations, which provide strong initialization for adapting models to new speakers, accents, and domains~\cite{mohamed2022review,baevski2020wav2vec,hsu2021hubert,chen2022wavlm,baevski2022data2vec,yang2021superb}. Through supervised fine-tuning, these models acquire task-specific capabilities from limited labeled speech and achieve substantial improvements under distribution shifts~\cite{thai2026contrastive,hu2022lora,bagat2025maslora}. Adaptation reshapes the learned representation space by introducing substantial differences between pretrained and adapted representations, yet how such information is organized within the representation space remains poorly understood.
+
+Recent studies have demonstrated that differences between pretrained and adapted models contain transferable information. Task arithmetic transfers model behaviors through parameter differences, while TIES-Merging and DARE selectively manipulate such differences for model combination~\cite{ilharco2023task,yadav2023ties,yu2024dare}. Similar ideas have also been explored in automatic speech recognition through task vector algebra and selective model merging~\cite{ramesh2024taskvector,shankar2025selective}. In representation space, \emph{Mind the Shift} exploits delta embeddings, defined as the difference between pretrained and fine-tuned speech representations, to enhance child ASR; accent steering further utilizes representation differences between speech groups to control adaptation behavior~\cite{wang2026mind,sun2026activation}.
+
+% Queue the wide method figure for the next page.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/dads_overview1_01(1).png}
+\caption{Overview of DADS. (a) Shift $\Delta$ is combined with CTC sensitivity $G=\partial\ell/\partial E_a$ from the frozen adapted head. Averaging absolute elementwise products over valid training frames gives a global top-$K$ mask. (b) Selected dimensions keep adapted values; others restore reference values. The same frozen head decodes without retraining. Labels and gradients are calibration-only; feature strips schematically show corresponding dimensions.}
+\label{fig:overview}
+\end{figure*}
+
+Although existing methods vary in how representation differences are constructed and utilized, they generally treat representation shifts as a unified adaptation signal without considering how individual changes affect the adapted recognizer. Our key insight is that shift relevance changes across the representation-to-decision boundary: from feature movement in the representation space to decision sensitivity in the adapted recognizer. A large shift may have limited impact if the recognizer is insensitive to that direction, while a smaller shift can be critical when aligned with a decision-sensitive direction.
+
+Two observations support this decision-aligned view. First, fine-tuning-induced shifts exhibit highly non-uniform utility across dimensions. Under a fixed retention budget, preserving selected shifts can maintain adaptation performance, while removing different groups of the same size leads to substantially different recognition outcomes. Second, shift magnitude alone cannot explain adaptation utility. Useful shifts emerge from the interaction between representation movement and the recognizer's decision sensitivity, rather than from either factor independently.
+
+Based on these observations, we propose \textbf{Decision-Aligned Delta Selection (DADS)}, a decision-aligned pruning framework for fine-tuning-induced representation shifts. DADS first decomposes adaptation into individual shift dimensions and evaluates each dimension by measuring how its change affects the adapted CTC decision. Specifically, DADS combines shift magnitude with CTC objective sensitivity to identify decision-supporting shifts, then selectively retains informative changes while removing redundant adaptation signals. The intervention keeps the adapted CTC head and decoding fixed, so retention and reversion directly test which changes are sufficient and necessary for the existing recognizer (Fig.~\ref{fig:overview}).
+
+We evaluate DADS on L2-ARCTIC across adapted ASR models~\cite{zhao2018l2arctic} and reveal substantial redundancy in fine-tuning-induced shifts. DADS retains 98.8\% of the full adaptation gain using only 50\% of shift dimensions, achieving 11.71\% WER compared with 16.64\% for magnitude-based selection. Counterfactual reversion further shows that high-utility shifts are functionally critical, causing substantially larger degradation when removed than low-utility shifts.
+
+Our main contributions are summarized as follows:
+\begin{enumerate}
+\setlength{\itemsep}{2pt}
+\setlength{\parsep}{0pt}
+\item We identify that adaptation utility is concentrated in a decision-dependent subset of fine-tuning-induced shifts, showing why shift magnitude alone is insufficient.
+\item We align representation displacement with adapted CTC sensitivity to select decision-supporting shifts and remove redundant changes without retraining.
+\item We use frozen-head retention and reversion to establish which shifts the adapted recognizer functionally relies on and to verify the value of decision-aligned selection.
+\end{enumerate}
+
+
+
+\section{Decision-Aligned Delta Selection}
+\label{sec:method}
+
+
+\subsection{Keeping some changes and undoing others}
+As shown in Fig.~\ref{fig:overview}, the reference and adapted encoders map utterance $x$ to final-layer features $E_r(x),E_a(x)\in\mathbb{R}^{T_x\times d}$, where $T_x$ is the number of output frames and $d$ is the feature dimension. Their difference is
+\begin{equation}
+ \Delta(x)=E_a(x)-E_r(x).
+ \label{eq:shift}
+\end{equation}
+Both encoders receive the same waveform and have the same frame resolution. When the reference is the recorded initialization, $\Delta$ is the change induced by fine-tuning. We also apply the operation to a released recognizer and a separately obtained reference, as specified in Section~\ref{sec:setup}.
+
+A binary mask $m\in\{0,1\}^{d}$ retains $K$ dimensions of the change:
+\begin{equation}
+ \widetilde E_m(x)=E_r(x)+m\odot\Delta(x).
+ \label{eq:mask}
+\end{equation}
+The mask is broadcast over frames. For example, retaining 50\% uses adapted values in 512 of the 1024 dimensions and reference values in the other 512. The input to the recognition head still has 1024 dimensions. Keeping every change gives the complete adapted representation (\emph{Full}); keeping none gives the reference representation (\emph{NoShift}). A single mask is shared across all utterances.
+
+Every condition uses the adapted affine CTC head $g_a(h)=W_ah+b_a$ and greedy decoding. NoShift therefore sends reference features through this same head. This comparison asks what the \emph{adapted recognizer} needs from its feature changes. Because neither the encoder nor the head is retrained after masking, a WER difference directly records the effect of substituting the selected features.
+
+At each frame, the mask changes the logits by
+\begin{equation}
+ g_a(\widetilde E_{m,t})-g_a(E_{a,t})
+ =W_a\bigl((m-\mathbf{1})\odot\Delta_t\bigr).
+ \label{eq:logits}
+\end{equation}
+Thus, the effect of a feature change depends on how the recognition head uses its dimension. Its magnitude alone does not account for that dependence. This motivates scoring changes with the recognition loss.
+
+\subsection{Scoring changes with the CTC loss}
+On a labeled subset $\Du$ of the adaptation training data, we compute the loss at the complete adapted features:
+\begin{equation}
+ \ell_{x,y}=\frac{1}{|y|}\mathcal{L}_{\CTC}\bigl(g_a(E_a(x)),y\bigr),
+ \label{eq:loss}
+\end{equation}
+where $|y|$ is the transcript length in characters. CTC sums over valid frame-to-label alignments~\cite{graves2006ctc}; no forced alignment is required for this score. The length normalization gives each utterance a loss per target character.
+
+Undoing a change in dimension $i$ perturbs each frame by $-\Delta_{t,i}$. In a first-order approximation, its effect on the loss involves the product of the change and the corresponding gradient. Following Taylor saliency~\cite{molchanov2017pruning}, DADS aggregates the absolute products:
+\begin{equation}
+ U_i=\frac{1}{N_u}\sum_{(x,y)\in\Du}\sum_{t=1}^{T_x}
+ \left|\Delta_{t,i}(x)\frac{\partial\ell_{x,y}}{\partial E_{a,t,i}}\right|,
+ \label{eq:utility}
+\end{equation}
+where $N_u=\sum_{(x,y)\in\Du}T_x$. We take the absolute value at each frame before averaging, so positive and negative products do not cancel. Only valid frames contribute. The result is one score per feature dimension, computed from a single pass through cached features and the fixed head.
+
+DADS keeps the $K$ dimensions with the largest $U_i$. The score combines two requirements: a dimension must have changed, and the recognition loss must be sensitive to that change. A small gradient reduces the score even when the change is large; a small change reduces it even when the loss is sensitive to that dimension. The subsequent masking experiments measure the actual recognition effect of keeping or undoing groups selected by this local score.
+
+For comparison, \emph{Magnitude} replaces the product in Eq.~\eqref{eq:utility} with $|\Delta_{t,i}|$, while \emph{Gradient} uses $|\partial\ell_{x,y}/\partial E_{a,t,i}|$. Both use the same valid-frame average and retain the same number of dimensions. \emph{Random} selects exactly $K$ dimensions uniformly. We also undo either the highest- or lowest-scoring quarter. Undoing the lowest quarter is the same mask as retaining the highest 75\%; undoing the highest quarter tests the opposite end of the ranking.
+
+\subsection{Rescaling retained changes}
+A mask determines where the representation changes, but also reduces the overall difference from the reference. Following the drop-and-rescale idea in DARE~\cite{yu2024dare}, we compare Random with
+\begin{equation}
+ \widetilde E_m^{\mathrm{scaled}}=E_r+\frac{d}{K}m\odot\Delta.
+ \label{eq:scale}
+\end{equation}
+The retained changes are doubled at 50\% retention and multiplied by $4/3$ at 75\%. For a uniformly sampled mask of exactly $K$ dimensions, each dimension is retained with probability $K/d$, so the scaled difference equals $\Delta$ in expectation over masks. The same random masks are used with and without scaling.
+
+This control changes the amplitude while keeping the selected dimensions fixed. On D0, we also apply the two scales, $1$ and $d/K$, to the DADS and Magnitude rankings. Both are reported at every budget, with neither chosen from development or test results. This separates the effect of rescaling a given selection from the effect of changing its ranking.
+
+\section{Experimental Setup}
+\label{sec:setup}
+\subsection{Data and adapted models}
+We use L2-ARCTIC~\cite{zhao2018l2arctic} and the splits released by Thai et al.~\cite{thai2026contrastive}. Each split uses 18 speakers for training and development and six held-out speakers for testing, across the same six first-language groups. Folds~0--2 have 16,312, 16,070, and 15,953 training utterances, respectively. Development sets contain 1,867, 1,979, and 2,086 utterances; test sets contain 675, 686, and 691. The evaluation therefore measures transfer to held-out speakers within these accent groups.
+
+\emph{R0} is the released wav2vec~2.0 Large recognizer adapted to Fold~0 with CTC and supervised contrastive learning~\cite{khosla2020supcon,thai2026contrastive}. Its reference is the LibriSpeech-960h wav2vec~2.0 Large checkpoint~\cite{panayotov2015librispeech}. The released model and reference differ in feature-extractor normalization. R0 evaluates selection between these two checkpoints in their native feature dimensions.
+
+\emph{W1/W2} adapt wav2vec~2.0 Large on Folds~1/2 with CTC and supervised contrastive learning; \emph{D0} adapts data2vec Audio Large on Fold~0 with CTC. For these three models, the reference is the recorded initialization, so the differences measure fine-tuning changes. Both source models have 960~h of LibriSpeech ASR supervision. All features have $d=1024$, and every adapted head has 32 output symbols.
+
+The local runs warm up the head for one epoch at learning rate $3\times10^{-6}$, then jointly train at $10^{-5}$ with frozen convolutional features. Development WER selects the checkpoint within 40 epochs. W1/W2 use two GPUs, batch size 24 per GPU, a linear schedule, contrastive weight 0.05, temperature 0.1, and projection dimension 256. D0 uses batch size four on one GPU and a cosine schedule. Each model comes from one adaptation run with seed 1337. Comparisons between selection methods use the same adapted model, reference, head, and retained dimension count.
+
+\subsection{Calibration and evaluation}
+We select every tenth training utterance after sorting identifiers within each speaker, giving 1,640/1,615/1,600 calibration utterances for Folds~0/1/2. These utterances are part of the adaptation training data; their labels determine the ranking. Development and test utterances are not used to score dimensions. Final-layer features are cached in float32 from the same 16-kHz waveforms. After computing a ranking, evaluation only composes the selected features and applies the fixed head.
+
+All conditions use complete utterances and greedy CTC decoding without a language model. WER is the total word edit distance divided by the total reference word count. We report retention budgets of 25\%, 50\%, and 75\% where available, and compare high- and low-score removal at 25\%. Random results report mean and sample SD over mask seeds 1337, 2027, and 31415. These are different masks of the same model. R0 intervals use 10,000 paired utterance-bootstrap samples from the existing predictions.
+
+\subsection{Computation}
+All selection methods use the same two encoders. On an RTX~3090 with FP32 and batch size one, this takes 42.25--47.79~ms per utterance across the tested models and masks, versus 20.74--29.06~ms for the adapted encoder alone. The measurements use eight test utterances per model, five timed repeats, and exclude audio I/O and waveform preprocessing. The mask changes the features sent to the head; it leaves both encoders' computation intact. Caching allows the same encoded utterances to be reused across all selection controls.
+
+\section{Results and Analysis}
+\label{sec:results}
+\subsection{Recognition with selected changes}
+On R0, DADS retains 75\% of the changes at 10.58\% WER, close to 10.50\% for Full (Table~\ref{tab:retention}). The difference is 0.09 percentage points, with a paired 95\% interval of $[-0.21,0.38]$. At 50\%, DADS gives 11.71\%, compared with 16.64\% for Magnitude: a 29.6\% relative WER reduction. The paired difference is $-4.92$ points, with interval $[-5.72,-4.16]$.
+
+\begin{table}[t]
+\centering
+\caption{Test WER (\%) after retaining selected changes. R0 uses a separate reference checkpoint; W1/W2/D0 use their fine-tuning initialization. Full and NoShift retain all and none of the changes, respectively.}
+\label{tab:retention}
+\input{tables/retention.tex}
+\end{table}
+
+R0 also distinguishes the two ingredients of the score. At 50\%, Gradient gives 50.43\% WER, Random $46.17\pm26.91\%$, and Random+Rescale $35.87\pm25.42\%$. DADS at 11.71\% is more effective than either Magnitude or Gradient alone, and rescaling random changes does not close the gap for this checkpoint pair.
+
+The local models show smaller but consistent DADS gains over Magnitude at 50\%: 0.62, 0.91, and 0.80 points for W1, W2, and D0. At 75\%, W1/W2 remain within 0.22/0.08 points of Full, while D0 improves from 11.39\% to 10.96\%. Full also improves over NoShift in all three models. Thus, the complete fine-tuning change helps the adapted recognizer, but a quarter of its dimensions can be restored to their initialization values with little loss.
+
+\subsection{Uneven reliance on fine-tuning changes}
+A small WER change after undoing the lowest-scoring quarter could simply reflect tolerance to removing many dimensions. We therefore test the other end of the same ranking while keeping the number of changed dimensions fixed (Fig.~\ref{fig:deletion}). Undoing the top quarter increases WER by 7.10 points for W1 and 9.86 for W2; undoing the bottom quarter costs only 0.22 and 0.08 points. D0 follows the same pattern: the top quarter costs 3.25 points, whereas undoing the bottom quarter improves WER by 0.43 points.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/deletion_effect.pdf}
+\caption{WER change when the highest- or lowest-scoring quarter of fine-tuning changes is undone. Both conditions restore 256 dimensions to the reference values and use the same adapted head. Positive values mean worse recognition.}
+\label{fig:deletion}
+\end{figure}
+
+The high- and low-score interventions use the same model, head, utterances, and dimension count. Their different outcomes show that the recognizer relies much more on some groups of changes than on others. This is the sense in which the contribution of fine-tuning changes is non-uniform: it varies across final-layer feature dimensions, as measured by the recognition effect of reverting groups of them. The ranking is obtained from training utterances, while the difference remains visible on held-out speakers.
+
+Both tests retain 768 adapted dimensions and restore 256 reference dimensions. They share the middle 512 dimensions of the ranking; what changes is whether the highest or lowest 256 are retained. For W1, keeping the high-scoring group gives 15.36\% WER, while keeping the low-scoring group instead gives 22.24\%. At the same retention budget, the identity of the retained changes therefore has a substantial effect on recognition.
+
+\subsection{Interaction between selection and scale}
+The W1/W2 controls show what selection achieves before rescaling (Table~\ref{tab:sourcecontrols}). At 50\%, DADS is better than Magnitude, Gradient, and unscaled Random in both models. Yet doubling the changes retained by the same random masks reduces WER from 23.39\% to 15.64\% for W1, and from 24.20\% to 14.93\% for W2. These results are better than unscaled DADS at 16.01\% and 15.58\%. At 75\%, DADS, Magnitude, and rescaled Random are close: 15.31--15.36\% for W1 and 14.54--14.62\% for W2.
+
+\begin{table}[t]
+\centering
+\caption{W1/W2 test WER (\%) at 50\% retention. Random results are mean $\pm$ SD over three masks, reused for rescaling. Bold marks the lowest mean WER in each column.}
+\label{tab:sourcecontrols}
+\setlength{\tabcolsep}{4pt}
+\input{tables/source_matched_controls.tex}
+\end{table}
+
+D0 repeats the random-mask effect: at 50\%, rescaling lowers WER from $15.08\pm0.31\%$ to $11.95\pm0.33\%$, compared with 12.94\% for unscaled DADS. Table~\ref{tab:scale} tests whether this benefit extends to DADS and Magnitude by applying both scales with each method's selected dimensions held fixed.
+
+\begin{table}[t]
+\centering
+\caption{D0 test WER (\%) with the same two prespecified scales applied to each ranking. Bold marks the lowest WER at each budget.}
+\label{tab:scale}
+\input{tables/data2vec_scale_controls.tex}
+\end{table}
+
+At 50\%, doubling Magnitude's retained changes improves WER from 13.75\% to 12.00\%, while doubling DADS's changes worsens it from 12.94\% to 13.54\%. At 25\%, the same contrast is larger: Magnitude improves from 13.30\% to 12.72\%, while DADS worsens from 15.20\% to 18.81\%. At 75\%, neither ranking benefits from scaling, and unscaled DADS remains the strongest D0 condition at 10.96\%. Scale therefore interacts with the ranking and retention budget; the inverse-retention correction is useful for some selections but not for all of them.
+
+\subsection{Sensitivity to calibration size}
+Table~\ref{tab:calibration} varies the scoring data while fixing the model and head. With 128 utterances, DADS gives $11.11\pm0.10\%$ WER at 75\% and $13.11\pm0.13\%$ at 50\%, within 0.2 points of the full-set results (10.96\% and 12.94\%). Larger samples change WER only slightly.
+
+\begin{table}[tb]
+\centering
+\caption{D0 calibration size: test WER (\%) and overlap with the full-set top quarter. Smaller sets report mean $\pm$ SD over three subsets.}
+\label{tab:calibration}
+\setlength{\tabcolsep}{4pt}
+\input{tables/calibration_size.tex}
+\end{table}
+
+Ranking agreement improves with more data: the top quarters share 81.9\% of dimensions at 128 utterances, 91.3\% at 512, and 94.9\% at 1,024, relative to the full ranking. The similar WERs show that a small sample already gives a useful selection.
+
+\section{Conclusion}
+\label{sec:conclusion}
+DADS identifies decision-dependent shifts. CTC-sensitivity selection preserves recognition, while high-utility reversions hurt more than low-utility reversions. Scale effects depend on retained dimensions.
+
+% The four technical pages end here; references begin on page five.
+\clearpage
+\bibliographystyle{IEEEbib_initials}
+\bibliography{references}
+\end{document}

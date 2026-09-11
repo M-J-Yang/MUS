@@ -55,3 +55,43 @@ The package writes `metrics.json`, `summary.md`, and reproducible ranking files
 under:
 
 `artifacts/results/l2_arctic_official_ut8/fold0/w2v2_large_960h_oracle_shift_empirical_package/`
+
+## Equivalent orthogonal reparameterization control
+
+To test whether coordinate-wise concentration is an intrinsic property of the
+ASR function or only of the native final-layer basis, run:
+
+```bash
+CUDA_VISIBLE_DEVICES=3 DEVICE=cuda:0 NUM_WORKERS=4 \
+  bash scripts/run_l2_arctic_official_fold0_equivalent_rotation.sh
+```
+
+For each Haar-style random orthogonal matrix `Q`, the cached streams are
+transformed as `E' = Q E` and the frozen linear CTC head as `W' = W Q^T`.
+The script checks logits, greedy frame predictions, WER, and the raw CTC
+gradient relation before recomputing magnitude, gradient, and
+`abs(Delta * dL_CTC/dDelta)` coordinate scores.  It reports native-basis
+concentration against the random-rotation null and writes score tensors,
+`metrics.json`, and `summary.md` under:
+
+`artifacts/results/l2_arctic_official_ut8/fold0/w2v2_large_960h_oracle_shift_equivalent_rotation/`
+
+The control does not claim that individual dimensions are invariant.  If
+concentration changes under equivalent rotations, the result should be
+described as a property of the native parameterization; the function-level
+alternative is a rotation-stable low-dimensional adaptation subspace.
+
+### Fold0 result (2026-09-11)
+
+The five rotations (seeds 1337, 2027, 31415, 4242, and 9001) all passed the
+identity gate.  Dev/test decoded predictions and WER were unchanged (8.590%
+and 10.499%).  The largest measured logit error was `1.91e-5`, and the largest
+raw-gradient equivariance error was `9.03e-8`; one dev frame under seed 1337
+was a numerically explainable argmax tie, with no decoded prediction change.
+
+The native utility score placed `7.78%` of its mass in the top 1% coordinates,
+versus `3.37% ± 0.22%` under random rotations; at 10% the corresponding
+values were `30.30%` and `21.55% ± 0.37%`.  Native-vs-rotated Top-K Jaccard
+overlap was `0.0` at 1% and `0.058 ± 0.021` at 10%.  Thus the experiment
+supports retaining only a native-basis engineering observation, not an
+invariant claim about individually identifiable decision-critical dimensions.

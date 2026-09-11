@@ -33,6 +33,15 @@ utility:
   source_split: train_utility
   supcon_loss: forbidden
 
+controls:
+  equivalent_orthogonal_reparameterization:
+    script: scripts/evaluate_equivalent_reparameterization.py
+    transform: E_prime = Q E; W_prime = W Q^T; bias unchanged
+    rotation_distribution: Haar-style QR of a Gaussian matrix
+    score_recomputed: [magnitude, gradient, utility]
+    function_checks: [logits, greedy_predictions, WER, gradient_rotation]
+    default_seeds: [1337, 2027, 31415, 4242, 9001]
+
 retention:
   fractions: [1.0, 0.75, 0.5]
   head_retraining: forbidden
