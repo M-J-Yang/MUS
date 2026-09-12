@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  11 SEP 2026 21:52
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  11 SEP 2026 22:42
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -334,7 +334,7 @@ Package hyperref Info: Link coloring OFF on input line 12.
 \@outlinefile=\write3
 \openout3 = `Template.out'.
 
-<figures/dads_overview1_01(1).png, id=92, 1214.136pt x 481.8pt>
+<figures/dads_overview1_01(1).png, id=88, 1214.136pt x 481.8pt>
 File: figures/dads_overview1_01(1).png Graphic file (type png)
 <use figures/dads_overview1_01(1).png>
 Package pdftex.def Info: figures/dads_overview1_01(1).png  used on input line 3
@@ -367,10 +367,10 @@ ta/zb/ymj/MUS/.texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
 ] [2 <./figures/dads_overview1_01(1).png>] (./tables/retention.tex) [3]
 (./tables/source_matched_controls.tex)
-<figures/deletion_effect.pdf, id=171, 244.9953pt x 133.6995pt>
+<figures/deletion_effect.pdf, id=164, 244.9953pt x 133.6995pt>
 File: figures/deletion_effect.pdf Graphic file (type pdf)
 <use figures/deletion_effect.pdf>
-Package pdftex.def Info: figures/deletion_effect.pdf  used on input line 177.
+Package pdftex.def Info: figures/deletion_effect.pdf  used on input line 169.
 (pdftex.def)             Requested size: 244.6937pt x 133.54002pt.
  [4 <./figures/deletion_effect.pdf>]
 (build/Template.bbl
@@ -391,18 +391,17 @@ LaTeX2e <2026-06-01>
 L3 programming layer <2026-08-10>
  ***********
 Package rerunfilecheck Info: File `Template.out' has not changed.
-(rerunfilecheck)             Checksum: F3C28F636B9FB02362CD54FC8B8999C8;3681.
+(rerunfilecheck)             Checksum: 01211E80150246A7882EB4E7B559948E;3433.
  ) 
 Here is how much of TeX's memory you used:
- 9987 strings out of 468580
- 152848 string characters out of 5444722
- 587091 words of memory out of 5000000
- 38917 multiletter control sequences out of 15000+600000
- 644871 words of font info for 74 fonts, out of 8000000 for 9000
+ 9977 strings out of 468580
+ 152741 string characters out of 5444722
+ 587011 words of memory out of 5000000
+ 38912 multiletter control sequences out of 15000+600000
+ 643942 words of font info for 71 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
- 74i,10n,79p,1121b,474s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pf
-b></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cme
+ 74i,8n,79p,1077b,474s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cme
 x9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmm
 i5.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmm
 i6.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmm
@@ -415,10 +414,10 @@ msbm10.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmb8a.p
 fb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></da
 ta/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></data/zb/ym
 j/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on build/Template.pdf (5 pages, 1445844 bytes).
+Output written on build/Template.pdf (5 pages, 1434419 bytes).
 PDF statistics:
- 269 PDF objects out of 1000 (max. 8388607)
- 224 compressed objects within 3 object streams
- 59 named destinations out of 1000 (max. 500000)
- 155 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 258 PDF objects out of 1000 (max. 8388607)
+ 215 compressed objects within 3 object streams
+ 57 named destinations out of 1000 (max. 500000)
+ 147 words of extra memory for PDF output out of 10000 (max. 10000000)
 

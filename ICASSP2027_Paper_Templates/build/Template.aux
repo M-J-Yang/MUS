@@ -35,15 +35,12 @@
 \newlabel{eq:mask}{{3}{2}{Frozen-head intervention}{equation.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3} Decision-aligned scoring}{2}{subsection.2.3}\protected@file@percent }
 \newlabel{eq:loss}{{4}{2}{Decision-aligned scoring}{equation.4}{}}
-\citation{yu2024dare}
 \citation{zhao2018l2arctic}
 \citation{thai2026contrastive}
 \citation{khosla2020supcon}
 \citation{thai2026contrastive}
 \citation{panayotov2015librispeech}
 \newlabel{eq:utility}{{5}{3}{Decision-aligned scoring}{equation.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4} Rescaling retained changes}{3}{subsection.2.4}\protected@file@percent }
-\newlabel{eq:scale}{{6}{3}{Rescaling retained changes}{equation.6}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {3} Experimental Setup}{3}{section.3}\protected@file@percent }
 \newlabel{sec:setup}{{3}{3}{Experimental Setup}{section.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1} Datasets}{3}{subsection.3.1}\protected@file@percent }
@@ -53,22 +50,22 @@
 \newlabel{sec:results}{{4}{3}{Results}{section.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1} Can DADS preserve recognition with fewer changes?}{3}{subsection.4.1}\protected@file@percent }
 \newlabel{sec:retention}{{4.1}{3}{Can DADS preserve recognition with fewer changes?}{subsection.4.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Test WER (\%) after retaining selected changes. Rel.-F0 is the released wav2vec~2.0 condition; W2V2-F1/F2 and D2V-F0 are controlled conditions. Full and NoShift retain all and none of the changes, respectively.}}{4}{table.1}\protected@file@percent }
-\newlabel{tab:retention}{{1}{4}{Test WER (\%) after retaining selected changes. Rel.-F0 is the released wav2vec~2.0 condition; W2V2-F1/F2 and D2V-F0 are controlled conditions. Full and NoShift retain all and none of the changes, respectively}{table.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces W2V2-F1/F2 test WER (\%) at 50\% retention. Random results are mean $\pm $ SD over three masks, reused for rescaling. Bold marks the lowest mean WER in each column.}}{4}{table.2}\protected@file@percent }
-\newlabel{tab:sourcecontrols}{{2}{4}{W2V2-F1/F2 test WER (\%) at 50\% retention. Random results are mean $\pm $ SD over three masks, reused for rescaling. Bold marks the lowest mean WER in each column}{table.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Test WER (\%) after retaining selected changes. Rel.-F0 is the released wav2vec~2.0 condition; W2V2-F1/F2 and D2V-F0 are controlled conditions. Full and NoShift retain all and none of the changes, respectively.}}{3}{table.1}\protected@file@percent }
+\newlabel{tab:retention}{{1}{3}{Test WER (\%) after retaining selected changes. Rel.-F0 is the released wav2vec~2.0 condition; W2V2-F1/F2 and D2V-F0 are controlled conditions. Full and NoShift retain all and none of the changes, respectively}{table.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces W2V2-F1/F2 test WER (\%) at 50\% retention. Random results are mean $\pm $ SD over three masks. Bold marks the lowest mean WER in each column.}}{4}{table.2}\protected@file@percent }
+\newlabel{tab:sourcecontrols}{{2}{4}{W2V2-F1/F2 test WER (\%) at 50\% retention. Random results are mean $\pm $ SD over three masks. Bold marks the lowest mean WER in each column}{table.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces WER change when the highest- or lowest-scoring quarter of fine-tuning changes is undone. Both conditions restore 256 native coordinates to the reference values and use the same adapted head. Positive values mean worse recognition.}}{4}{figure.2}\protected@file@percent }
+\newlabel{fig:deletion}{{2}{4}{WER change when the highest- or lowest-scoring quarter of fine-tuning changes is undone. Both conditions restore 256 native coordinates to the reference values and use the same adapted head. Positive values mean worse recognition}{figure.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2} Do decision-aligned scores improve selection?}{4}{subsection.4.2}\protected@file@percent }
 \newlabel{sec:controls}{{4.2}{4}{Do decision-aligned scores improve selection?}{subsection.4.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3} Which changes does the adapted recognizer rely on?}{4}{subsection.4.3}\protected@file@percent }
 \newlabel{sec:reversion}{{4.3}{4}{Which changes does the adapted recognizer rely on?}{subsection.4.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4} Does selection follow the learned native coordinate frame?}{4}{subsection.4.4}\protected@file@percent }
 \newlabel{sec:reparam}{{4.4}{4}{Does selection follow the learned native coordinate frame?}{subsection.4.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces WER change when the highest- or lowest-scoring quarter of fine-tuning changes is undone. Both conditions restore 256 native coordinates to the reference values and use the same adapted head. Positive values mean worse recognition.}}{4}{figure.2}\protected@file@percent }
-\newlabel{fig:deletion}{{2}{4}{WER change when the highest- or lowest-scoring quarter of fine-tuning changes is undone. Both conditions restore 256 native coordinates to the reference values and use the same adapted head. Positive values mean worse recognition}{figure.2}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Rel.-F0 utility mass contained in the top native coordinates. Rotated values are mean $\pm $ SD over five equivalent orthogonal reparameterizations.}}{4}{table.3}\protected@file@percent }
 \newlabel{tab:reparam}{{3}{4}{Rel.-F0 utility mass contained in the top native coordinates. Rotated values are mean $\pm $ SD over five equivalent orthogonal reparameterizations}{table.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5} How do scale and calibration affect selection?}{4}{subsection.4.5}\protected@file@percent }
-\newlabel{sec:robustness}{{4.5}{4}{How do scale and calibration affect selection?}{subsection.4.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5} How does calibration affect selection?}{4}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:robustness}{{4.5}{4}{How does calibration affect selection?}{subsection.4.5}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5} Conclusion}{4}{section.5}\protected@file@percent }
 \newlabel{sec:conclusion}{{5}{4}{Conclusion}{section.5}{}}
 \bibstyle{IEEEbib_initials}

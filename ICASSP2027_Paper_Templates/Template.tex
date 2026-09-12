@@ -14,7 +14,7 @@ Northwestern Polytechnical University, Xi'an 710072, China}
 \maketitle
 
 \begin{abstract}
-Recent studies improve speech recognition adaptation by incorporating pretrained-to-fine-tuned representation shifts with other features, but treat these changes as a whole. Whether adapted recognizers rely on all shift coordinates remains underexplored. We propose \textbf{Decision-Aligned Delta Selection (DADS)}, a task-aware framework that identifies decision-supporting representation shifts by aligning feature changes with the adapted recognizer's decision sensitivity. We find that adaptation gains are concentrated in a subset of fine-tuning-induced representation shifts in the encoder's native output basis, rather than uniformly distributed across coordinates. A released L2-ARCTIC recognizer maintains nearly full accuracy after discarding 25\% of shifts (10.58\% vs. 10.50\% WER), and DADS preserves substantially more performance than magnitude selection when retaining only half of the shifts (11.71\% vs. 16.64\%). Further removal and rescaling analyses demonstrate that the contribution of a shift depends on both its decision relevance and retained magnitude.
+Recent studies improve speech recognition adaptation by incorporating pretrained-to-fine-tuned representation shifts with other features, but treat these changes as a whole. Whether adapted recognizers rely on all shift coordinates remains underexplored. We propose \textbf{Decision-Aligned Delta Selection (DADS)}, a task-aware framework that identifies decision-supporting representation shifts by aligning feature changes with the adapted recognizer's decision sensitivity. We find that adaptation gains are concentrated in a subset of fine-tuning-induced representation shifts in the encoder's native output basis, rather than uniformly distributed across coordinates. A released L2-ARCTIC recognizer maintains nearly full accuracy after discarding 25\% of shifts (10.58\% vs. 10.50\% WER), and DADS preserves substantially more performance than magnitude selection when retaining only half of the shifts (11.71\% vs. 16.64\% WER). Further reversion analyses show that the adapted recognizer relies unevenly on the induced shifts.
 \end{abstract}
 
 \begin{keywords}
@@ -108,14 +108,6 @@ DADS keeps the $K$ native coordinates with the largest $U_i$. The score is high 
 
 For comparison, \emph{Magnitude} replaces the product in Eq.~\eqref{eq:utility} with $|\Delta_{t,i}|$, while \emph{Gradient} uses $|\partial\ell_{x,y}/\partial E_{a,t,i}|$. Both use the same valid-frame average and retain the same number of coordinates. \emph{Random} selects exactly $K$ coordinates uniformly. We also undo the highest- or lowest-scoring quarter to test the necessity of the ranking.
 
-\subsection{Rescaling retained changes}
-A mask determines both the support and the amplitude of the representation change. Following the drop-and-rescale idea in DARE~\cite{yu2024dare}, we compare Random with
-\begin{equation}
- \widetilde E_m^{\mathrm{scaled}}=E_r+\frac{d}{K}m\odot\Delta.
- \label{eq:scale}
-\end{equation}
-The retained changes are doubled at 50\% retention and multiplied by $4/3$ at 75\%. For a uniform mask, the scaled difference equals $\Delta$ in expectation, providing an amplitude control for the coordinate ranking.
-
 \section{Experimental Setup}
 \label{sec:setup}
 \subsection{Datasets}
@@ -135,7 +127,7 @@ To keep the comparison focused on the selection rule, all methods use the same a
 
 We report retention budgets of 25\%, 50\%, and 75\% where available, and compare removal of the highest- and lowest-scoring quarters at 25\%. Random results use mask seeds 1337, 2027, and 31415 and are reported as the mean and sample standard deviation over masks of the same model. For Rel-W2V2-F0, we compute paired intervals from 10,000 utterance-bootstrap samples of the existing predictions.
 
-We therefore ask, in order: can DADS preserve recognition; does it beat matched controls; which shifts are necessary; and do native-frame, scale, and calibration analyses explain its behavior?
+We therefore ask, in order: can DADS preserve recognition; does it beat matched controls; which shifts are necessary; and do native-frame and calibration analyses explain its behavior?
 
 \section{Results}
 \label{sec:results}
@@ -143,7 +135,7 @@ We therefore ask, in order: can DADS preserve recognition; does it beat matched 
 \label{sec:retention}
 We first test the central sufficiency question: how much recognition is preserved when only a fixed fraction of the representation shift is retained? Table~\ref{tab:retention} summarizes the main retention comparison across the released and controlled conditions.
 
-\begin{table}[t]
+\begin{table}[!h]
 \centering
 \caption{Test WER (\%) after retaining selected changes. Rel.-F0 is the released wav2vec~2.0 condition; W2V2-F1/F2 and D2V-F0 are controlled conditions. Full and NoShift retain all and none of the changes, respectively.}
 \label{tab:retention}
@@ -160,13 +152,13 @@ The retention results establish that DADS can preserve recognition, but not whet
 
 \begin{table}[t]
 \centering
-\caption{W2V2-F1/F2 test WER (\%) at 50\% retention. Random results are mean $\pm$ SD over three masks, reused for rescaling. Bold marks the lowest mean WER in each column.}
+\caption{W2V2-F1/F2 test WER (\%) at 50\% retention. Random results are mean $\pm$ SD over three masks. Bold marks the lowest mean WER in each column.}
 \label{tab:sourcecontrols}
 \setlength{\tabcolsep}{4pt}
 \input{tables/source_matched_controls.tex}
 \end{table}
 
-At 50\%, DADS lowers WER relative to Magnitude, Gradient, and unscaled Random in both W2V2-F1 and W2V2-F2. Random+Rescale reaches 15.64/14.93\% WER, below DADS at 16.01/15.58\%, which shows that retained amplitude is a separate factor. This motivates the scale analysis below rather than attributing every gain to the ranking alone.
+At 50\%, DADS lowers WER relative to Magnitude, Gradient, and Random in both W2V2-F1 and W2V2-F2.
 
 \subsection{Which changes does the adapted recognizer rely on?}
 \label{sec:reversion}
@@ -202,17 +194,13 @@ Top coordinates & Native & Orthogonal rotations \\
 \end{tabular}
 \end{table}
 
-\subsection{How do scale and calibration affect selection?}
+\subsection{How does calibration affect selection?}
 \label{sec:robustness}
-The matched controls show that the support of the shift and its amplitude should be examined separately. For D2V-F0, we apply the two prespecified scales to fixed DADS and Magnitude coordinates. Rescaling the same random masks also lowers WER from $15.08\pm0.31\%$ to $11.95\pm0.33\%$ at 50\%.
-
-At 50\%, scaling Magnitude improves 13.75\% to 12.00\%, but scaling DADS worsens 12.94\% to 13.54\%; at 25\%, the effects are 13.30\% to 12.72\% and 15.20\% to 18.81\%. At 75\%, neither benefits and unscaled DADS is best (10.96\%). Scale therefore interacts with the ranking and retention budget.
-
-Finally, we vary the calibration size while fixing the model and head. With 128 utterances, DADS gives $13.11\pm0.13\%$ WER at 50\% and $11.11\pm0.10\%$ at 75\%, within 0.2 points of the full-set results (12.94\% and 10.96\%). Top-quarter overlap with the full ranking rises from 81.9\% at 128 utterances to 91.3\% at 512 and 94.9\% at 1,024, while WER remains similar. Thus, a small calibration sample is sufficient for useful selection.
+We vary the calibration size while fixing the model and head. With 128 utterances, DADS gives $13.11\pm0.13\%$ WER at 50\% and $11.11\pm0.10\%$ at 75\%, within 0.2 points of the full-set results (12.94\% and 10.96\%). Top-quarter overlap with the full ranking rises from 81.9\% at 128 utterances to 91.3\% at 512 and 94.9\% at 1,024, while WER remains similar. Thus, a small calibration sample is sufficient for useful selection.
 
 \section{Conclusion}
 \label{sec:conclusion}
-DADS identifies decision-aligned native shifts: CTC sensitivity preserves recognition, reversion confirms unequal reliance, and the native-frame/scale controls show that utility depends on the coordinate system and retained amplitude.
+DADS identifies decision-aligned native shifts: CTC sensitivity preserves recognition, reversion confirms unequal reliance, and the native-frame controls show that utility depends on the coordinate system.
 
 % The four technical pages end here; references begin on page five.
 \clearpage
