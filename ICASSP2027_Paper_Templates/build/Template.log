@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  11 SEP 2026 22:42
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  12 SEP 2026 16:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -365,15 +365,25 @@ ta/zb/ymj/MUS/.texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
 
 
-] [2 <./figures/dads_overview1_01(1).png>] (./tables/retention.tex) [3]
-(./tables/source_matched_controls.tex)
-<figures/deletion_effect.pdf, id=164, 244.9953pt x 133.6995pt>
+] [2 <./figures/dads_overview1_01(1).png>]
+Underfull \hbox (badness 1430) in paragraph at lines 117--118
+\OT1/ptm/m/n/9 con-trastive learn-ing [[], []]; its ref-er-ence is the LibriSpe
+ech-
+ []
+
+(./tables/retention.tex) (./tables/source_matched_controls.tex) [3]
+<figures/deletion_effect.pdf, id=165, 204.96237pt x 123.00165pt>
 File: figures/deletion_effect.pdf Graphic file (type pdf)
 <use figures/deletion_effect.pdf>
-Package pdftex.def Info: figures/deletion_effect.pdf  used on input line 169.
-(pdftex.def)             Requested size: 244.6937pt x 133.54002pt.
- [4 <./figures/deletion_effect.pdf>]
-(build/Template.bbl
+Package pdftex.def Info: figures/deletion_effect.pdf  used on input line 206.
+(pdftex.def)             Requested size: 244.6937pt x 146.85046pt.
+
+Underfull \hbox (badness 1365) in paragraph at lines 278--283
+[]\OT1/ptm/m/n/9 Reversion and ro-ta-tion anal-y-ses fur-ther show that the se-
+
+ []
+
+[4 <./figures/deletion_effect.pdf>] (build/Template.bbl
 Underfull \hbox (badness 2671) in paragraph at lines 43--47
 \OT1/ptm/m/n/9 reg-u-lar-iza-tion for accent-robust ASR,'' arXiv:2605.03297,
  []
@@ -391,12 +401,12 @@ LaTeX2e <2026-06-01>
 L3 programming layer <2026-08-10>
  ***********
 Package rerunfilecheck Info: File `Template.out' has not changed.
-(rerunfilecheck)             Checksum: 01211E80150246A7882EB4E7B559948E;3433.
+(rerunfilecheck)             Checksum: 3BBE78309FB9323E5866C77399C6BB2D;3514.
  ) 
 Here is how much of TeX's memory you used:
  9977 strings out of 468580
- 152741 string characters out of 5444722
- 587011 words of memory out of 5000000
+ 152739 string characters out of 5444722
+ 587084 words of memory out of 5000000
  38912 multiletter control sequences out of 15000+600000
  643942 words of font info for 71 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
@@ -414,7 +424,7 @@ msbm10.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmb8a.p
 fb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></da
 ta/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></data/zb/ym
 j/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on build/Template.pdf (5 pages, 1434419 bytes).
+Output written on build/Template.pdf (5 pages, 1431860 bytes).
 PDF statistics:
  258 PDF objects out of 1000 (max. 8388607)
  215 compressed objects within 3 object streams

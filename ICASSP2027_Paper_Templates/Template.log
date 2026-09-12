@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  11 SEP 2026 22:22
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.30)  12 SEP 2026 17:07
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -285,7 +285,7 @@ Package hyperref Info: Link coloring OFF on input line 12.
 \@outlinefile=\write3
 \openout3 = `Template.out'.
 
-<figures/dads_overview1_01(1).png, id=92, 1214.136pt x 481.8pt>
+<figures/dads_overview1_01(1).png, id=88, 1214.136pt x 481.8pt>
 File: figures/dads_overview1_01(1).png Graphic file (type png)
 <use figures/dads_overview1_01(1).png>
 Package pdftex.def Info: figures/dads_overview1_01(1).png  used on input line 33.
@@ -309,13 +309,23 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
-] [2 <./figures/dads_overview1_01(1).png>] (./tables/retention.tex) [3] (./tables/source_matched_controls.tex)
-<figures/deletion_effect.pdf, id=171, 244.9953pt x 133.6995pt>
+] [2 <./figures/dads_overview1_01(1).png>]
+Underfull \hbox (badness 1430) in paragraph at lines 117--118
+\OT1/ptm/m/n/9 con-trastive learn-ing [[], []]; its ref-er-ence is the LibriSpeech-
+ []
+
+(./tables/retention.tex) (./tables/source_matched_controls.tex) [3]
+<figures/deletion_effect.pdf, id=165, 204.96237pt x 123.00165pt>
 File: figures/deletion_effect.pdf Graphic file (type pdf)
 <use figures/deletion_effect.pdf>
-Package pdftex.def Info: figures/deletion_effect.pdf  used on input line 177.
-(pdftex.def)             Requested size: 244.6937pt x 133.54002pt.
- [4 <./figures/deletion_effect.pdf>] (./Template.bbl
+Package pdftex.def Info: figures/deletion_effect.pdf  used on input line 206.
+(pdftex.def)             Requested size: 244.6937pt x 146.85046pt.
+
+Underfull \hbox (badness 1365) in paragraph at lines 278--283
+[]\OT1/ptm/m/n/9 Reversion and ro-ta-tion anal-y-ses fur-ther show that the se-
+ []
+
+[4 <./figures/deletion_effect.pdf>] (./Template.bbl
 Underfull \hbox (badness 2671) in paragraph at lines 34--37
 \OT1/ptm/m/n/9 reg-u-lar-iza-tion for accent-robust ASR,'' arXiv:2605.03297,
  []
@@ -333,21 +343,21 @@ LaTeX2e <2026-06-01>
 L3 programming layer <2026-08-10>
  ***********
 Package rerunfilecheck Info: File `Template.out' has not changed.
-(rerunfilecheck)             Checksum: F3C28F636B9FB02362CD54FC8B8999C8;3681.
+(rerunfilecheck)             Checksum: 3BBE78309FB9323E5866C77399C6BB2D;3514.
  ) 
 Here is how much of TeX's memory you used:
- 9981 strings out of 468580
- 152853 string characters out of 5444722
- 587091 words of memory out of 5000000
- 38914 multiletter control sequences out of 15000+600000
+ 9977 strings out of 468580
+ 152801 string characters out of 5444722
+ 587084 words of memory out of 5000000
+ 38912 multiletter control sequences out of 15000+600000
  643942 words of font info for 71 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
- 74i,8n,79p,1165b,474s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 74i,8n,79p,1121b,474s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Template.pdf (5 pages, 1436727 bytes).
+Output written on Template.pdf (5 pages, 1432857 bytes).
 PDF statistics:
- 264 PDF objects out of 1000 (max. 8388607)
- 221 compressed objects within 3 object streams
- 59 named destinations out of 1000 (max. 500000)
- 155 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 258 PDF objects out of 1000 (max. 8388607)
+ 215 compressed objects within 3 object streams
+ 57 named destinations out of 1000 (max. 500000)
+ 147 words of extra memory for PDF output out of 10000 (max. 10000000)
 

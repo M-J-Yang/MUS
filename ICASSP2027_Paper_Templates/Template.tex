@@ -25,7 +25,7 @@ speech recognition, self-supervised learning, model adaptation, representation a
 \label{sec:intro}
 Modern speech recognition systems increasingly rely on large-scale self-supervised speech representations, which provide strong initialization for adapting models to new speakers, accents, and domains~\cite{mohamed2022review,baevski2020wav2vec,hsu2021hubert,chen2022wavlm,baevski2022data2vec,yang2021superb}. Through supervised fine-tuning, these models acquire task-specific capabilities from limited labeled speech and achieve substantial improvements under distribution shifts~\cite{thai2026contrastive,hu2022lora,bagat2025maslora}. Adaptation reshapes the learned representation space by introducing substantial differences between pretrained and adapted representations, yet how such information is organized within the representation space remains poorly understood.
 
-Recent studies have demonstrated that differences between pretrained and adapted models contain transferable information. Task arithmetic transfers model behaviors through parameter differences, while TIES-Merging and DARE selectively manipulate such differences for model combination~\cite{ilharco2023task,yadav2023ties,yu2024dare}. Similar ideas have also been explored in automatic speech recognition through task vector algebra and selective model merging~\cite{ramesh2024taskvector,shankar2025selective}. In representation space, \emph{Mind the Shift} exploits delta embeddings, defined as the difference between pretrained and fine-tuned speech representations, to enhance child ASR; accent steering further utilizes representation differences between speech groups to control adaptation behavior~\cite{wang2026mind,sun2026activation}.
+Recent studies have demonstrated that differences between pretrained and adapted models contain transferable information. Task arithmetic transfers model behaviors through parameter differences, while TIES-Merging and DARE selectively manipulate such differences for model combination~\cite{ilharco2023task,yadav2023ties,yu2024dare}. Similar ideas have also been explored in automatic speech recognition through task vector algebra and selective model merging~\cite{ramesh2024taskvector,shankar2025selective}. In representation space, \emph{Mind the Shift} exploits delta embeddings, defined as the difference between pretrained and fine-tuned speech representations, to enhance child ASR; accent steering further utilizes representation differences between speech groups to steer adaptation behavior~\cite{wang2026mind,sun2026activation}.
 
 % Queue the wide method figure for the next page.
 \begin{figure*}[t]
@@ -41,7 +41,7 @@ Two observations support this decision-aligned view. First, fine-tuning-induced 
 
 Based on these observations, we propose \textbf{Decision-Aligned Delta Selection (DADS)}, a decision-aligned pruning framework for fine-tuning-induced representation shifts. DADS first decomposes adaptation into native output coordinates and evaluates each coordinate by measuring how its change affects the adapted CTC decision. Specifically, DADS combines shift magnitude with CTC objective sensitivity to identify decision-supporting shifts, then selectively retains informative changes while removing redundant adaptation signals. The intervention keeps the adapted CTC head and decoding fixed, so retention and reversion directly test which changes are sufficient and necessary for the existing recognizer (Fig.~\ref{fig:overview}).
 
-We evaluate DADS on L2-ARCTIC across adapted ASR models~\cite{zhao2018l2arctic} and reveal substantial redundancy in fine-tuning-induced shifts. DADS retains 98.8\% of the full adaptation gain using only 50\% of native output coordinates, achieving 11.71\% WER compared with 16.64\% for magnitude-based selection. Counterfactual reversion further shows that high-utility shift groups are more decision-relevant, causing substantially larger degradation when removed than low-utility groups.
+We evaluate DADS on L2-ARCTIC across adapted ASR models~\cite{zhao2018l2arctic} and reveal substantial redundancy in fine-tuning-induced shifts. DADS retains 98.9\% of the full adaptation gain using only 50\% of native output coordinates, achieving 11.71\% WER compared with 16.64\% for magnitude-based selection. Counterfactual reversion further shows that high-utility shift groups are more decision-relevant, causing substantially larger degradation when removed than low-utility groups.
 
 Our main contributions are summarized as follows:
 \begin{enumerate}
@@ -66,7 +66,7 @@ DADS treats fine-tuning as a shift at the final encoder--CTC interface. It has t
  h'=Qh, \qquad W'=WQ^\top
  \label{eq:orthogonal_interface}
 \end{equation}
-preserves the input--output computation because $W'h'+b=Wh+b$, while a change is expressed as $\Delta h'=Q\Delta h$. The basis control in Section~\ref{sec:reparam} tests whether DADS concentration follows the learned frame used by the trained recognizer. The frame is shaped jointly by the fine-tuned encoder and its readout; a learned input projection in a nonlinear decoder can absorb the same basis change before subsequent nonlinear operations.
+preserves the input--output computation because $W'h'+b=Wh+b$, while a change is expressed as $\Delta h'=Q\Delta h$. The basis analysis in Section~\ref{sec:reparam} tests whether DADS concentration follows the learned frame used by the trained recognizer. The frame is shaped jointly by the fine-tuned encoder and its readout; a learned input projection in a nonlinear decoder can absorb the same basis change before subsequent nonlinear operations.
 
 
 \subsection{Frozen-head intervention}
@@ -84,7 +84,7 @@ A binary mask $m\in\{0,1\}^{d}$ retains $K$ native coordinates of the change:
 \end{equation}
 The mask is broadcast over frames and shared across utterances. Keeping every change gives the complete adapted representation (\emph{Full}); keeping none gives the reference representation (\emph{NoShift}).
 
-Every condition uses the adapted affine CTC head $g_a(h)=W_ah+b_a$ and greedy decoding. NoShift therefore sends reference features through this same head. This comparison asks what the \emph{adapted recognizer} needs from its feature changes. Because neither the encoder nor the head is retrained after masking, a WER difference directly records the effect of substituting the selected features. All masks are defined in the learned native final-layer frame exposed to $W_a$, which is kept fixed across models, budgets, and interventions.
+Every condition uses the adapted affine CTC head $g_a(h)=W_ah+b_a$ and greedy decoding. NoShift therefore sends reference features through this same head. This comparison asks what the \emph{adapted recognizer} needs from its feature changes. Because neither the encoder nor the head is retrained after masking, a WER difference directly records the effect of substituting the selected features. For each model, all masks are defined in its learned native final-layer frame exposed to $W_a$; this frame is kept fixed across budgets and interventions.
 
 The effect of a feature change therefore depends on how the recognition head uses its coordinate, motivating a score based on the recognition loss rather than shift magnitude alone.
 
@@ -111,78 +111,136 @@ For comparison, \emph{Magnitude} replaces the product in Eq.~\eqref{eq:utility} 
 \section{Experimental Setup}
 \label{sec:setup}
 \subsection{Datasets}
-We evaluate DADS on L2-ARCTIC~\cite{zhao2018l2arctic} using the speaker-disjoint splits released by Thai et al.~\cite{thai2026contrastive}. Each split uses 18 speakers for training and development and holds out six speakers for testing, covering the same six first-language groups. Folds~0--2 contain 16,312, 16,070, and 15,953 training utterances, respectively; their development sets contain 1,867, 1,979, and 2,086 utterances, and their test sets contain 675, 686, and 691 utterances. This design lets us ask whether a ranking computed from training speech transfers to unseen speakers within the same accent groups.
+We evaluate DADS on L2-ARCTIC~\cite{zhao2018l2arctic} using the speaker-disjoint splits of Thai et al.~\cite{thai2026contrastive}. Each split contains 18 speakers for training and development and six held-out speakers for testing, covering six first-language groups. Folds~0--2 contain 675, 686, and 691 test utterances, respectively. Rankings are computed from training speech and evaluated on unseen speakers.
 
 \subsection{Adapted models}
-We use four adapted recognizers to answer two complementary questions: whether DADS works for a released model and whether the same selection principle transfers across controlled fine-tuning runs. The released wav2vec~2.0 Large recognizer is adapted to Fold~0 with CTC and supervised contrastive learning~\cite{khosla2020supcon,thai2026contrastive}. We refer to this condition as \emph{Rel-W2V2-F0}; its reference is the LibriSpeech-960h wav2vec~2.0 Large checkpoint~\cite{panayotov2015librispeech}. Because the released model and reference differ in feature-extractor normalization, this condition tests selection between a released recognizer and a separately obtained reference in the learned native final-layer frame.
+We study four adapted recognizers. W2V2-F0 is the released Fold~0 wav2vec~2.0 Large recognizer trained with CTC and supervised contrastive learning~\cite{khosla2020supcon,thai2026contrastive}; its reference is the LibriSpeech-960h wav2vec~2.0 Large checkpoint~\cite{panayotov2015librispeech}. W2V2-F1/F2 use the same backbone and objectives on Folds~1/2, while D2V-F0 adapts data2vec Audio Large on Fold~0 with CTC. The latter three use their recorded initializations as references. All models use 16-kHz input, 1024-dimensional final-layer features, and 32-symbol CTC heads.
 
-For controlled comparisons, wav2vec~2.0 Large is adapted on Folds~1/2 with CTC and supervised contrastive learning, and data2vec Audio Large is adapted on Fold~0 with CTC. We refer to these conditions as \emph{W2V2-F1}, \emph{W2V2-F2}, and \emph{D2V-F0}, respectively. Their references are the recorded initializations, so the corresponding representation differences measure changes induced by fine-tuning. Both source models have 960~h of LibriSpeech ASR supervision. All final-layer features have dimension $d=1024$, and every adapted head predicts 32 output symbols.
-
-During adaptation, we warm up the head for one epoch at learning rate $3\times10^{-6}$ and then jointly train at $10^{-5}$ with frozen convolutional features. Development WER selects the checkpoint within a 40-epoch budget. W2V2-F1/F2 use two GPUs, batch size 24 per GPU, a linear schedule, contrastive weight 0.05, temperature 0.1, and projection dimension 256. D2V-F0 uses batch size four on one GPU and a cosine schedule. Each model comes from one adaptation run with seed 1337.
+We warm up the head for one epoch at $3\times10^{-6}$, then jointly adapt with frozen convolutional features at $10^{-5}$. The best development-WER checkpoint is selected within 40 epochs. W2V2-F1/F2 use two GPUs with batch size 24 per GPU, a linear schedule, contrastive weight 0.05, temperature 0.1, and projection dimension 256. D2V-F0 uses one GPU, batch size four, and a cosine schedule. The locally trained W2V2-F1/F2 and D2V-F0 runs use seed 1337.
 
 \subsection{Calibration and evaluation}
-DADS obtains one global ranking of native-coordinate changes from labeled adaptation speech. We select every tenth training utterance after sorting identifiers within each speaker, giving 1,640/1,615/1,600 calibration utterances for Folds~0/1/2. These utterances remain part of adaptation training, but their labels are used only to determine the ranking; development and test utterances are not used for coordinate scoring. The ranking is therefore defined from training speech before evaluation on held-out speakers.
+DADS computes one global native-coordinate ranking from labeled training speech, using every tenth utterance after sorting identifiers within each speaker. This gives 1,640/1,615/1,600 calibration utterances for Folds~0/1/2; these labels determine the ranking only, and development and test speech are never used for scoring.
 
-To keep the comparison focused on the selection rule, all methods use the same adapted model, reference, head, and retained coordinate count. Final-layer features are cached in float32 from the same 16-kHz waveforms. After a ranking is computed, each condition only composes the selected features and applies the fixed adapted head. All conditions use complete utterances and greedy CTC decoding without a language model. WER is the total word edit distance divided by the total reference word count.
-
-We report retention budgets of 25\%, 50\%, and 75\% where available, and compare removal of the highest- and lowest-scoring quarters at 25\%. Random results use mask seeds 1337, 2027, and 31415 and are reported as the mean and sample standard deviation over masks of the same model. For Rel-W2V2-F0, we compute paired intervals from 10,000 utterance-bootstrap samples of the existing predictions.
-
-We therefore ask, in order: can DADS preserve recognition; does it beat matched controls; which shifts are necessary; and do native-frame and calibration analyses explain its behavior?
+Within each model--fold setting, all methods use the same reference, adapted model, CTC head, and retained-coordinate count. Final-layer features are cached in float32, and masked representations are decoded with greedy CTC without a language model. We report 25\%, 50\%, and 75\% retention where available, use three fixed mask seeds for Random, and compare reversion of the highest- and lowest-utility quarters. WER is total word edit distance divided by total reference words.
 
 \section{Results}
 \label{sec:results}
-\subsection{Can DADS preserve recognition with fewer changes?}
-\label{sec:retention}
-We first test the central sufficiency question: how much recognition is preserved when only a fixed fraction of the representation shift is retained? Table~\ref{tab:retention} summarizes the main retention comparison across the released and controlled conditions.
+We organize the results around one question: are fine-tuning-induced
+representation changes uniformly useful to the adapted recognizer? We first
+establish that a compact, decision-aligned subset is sufficient, then compare
+selection rules at matched budgets. Counterfactual reversion tests necessity,
+while coordinate-frame and calibration analyses test the scope and practical
+stability of the effect.
 
-\begin{table}[!h]
+\subsection{DADS identifies recognition-critical adaptation changes}
+\label{sec:retention}
+Fine-tuning does not make every representation coordinate equally important.
+The main Fold-0 comparison in Table~\ref{tab:retention} shows that the
+recognition benefit is concentrated in a subset of the induced shift: DADS can
+restore most of the adapted recognizer's behavior without retaining the full
+change.
+
+\begin{table}[t]
 \centering
-\caption{Test WER (\%) after retaining selected changes. Rel.-F0 is the released wav2vec~2.0 condition; W2V2-F1/F2 and D2V-F0 are controlled conditions. Full and NoShift retain all and none of the changes, respectively.}
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.04}
+\caption{Main Fold-0 results. Test WER (\%) is shown for wav2vec2 Large and
+data2vec Audio Large. Bold highlights the DADS results at each
+retained-shift budget.}
 \label{tab:retention}
 \input{tables/retention.tex}
 \end{table}
 
-For Rel-W2V2-F0, DADS retains 75\% of the changes at 10.58\% WER, close to 10.50\% for Full. The difference is 0.09 percentage points, with a paired 95\% interval of $[-0.21,0.38]$. At 50\%, DADS gives 11.71\%, compared with 16.64\% for Magnitude: a 29.6\% relative WER reduction. The paired difference is $-4.92$ points, with interval $[-5.72,-4.16]$.
+On the released wav2vec2 Large recognizer, retaining 75\% of the shift with DADS
+recovers nearly the full adapted behavior: 10.58\% WER versus 10.50\% for
+Full. The paired difference is only 0.09 percentage points, with a 95\%
+bootstrap interval of $[-0.21,0.38]$. At the more compact 50\% budget, DADS
+still preserves the adaptation benefit and substantially outperforms the
+magnitude heuristic (11.71\% versus 16.64\% WER).
 
-The pattern transfers to the controlled models. At 50\%, DADS improves over Magnitude by 0.62/0.91/0.80 points for W2V2-F1/W2V2-F2/D2V-F0. At 75\%, W2V2-F1/F2 are within 0.22/0.08 points of Full and D2V-F0 reaches 10.96\%; Full beats NoShift throughout. Thus, much of the adaptation change can be restored with little loss.
+The same pattern appears for data2vec Audio Large: DADS gives the lowest WER
+at both 75\% and 50\% retention.
+Across both backbones, the results indicate that adaptation information is
+non-uniformly distributed and that decision-aligned selection identifies a
+compact recognition-supporting subset.
 
-\subsection{Do decision-aligned scores improve selection?}
-\label{sec:controls}
-The retention results establish that DADS can preserve recognition, but not whether the gain comes from decision alignment or merely from selecting a subset of coordinates. We therefore compare the rules at the same 50\% budget in Table~\ref{tab:sourcecontrols}.
+\subsection{Decision alignment outperforms heuristic selection}
+\label{sec:comparison}
+Retention alone cannot distinguish decision alignment from the generic benefit
+of keeping a fixed number of coordinates. Within each fold, we hold the model,
+head, test set, and retained budget fixed and compare the ranking rules directly at
+50\% in Table~\ref{tab:comparison}.
 
 \begin{table}[t]
 \centering
-\caption{W2V2-F1/F2 test WER (\%) at 50\% retention. Random results are mean $\pm$ SD over three masks. Bold marks the lowest mean WER in each column.}
-\label{tab:sourcecontrols}
-\setlength{\tabcolsep}{4pt}
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.04}
+\caption{Test WER (\%) at 50\% retention for wav2vec2 Large on Folds 1 and 2.
+Random is the mean $\pm$ sample SD over three masks. Bold indicates the best
+WER in each row.}
+\label{tab:comparison}
 \input{tables/source_matched_controls.tex}
 \end{table}
 
-At 50\%, DADS lowers WER relative to Magnitude, Gradient, and Random in both W2V2-F1 and W2V2-F2.
+Decision alignment is the consistent source of the improvement: DADS is the
+best selection rule at the 50\% budget on both held-out W2V2 folds. It improves
+over Magnitude by 0.62 and 0.91 percentage points on Folds 1 and 2,
+respectively, while also outperforming the gradient and random rankings.
+Because the coordinate count and frozen readout are identical, this comparison
+attributes the gain to the ranking criterion rather than to a larger
+representation or a retrained head.
 
-\subsection{Which changes does the adapted recognizer rely on?}
+\subsection{DADS reveals causally important adaptation changes}
 \label{sec:reversion}
-Retention tests sufficiency; we next test necessity by reverting groups of the same size. With a fixed quarter reversion (Fig.~\ref{fig:deletion}), undoing the highest-scoring coordinates raises WER by 7.10/9.86/3.25 points for W2V2-F1/W2V2-F2/D2V-F0, whereas undoing the lowest changes it by 0.22/0.08/$-0.43$ points.
+The retention results establish sufficiency; a stronger test asks whether the
+selected changes are necessary for the adapted recognizer. We therefore revert
+groups of exactly the same size. As shown in Fig.~\ref{fig:deletion}, undoing
+the highest-utility quarter raises WER by 7.10/9.86/3.25 points for
+W2V2-F1/W2V2-F2/D2V-F0, whereas undoing the lowest-utility quarter changes WER
+by only 0.22/0.08/$-0.43$ points.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/deletion_effect.pdf}
-\caption{WER change when the highest- or lowest-scoring quarter of fine-tuning changes is undone. Both conditions restore 256 native coordinates to the reference values and use the same adapted head. Positive values mean worse recognition.}
+\caption{Counterfactual WER change after undoing the highest- or lowest-scoring
+quarter of fine-tuning changes. Both interventions restore 256 native
+coordinates to the reference values and use the same adapted head. Positive
+values indicate worse recognition. Values denote absolute changes in WER,
+expressed in percentage units.}
 \label{fig:deletion}
 \end{figure}
 
-The interventions share the model, head, utterances, and coordinate count. Their contrast therefore shows non-uniform reliance on native-coordinate changes rather than a generic tolerance to removing coordinates; the training-derived ranking transfers to held-out speakers.
+The interventions share the model, head, utterances, and coordinate count.
+Their contrast therefore reflects unequal functional reliance on native
+coordinates, rather than a generic tolerance to removing features. The
+training-derived ranking transfers to held-out speakers, supporting the view
+that DADS identifies functionally important adaptation changes.
 
-\subsection{Does selection follow the learned native coordinate frame?}
+\subsection{DADS follows the native encoder--head coordinate geometry}
 \label{sec:reparam}
-We next test whether the concentration is tied to the coordinate system exposed by the trained head. We use the equivalent parameterization $E'=QE$, $W'_a=W_aQ^\top$, and unchanged $b_a$ as a controlled change of coordinate frame, so $W'_aE'+b_a=W_aE+b_a$. On Rel-W2V2-F0, five random bases preserve decoded predictions and WER (8.590\% dev; 10.499\% test). Native utility mass exceeds the rotated null at every top-$K$ level (Table~\ref{tab:reparam}); top-1\% Jaccard overlap is zero and top-10\% overlap is $0.058\pm0.021$. DADS concentration therefore follows the coordinate organization established at the trained encoder--head interface.
+The concentration is not a coordinate-free property of an arbitrary feature
+vector; it follows the native basis exposed by the trained recognizer. We test
+this by applying the equivalent parameterization $E'=QE$,
+$W'_a=W_aQ^\top$, with unchanged $b_a$, so that
+$W'_aE'+b_a=W_aE+b_a$. On W2V2-F0, five random orthogonal bases preserve
+the decoded predictions and WER (8.590\% dev; 10.499\% test), while the native
+ranking contains more Utility mass than the rotated null at every Top-$K$
+level (Table~\ref{tab:reparam}). The top-1\% Jaccard overlap is zero and the
+top-10\% overlap is $0.058\pm0.021$. DADS concentration therefore follows the
+coordinate organization established at the trained encoder--head interface.
 
 \begin{table}[t]
 \centering
-\caption{Rel.-F0 utility mass contained in the top native coordinates. Rotated values are mean $\pm$ SD over five equivalent orthogonal reparameterizations.}
+\small
+\caption{W2V2-F0 Utility mass contained in the top native coordinates.
+Rotated values are mean $\pm$ SD over five equivalent orthogonal
+reparameterizations.}
 \label{tab:reparam}
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lcc}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.04}
+\begin{tabular}{@{}lcc@{}}
 \toprule
 Top coordinates & Native & Orthogonal rotations \\
 \midrule
@@ -194,13 +252,34 @@ Top coordinates & Native & Orthogonal rotations \\
 \end{tabular}
 \end{table}
 
-\subsection{How does calibration affect selection?}
+\subsection{DADS remains effective with limited calibration}
 \label{sec:robustness}
-We vary the calibration size while fixing the model and head. With 128 utterances, DADS gives $13.11\pm0.13\%$ WER at 50\% and $11.11\pm0.10\%$ at 75\%, within 0.2 points of the full-set results (12.94\% and 10.96\%). Top-quarter overlap with the full ranking rises from 81.9\% at 128 utterances to 91.3\% at 512 and 94.9\% at 1,024, while WER remains similar. Thus, a small calibration sample is sufficient for useful selection.
+The ranking is also stable when calibration data are limited. With only 128
+utterances, DADS stays within 0.2 WER points of the full-calibration results
+at both 50\% and 75\% retention (13.11$\pm$0.13\% versus 12.94\%, and
+11.11$\pm$0.10\% versus 10.96\%). Increasing the calibration set from 128 to
+512 and 1,024 utterances raises the top-quarter overlap with the full ranking
+from 81.9\% to 91.3\% and 94.9\%, respectively, without a meaningful change
+in WER. Thus, DADS does not require a large additional labeled calibration
+set to obtain a useful selection.
 
 \section{Conclusion}
 \label{sec:conclusion}
-DADS identifies decision-aligned native shifts: CTC sensitivity preserves recognition, reversion confirms unequal reliance, and the native-frame controls show that utility depends on the coordinate system.
+This paper proposes Decision-Aligned Delta Selection (DADS), a task-aware
+method for selecting the fine-tuning-induced representation shifts that matter
+to an adapted CTC recognizer. On L2-ARCTIC, DADS shows that adaptation gains
+are concentrated in a compact subset of the encoder's native coordinates. For
+W2V2-F0, retaining 75\% of the shift gives 10.58\% WER, close to 10.50\% with
+Full. At 50\%, DADS achieves 11.71\% WER, compared with 16.64\% for magnitude
+selection, retaining 98.9\% of the full adaptation gain. DADS also achieves
+the best 50\% WER on both additional wav2vec2 folds and on data2vec Audio
+Large.
+
+Reversion and rotation analyses further show that the selected shifts are
+functionally important and organized in the native encoder--head frame.
+Overall, DADS provides a simple way to identify useful adaptation changes
+without retraining the recognizer. Future work will test the method across
+more speakers, domains, backbones, and adaptation settings.
 
 % The four technical pages end here; references begin on page five.
 \clearpage

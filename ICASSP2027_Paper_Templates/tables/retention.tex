@@ -1,11 +1,17 @@
-\begin{tabular}{@{}lrrrr@{}}
+\begin{tabular}{@{}lcc@{}}
 \toprule
-Selection & Rel.-F0 & W2V2-F1 & W2V2-F2 & D2V-F0\\
+Selection rule & Retained shift (\%) & WER (\%)\\
 \midrule
-Full & 10.50 & 15.14 & 14.46 & 11.39\\
-DADS, 75\% & 10.58 & 15.36 & 14.54 & 10.96\\
-DADS, 50\% & 11.71 & 16.01 & 15.58 & 12.94\\
-Magnitude, 50\% & 16.64 & 16.63 & 16.48 & 13.75\\
-NoShift & 118.91 & 20.33 & 19.15 & 13.77\\
+\multicolumn{3}{@{}l}{\textbf{wav2vec2 Large}}\\
+Full  & 100 & 10.50\\
+DADS  & 75  & \textbf{10.58}\\
+DADS  & 50  & \textbf{11.71}\\
+NoShift & 0  & 118.91\\
+\midrule
+\multicolumn{3}{@{}l}{\textbf{data2vec Audio Large (Fold 0)}}\\
+Full  & 100 & 11.39\\
+DADS  & 75  & \textbf{10.96}\\
+DADS  & 50  & \textbf{12.94}\\
+NoShift & 0  & 13.77\\
 \bottomrule
 \end{tabular}

@@ -65,9 +65,15 @@ Underfull \hbox (badness 1466) in paragraph at lines 50--51
 Underfull \vbox (badness 10000) has occurred while \output is active [1{/data/z
 b/ymj/MUS/.texlive/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/data/zb/ymj/M
 US/.texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}] [2 <./figures/dads_overvie
-w1_01(1).png>] (./tables/retention.tex) [3]
-(./tables/source_matched_controls.tex) [4 <./figures/deletion_effect.pdf>]
-(build/Template.bbl
+w1_01(1).png>]
+Underfull \hbox (badness 1430) in paragraph at lines 117--118
+\OT1/ptm/m/n/9 con-trastive learn-ing [[], []]; its ref-er-ence is the LibriSpe
+ech-
+(./tables/retention.tex) (./tables/source_matched_controls.tex) [3]
+Underfull \hbox (badness 1365) in paragraph at lines 278--283
+[]\OT1/ptm/m/n/9 Reversion and ro-ta-tion anal-y-ses fur-ther show that the se-
+
+[4 <./figures/deletion_effect.pdf>] (build/Template.bbl
 Underfull \hbox (badness 2671) in paragraph at lines 43--47
 \OT1/ptm/m/n/9 reg-u-lar-iza-tion for accent-robust ASR,'' arXiv:2605.03297,
 
@@ -88,5 +94,5 @@ ve/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></data/zb/ymj/MUS/
 /texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></data/zb/ymj/MUS/.texlive/texmf-
 dist/fonts/type1/urw/times/utmr8a.pfb></data/zb/ymj/MUS/.texlive/texmf-dist/fon
 ts/type1/urw/times/utmri8a.pfb>
-Output written on build/Template.pdf (5 pages, 1434419 bytes).
+Output written on build/Template.pdf (5 pages, 1431860 bytes).
 Transcript written on build/Template.log.

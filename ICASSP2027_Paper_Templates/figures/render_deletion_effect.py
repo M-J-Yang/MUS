@@ -28,8 +28,8 @@ def main() -> None:
         "pdf.fonttype": 42,
     })
 
-    fig, ax = plt.subplots(figsize=(244.08 / 72, 133.2 / 72))
-    fig.subplots_adjust(left=0.30, right=0.99, bottom=0.25, top=0.82)
+    fig, ax = plt.subplots(figsize=(244.08 / 72, 145 / 72))
+    fig.subplots_adjust(left=0.31, right=0.93, bottom=0.29, top=0.80)
 
     height = 0.22
     ax.barh(
@@ -63,9 +63,9 @@ def main() -> None:
     ax.set_yticks(y)
     ax.set_yticklabels(labels)
     ax.invert_yaxis()
-    ax.set_xlim(-0.7, 11.7)
+    ax.set_xlim(-0.7, 11.8)
     ax.set_xticks([0, 3, 6, 9])
-    ax.set_xlabel("WER change (percentage points)")
+    ax.set_xlabel("Absolute WER change (%)")
     ax.grid(axis="x", color="#d9dde0", linewidth=0.6)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
@@ -84,7 +84,7 @@ def main() -> None:
         borderaxespad=0,
     )
 
-    fig.savefig(OUT, format="pdf")
+    fig.savefig(OUT, format="pdf", bbox_inches="tight", pad_inches=0.04)
     plt.close(fig)
 
 
